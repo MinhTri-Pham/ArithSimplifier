@@ -116,7 +116,7 @@ object ArithExpr {
     case Cst(c) => c
     case v: Var => v.cstMult * findSubstitute(v, subs)
     case Sum(terms) => terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
-    case Prod(terms) => terms.foldLeft(1) { (accumulated, term) => accumulated + evaluate(term, subs)}
+    case Prod(terms) => terms.foldLeft(1) { (accumulated, term) => accumulated * evaluate(term, subs)}
   }
 
   private def findSubstitute(variable: Var, replacements : scala.collection.Map[Var, Cst]) : Int = {
