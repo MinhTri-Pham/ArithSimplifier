@@ -4,6 +4,7 @@ object SimplifySum {
   def apply(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = addExprs(lhs, rhs)
 
   // Adds two expressions
+  // To Do: Cases which involve Prod as terms
   def addExprs(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = {
     // Extract and canonically sort terms of both sides and merge
     val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
@@ -47,9 +48,8 @@ object SimplifySum {
       j+=1
     }
     // Make adjustment for possible Cst(0) terms in the result
-    removeReduntant(merged.toList)
+    convert(merged.toList)
   }
-
 
   // Tries to combine a pair of terms
   def combineTerms(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
@@ -57,15 +57,15 @@ object SimplifySum {
     case (Cst(0), _) => Some(rhs)
     case (_, Cst(0)) => Some(lhs)
     case (x:Var, y:Var) =>
-      if (x == y)  Some(Var(x.cstMult + y.cstMult,x.name, Some(x.id)))
+      if (x == y)  Some(x.copy(x.cstMult + y.cstMult))
       else None
-    case (_,_) => None
+    case _ => None
   }
 
+  // Given list of terms, determine resulting expression
   // Remove unnecessary zero terms that could arise from combining terms
-  // Convert to a different type if only one term left
   // I.e. Sum(0,Var(1,a),Var(2,b)) -> Sum(Var(1,a),Var(2,b)) but Sum(0,Var(2,a)) -> Var(2,a)
-  def removeReduntant(terms: List[ArithExpr]): ArithExpr = {
+  def convert(terms: List[ArithExpr]): ArithExpr = {
     val nonZero = terms.filter(_ != Cst(0))
     if (nonZero.isEmpty) Cst(0) // Eliminated everything, so result is 0
     else if (nonZero.length == 1) nonZero.head // Result is a Var or Cst

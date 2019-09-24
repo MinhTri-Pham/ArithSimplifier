@@ -4,6 +4,9 @@ abstract sealed class ArithExpr {
   // Addition operator
   def +(that: ArithExpr) : ArithExpr = SimplifySum(this, that)
 
+  // Subtraction operator
+  def -(that : ArithExpr) : ArithExpr = SimplifySum(this, Cst(-1)*that)
+
   // Multiply operator
   def *(that: ArithExpr) : ArithExpr = SimplifyProd(this, that)
 
@@ -28,16 +31,30 @@ case class Cst(value : Int) extends ArithExpr {
 }
 
 // Class for variables
-// Includes a scalar multiple
-case class Var (cstMult : Int, name : String, val fixedId: Option[Long] = None) extends ArithExpr {
+case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
 
   override def getTermsFactors: List[ArithExpr] = List[ArithExpr](this)
+
+  var cstMult = 1 // Scalar multiplicity (useful for summing)
 
   val id: Long = {
     if (fixedId.isDefined)
       fixedId.get
     else {
       Var.incCnt
+    }
+  }
+
+  // Convert variable to product of multiplicity constant and variable (with mult. 1)
+  lazy val asProd : Prod = Prod(List[ArithExpr](Cst(cstMult), this.copy(1)))
+
+  // Make copy with different multiplicity (
+  def copy(mult : Int): ArithExpr = {
+    if (mult == 0) Cst(0)
+    else {
+      val v = new Var(name,Some(this.id))
+      v.cstMult = mult
+      v
     }
   }
 
@@ -68,21 +85,12 @@ object Var {
       _id
   }
 
-  // If the constant multiple is 0, convert to Cst(0) immediately
-  def apply(cstMult: Int, name: String): ArithExpr = cstMult match {
-    case 0 => Cst(0)
-    case _ => new Var(cstMult, name)
-  }
+  def apply(name: String): Var = new Var(name)
 
-  // If the constant multiple is 0, convert to Cst(0) immediately
-  def apply(cstMult: Int, name: String, fixedId: Option[Long]): ArithExpr = cstMult match {
-    case 0 => Cst(0)
-    case _ => new Var(cstMult, name, fixedId)
-  }
-
+  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, fixedId)
 }
 
-// Class for Sums
+// Class for sums
 case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   override def getTermsFactors: List[ArithExpr] = terms
@@ -90,11 +98,22 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
   override def toString: String = s"(${terms.mkString(" + ")})"
 }
 
+// Class for products
 case class Prod(factors: List[ArithExpr]) extends ArithExpr {
+
   override def getTermsFactors: List[ArithExpr] = factors
+
+//  // Converts product of constant and variable to a single variable with appropriate multiplicity
+//  lazy val asVar : Option[Var] = if (factors.length != 2) None else{
+//    (factors(1), factors(2)) match {
+//      case (c: Cst, v: Var) => Some(v.copy(c.value))
+//      case (v: Var, c: Cst) => Some(v.copy(c.value))
+//      case _ => None
+//    }
+//  }
+
   override def toString: String = factors.mkString(" * ")
 }
-
 
 object ArithExpr {
 
@@ -125,7 +144,6 @@ object ArithExpr {
     }
     throw new NotEvaluableException(s"Didn't find a substitution for variable $variable")
   }
-
 }
 
 class NotEvaluableException(msg : String) extends Exception(msg)
