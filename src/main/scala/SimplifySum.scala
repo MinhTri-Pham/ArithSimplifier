@@ -5,11 +5,30 @@ object SimplifySum {
 
   // Adds two expressions
   // To Do: Cases which involve Prod as terms
-  def addExprs(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = {
-    // Extract and canonically sort terms of both sides and merge
-    val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-    val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-    mergeTerms(lhsTerms, rhsTerms)
+  def addExprs(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = (lhs, rhs) match {
+    // If either side is a product, introduce that as a standalone term
+    // Later want to use factorisation
+    case (p1:Prod, p2:Prod) =>
+      val lhsTerms = List[ArithExpr](p1)
+      val rhsTerms = List[ArithExpr](p2)
+      mergeTerms(lhsTerms, rhsTerms)
+
+    case (p:Prod, _) =>
+      val lhsTerms = List[ArithExpr](p)
+      val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      mergeTerms(lhsTerms, rhsTerms)
+
+    case (_, p:Prod) =>
+      val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      val rhsTerms = List[ArithExpr](p)
+      mergeTerms(lhsTerms, rhsTerms)
+
+    // Neither side is a product, decompose into smaller terms and merge
+    case _ =>
+      // Extract and canonically sort terms of both sides and merge
+      val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      mergeTerms(lhsTerms, rhsTerms)
   }
 
   // Merges terms of expressions to be added
@@ -59,6 +78,7 @@ object SimplifySum {
     case (x:Var, y:Var) =>
       if (x == y)  Some(x.copy(x.cstMult + y.cstMult))
       else None
+    case (x, y) if x == y => Some(Cst(2) * x)
     case _ => None
   }
 

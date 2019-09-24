@@ -103,16 +103,19 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   override def getTermsFactors: List[ArithExpr] = factors
 
-//  // Converts product of constant and variable to a single variable with appropriate multiplicity
-//  lazy val asVar : Option[Var] = if (factors.length != 2) None else{
-//    (factors(1), factors(2)) match {
-//      case (c: Cst, v: Var) => Some(v.copy(c.value))
-//      case (v: Var, c: Cst) => Some(v.copy(c.value))
-//      case _ => None
-//    }
-//  }
+  override def equals(that: Any): Boolean = that match {
+    case Prod(factors2)=> factors.length == factors2.length && factors.intersect(factors2).length == factors.length
+    case _ => false
+  }
 
   override def toString: String = factors.mkString(" * ")
+}
+
+// Class for powers, for now just integer exponents
+case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
+  override def getTermsFactors: List[ArithExpr] = List[ArithExpr](this)
+
+  override def toString: String = s"pow(${b.toString},$e)"
 }
 
 object ArithExpr {
@@ -126,6 +129,7 @@ object ArithExpr {
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
     case (_: Var, _) => true // variables always after constants second
     case (_, _: Var) => false
+    case _ => true
   }
 
   // Evaluates an expression given substitutions for variables

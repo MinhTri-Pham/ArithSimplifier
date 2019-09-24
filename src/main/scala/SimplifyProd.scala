@@ -7,15 +7,10 @@ object SimplifyProd {
   // Multiplies two expressions
   def multExprs(lhs: ArithExpr, rhs: ArithExpr) : ArithExpr = {
     // Extract and canonically sort factors of both sides and merge
-    val lhsFactors = lhs.getTermsFactors
-    val rhsFactors = rhs.getTermsFactors
+    val lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+    val rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
     mergeFactors(lhsFactors, rhsFactors)
   }
-
-  //  def varCstFold(factors : List[ArithExpr]) : List[ArithExpr] = {
-  //    val sorted = factors.sortWith(ArithExpr.isCanonicallySorted)
-  //    val folded = sorted.reduce()
-  //  }
 
   // Merges factors of expressions to be multiplied
   // Assumes both factor lists are canonically sorted
@@ -62,8 +57,12 @@ object SimplifyProd {
     case (_, Cst(0)) => Some(Cst(0))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)
-    case (Cst(c), v: Var) => Some(v.copy(c))
-    case (v:Var,Cst(c)) => Some(v.copy(c))
+    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
+    case (v:Var,Cst(c)) => Some(v.copy(c*v.cstMult))
+    case (x:Var,y:Var) =>
+      if (x==y) Some(Pow(x,2))
+      else None
+
     case _ => None
   }
 
