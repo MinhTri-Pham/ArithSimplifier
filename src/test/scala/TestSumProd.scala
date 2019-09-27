@@ -12,11 +12,11 @@ class TestSumProd {
     assertEquals(e1, b+a)
     val e2 = Cst(3) * e1
     assertEquals(e2, e1 + Cst(2) * e1)
-    val e3 = a * Pow(a,2)
-    assertEquals(e3, Pow(a,3))
-    val e4 = Cst(3) * a + Cst(4) * Pow(b,2)
-    assertEquals(e4, a + Cst(3) * b * b + Cst(2) * a + Pow(b,2))
+    val e3 = a * (a pow 2)
+    assertEquals(e3, a pow 3)
+    val e4 = Cst(3) * a + Cst(2) * (b pow 2)
+    assertEquals(e4, a + Cst(3) * b * b + Cst(2) * a - (b pow 2))
     val e5 = e1 * e1 * e1
-    assertEquals(e5, Pow(e1,3))
+    assertEquals(e5, e1 pow 3)
   }
 }

@@ -23,7 +23,7 @@ object SimplifyProd {
       val rhsTerms = List[ArithExpr](s)
       mergeFactors(lhsTerms, rhsTerms)
 
-    // Neither side is a product, decompose into smaller terms and merge
+    // Neither side is a sum, decompose into smaller terms and merge
     case _ =>
       // Extract and canonically sort factors of both sides and merge
       val lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
@@ -71,6 +71,7 @@ object SimplifyProd {
 
   // Tries to combine a pair of factors
   def combineFactors(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
+   // Trivial cases
     case (Cst(x), Cst(y)) => Some(Cst(x * y))
     case (Cst(0), _) => Some(Cst(0))
     case (_, Cst(0)) => Some(Cst(0))
@@ -78,6 +79,12 @@ object SimplifyProd {
     case (_, Cst(1)) => Some(lhs)
 //    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
 //    case (v:Var,Cst(c)) => Some(v.copy(c*v.cstMult))
+
+    // Compute powers when all bases and exponents are positive constants
+    case (Pow(Cst(b1), e1), Pow(Cst(b2), e2)) if e1 > 0 && e2 > 0 =>
+      Some(Cst((Math.pow(b1, e1) * Math.pow(b2, e2)).toInt))
+
+    // More general cases
     case (Pow(b1,e1), Pow(b2,e2)) =>
       if (b1 == b2) Some(Pow(b1, e1+e2))
       else if (e1 == e2) Some(Pow(b1 * b2,e1))
@@ -96,11 +103,11 @@ object SimplifyProd {
 
   // Given list of factors, determine resulting expression
   // Remove unnecessary one terms that could arise from combining terms
-  // I.e. Prod(Cst(1),Var(1,a),Var(2,b)) -> Prod(Var(1,a),Var(2,b)) but Prod(Cst(1),Var(2,a)) -> Var(2,a)
+  // I.e. Prod(1,Var(a),Var(b)) -> Prod(Var(a),Var(b)) but Prod(1, Var(a)) -> Var(a)
   def convert(factors: List[ArithExpr]): ArithExpr = {
     val nonOne = factors.filter(_ != Cst(1))
     if (nonOne.isEmpty) Cst(1) // Eliminated everything, so result is 1
     else if (nonOne.length == 1) nonOne.head // Result is a Var or Cst
-    else Prod(nonOne) // Have a sum of Csts and Vars
+    else Prod(nonOne) // Have a product of expressions
   }
 }

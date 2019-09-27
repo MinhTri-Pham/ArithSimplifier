@@ -12,6 +12,9 @@ abstract sealed class ArithExpr {
   // Multiply operator
   def *(that: ArithExpr) : ArithExpr = SimplifyProd(this, that)
 
+  // Exponentiation operator
+  def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
+
   // Returns terms and factors for Sum and Prod resp
   // Returns singleton list with object itself for Cst and Var
   def getTermsFactors : List[ArithExpr]
@@ -126,6 +129,15 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     else Prod(nonCstFactors.toList)
   }
 
+  def withoutCstList : List[ArithExpr] = {
+    val nonCstFactors = ListBuffer[ArithExpr]()
+    for (factor <- factors) {
+      if (!factor.isInstanceOf[Cst]) nonCstFactors += factor
+    }
+    nonCstFactors.toList
+  }
+
+
   override def equals(that: Any): Boolean = that match {
     case Prod(factors2)=> factors.length == factors2.length && factors.intersect(factors2).length == factors.length
     case _ => false
@@ -151,12 +163,12 @@ object ArithExpr {
   // Used for sorting terms of Sum or factors of Prod
   // For ease of simplification
   val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
-    case (Cst(a), Cst(b)) => a < b
+    //case (Cst(a), Cst(b)) => a < b
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
 
-    // Want 2a before b (assuming a.id < b.id) to achieve more efficient sum simplification
+    // Want 2a before b (assuming a.id < b.id) to for sum simplification
     case (p : Prod, x: Var) =>
       val nonCst = p.withoutCst
       if (nonCst.isInstanceOf[Var]) isCanonicallySorted(nonCst, x)
@@ -169,7 +181,9 @@ object ArithExpr {
     case (_: Var, _) => true
     case (_, _: Var) => false
 
-    case (Prod(factors1), Prod(factors2)) => factors1.zip(factors2).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+    case (p1:Prod, p2:Prod) => p1.withoutCstList.zip(p2.withoutCstList)
+      .map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
     case (_, _: Pow) => true
     case (_: Pow, _) => false
@@ -177,12 +191,12 @@ object ArithExpr {
 
   // Evaluates an expression given substitutions for variables
   // So far maps variables to constants
-  // Assumes constant maps to multiple of one of variable
   def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Int = expr match {
     case Cst(c) => c
     case v: Var => v.cstMult * findSubstitute(v, subs)
     case Sum(terms) => terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
-    case Prod(terms) => terms.foldLeft(1) { (accumulated, term) => accumulated * evaluate(term, subs)}
+    case Prod(factors) => factors.foldLeft(1) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
+    case Pow(b,e) => scala.math.pow(evaluate(b,subs),e).toInt
   }
 
   private def findSubstitute(variable: Var, replacements : scala.collection.Map[Var, Cst]) : Int = {
@@ -195,8 +209,17 @@ object ArithExpr {
   def main(args: Array[String]): Unit = {
     val a = Var("a")
     val b = Var("b")
-    val expr = a + Cst(1) + Cst(3) * b * b + Cst(2) * a + Pow(b, 2) - Cst(1)
-    println(expr)
+    val c = Var("c")
+    val e1 = Cst(3) * b * b - a + Cst(4) * c + a
+    val e2 = Cst(2) * a - Cst(6) * c - (b pow 2)
+    val sum = e1 + e2
+//    val valmap = Map[Var, Cst](
+//      (a, Cst(4)),
+//      (b, Cst(2)),
+//      (c, Cst(3))
+//    )
+    println(sum)
+//    println(evaluate(sum,valmap))
   }
 }
 
