@@ -5,11 +5,30 @@ object SimplifyProd {
   def apply(lhs: ArithExpr, rhs: ArithExpr): ArithExpr = multExprs(lhs,rhs)
 
   // Multiplies two expressions
-  def multExprs(lhs: ArithExpr, rhs: ArithExpr) : ArithExpr = {
-    // Extract and canonically sort factors of both sides and merge
-    val lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-    val rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-    mergeFactors(lhsFactors, rhsFactors)
+  def multExprs(lhs: ArithExpr, rhs: ArithExpr) : ArithExpr = (lhs, rhs) match {
+    // If either side is a sum, introduce that as a standalone term
+    // Later want to use factorisation
+    case (s1:Sum, s2:Sum) =>
+      val lhsTerms = List[ArithExpr](s1)
+      val rhsTerms = List[ArithExpr](s2)
+      mergeFactors(lhsTerms, rhsTerms)
+
+    case (s:Sum, _) =>
+      val lhsTerms = List[ArithExpr](s)
+      val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      mergeFactors(lhsTerms, rhsTerms)
+
+    case (_, s:Sum) =>
+      val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      val rhsTerms = List[ArithExpr](s)
+      mergeFactors(lhsTerms, rhsTerms)
+
+    // Neither side is a product, decompose into smaller terms and merge
+    case _ =>
+      // Extract and canonically sort factors of both sides and merge
+      val lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      val rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+      mergeFactors(lhsFactors, rhsFactors)
   }
 
   // Merges factors of expressions to be multiplied
@@ -57,12 +76,15 @@ object SimplifyProd {
     case (_, Cst(0)) => Some(Cst(0))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)
-    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
-    case (v:Var,Cst(c)) => Some(v.copy(c*v.cstMult))
+//    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
+//    case (v:Var,Cst(c)) => Some(v.copy(c*v.cstMult))
     case (x:Var,y:Var) =>
       if (x==y) Some(Pow(x,2))
       else None
-
+    case (Pow(e1,b1), Pow(e2,b2)) =>
+      if (e1 == e2) Some(Pow(e1, b1+b2))
+      else if (b1 == b2) Some(Pow(e1 * e2,b1))
+      else None
     case _ => None
   }
 

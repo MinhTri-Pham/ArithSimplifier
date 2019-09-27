@@ -1,5 +1,7 @@
 import java.util.concurrent.atomic.AtomicLong
 
+import scala.collection.mutable.ListBuffer
+
 abstract sealed class ArithExpr {
   // Addition operator
   def +(that: ArithExpr) : ArithExpr = SimplifySum(this, that)
@@ -46,7 +48,7 @@ case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
   }
 
   // Convert variable to product of multiplicity constant and variable (with mult. 1)
-  lazy val asProd : Prod = Prod(List[ArithExpr](Cst(cstMult), this.copy(1)))
+//  lazy val asProd : Prod = Prod(List[ArithExpr](Cst(cstMult), this.copy(1)))
 
   // Make copy with different multiplicity (
   def copy(mult : Int): ArithExpr = {
@@ -63,11 +65,13 @@ case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
     case _ => false
   }
 
-  override def toString : String = {
-    if (cstMult == 1) name
-    else if (cstMult >= 0) s"$cstMult$name"
-    else s"($cstMult)$name"
-  }
+//  override def toString : String = {
+//    if (cstMult == 1) name
+//    else if (cstMult >= 0) s"$cstMult$name"
+//    else s"($cstMult)$name"
+//  }
+
+  override def toString: String = name
 }
 
 // Companion object for Var class
@@ -103,6 +107,20 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   override def getTermsFactors: List[ArithExpr] = factors
 
+  val cstFactor : Int = factors.head match {
+    case Cst(c) => c
+    case _ => 1
+  }
+
+  def withoutCst : ArithExpr = {
+    val nonCstFactors = ListBuffer[ArithExpr]()
+    for (factor <- factors) {
+      if (!factor.isInstanceOf[Cst]) nonCstFactors += factor
+    }
+    if (nonCstFactors.length == 1) nonCstFactors.head
+    else Prod(nonCstFactors.toList)
+  }
+
   override def equals(that: Any): Boolean = that match {
     case Prod(factors2)=> factors.length == factors2.length && factors.intersect(factors2).length == factors.length
     case _ => false
@@ -127,9 +145,23 @@ object ArithExpr {
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
-    case (_: Var, _) => true // variables always after constants second
+
+    // Want 2a before b (assuming a.id < b.id) to achieve more efficient sum simplification
+    case (p : Prod, x: Var) =>
+      val nonCst = p.withoutCst
+      if (nonCst.isInstanceOf[Var]) isCanonicallySorted(nonCst, x)
+      else false
+    case (x: Var, p : Prod) =>
+      val nonCst = p.withoutCst
+      if (nonCst.isInstanceOf[Var]) isCanonicallySorted(x, nonCst)
+      else false
+
+    case (_: Var, _) => true
     case (_, _: Var) => false
-    case _ => true
+
+    case (Prod(factors1), Prod(factors2)) => factors1.zip(factors2).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+    case (Pow(e1,_), Pow(e2,_)) => isCanonicallySorted(e1,e2)
+    //case _ => false
   }
 
   // Evaluates an expression given substitutions for variables

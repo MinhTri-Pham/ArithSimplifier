@@ -4,24 +4,36 @@ object SimplifySum {
   def apply(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = addExprs(lhs, rhs)
 
   // Adds two expressions
-  // To Do: Cases which involve Prod as terms
   def addExprs(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = (lhs, rhs) match {
     // If either side is a product, introduce that as a standalone term
-    // Later want to use factorisation
     case (p1:Prod, p2:Prod) =>
       val lhsTerms = List[ArithExpr](p1)
       val rhsTerms = List[ArithExpr](p2)
       mergeTerms(lhsTerms, rhsTerms)
 
     case (p:Prod, _) =>
-      val lhsTerms = List[ArithExpr](p)
-      val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-      mergeTerms(lhsTerms, rhsTerms)
+      // Try to combine the product with whole rhs
+      // If not possible, decompose rhs
+      if (p.withoutCst == rhs) {
+        Cst(1 + p.cstFactor) * rhs
+      }
+      else {
+        val lhsTerms = List[ArithExpr](p)
+        val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        mergeTerms(lhsTerms, rhsTerms)
+      }
 
     case (_, p:Prod) =>
-      val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-      val rhsTerms = List[ArithExpr](p)
-      mergeTerms(lhsTerms, rhsTerms)
+      // Try to combine the product with whole lhs
+      // If not possible, decompose lhs
+      if (p.withoutCst == lhs) {
+        Cst(1 + p.cstFactor) * lhs
+      }
+      else {
+        val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        val rhsTerms = List[ArithExpr](p)
+        mergeTerms(lhsTerms, rhsTerms)
+      }
 
     // Neither side is a product, decompose into smaller terms and merge
     case _ =>
@@ -75,10 +87,14 @@ object SimplifySum {
     case (Cst(x), Cst(y)) => Some(Cst(x + y))
     case (Cst(0), _) => Some(rhs)
     case (_, Cst(0)) => Some(lhs)
-    case (x:Var, y:Var) =>
-      if (x == y)  Some(x.copy(x.cstMult + y.cstMult))
-      else None
+//    case (x:Var, y:Var) =>
+//      if (x == y)  Some(x.copy(x.cstMult + y.cstMult))
+//      else None
     case (x, y) if x == y => Some(Cst(2) * x)
+    case (p1:Prod, p2:Prod) if p1.withoutCst == p2.withoutCst =>
+      Some(Cst(p1.cstFactor + p2.cstFactor) * p1.withoutCst)
+    case (p:Prod,x) if p.withoutCst == x => Some(Cst(1 + p.cstFactor) * x)
+    case (x, p:Prod) if p.withoutCst == x => Some(Cst(1 + p.cstFactor) * x)
     case _ => None
   }
 
