@@ -99,6 +99,11 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   override def getTermsFactors: List[ArithExpr] = terms
 
+  override def equals(that: Any): Boolean = that match {
+    case Sum(terms2) => terms.length == terms2.length && terms.intersect(terms2).length == terms.length
+    case _ => false
+  }
+
   override def toString: String = s"(${terms.mkString(" + ")})"
 }
 
@@ -133,6 +138,11 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   override def getTermsFactors: List[ArithExpr] = List[ArithExpr](this)
 
+  override def equals(that: Any): Boolean = that match {
+    case Pow(b2,e2) => b == b2 && e == e2
+    case _ => false
+  }
+
   override def toString: String = s"pow(${b.toString},$e)"
 }
 
@@ -154,14 +164,15 @@ object ArithExpr {
     case (x: Var, p : Prod) =>
       val nonCst = p.withoutCst
       if (nonCst.isInstanceOf[Var]) isCanonicallySorted(x, nonCst)
-      else false
+      else true
 
     case (_: Var, _) => true
     case (_, _: Var) => false
 
     case (Prod(factors1), Prod(factors2)) => factors1.zip(factors2).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
-    case (Pow(e1,_), Pow(e2,_)) => isCanonicallySorted(e1,e2)
-    //case _ => false
+    case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
+    case (_, _: Pow) => true
+    case (_: Pow, _) => false
   }
 
   // Evaluates an expression given substitutions for variables
@@ -179,6 +190,13 @@ object ArithExpr {
       if (variable == varSub) return n
     }
     throw new NotEvaluableException(s"Didn't find a substitution for variable $variable")
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val expr = a + Cst(1) + Cst(3) * b * b + Cst(2) * a + Pow(b, 2) - Cst(1)
+    println(expr)
   }
 }
 

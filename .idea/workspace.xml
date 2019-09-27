@@ -5,22 +5,14 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -74,13 +66,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SimplifySum" type="Application" factoryName="Application" temporary="true">
-      <option name="MAIN_CLASS_NAME" value="SimplifySum" />
-      <module name="ArithSimplifier" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="All in ArithSimplifier" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ArithSimplifier" />
       <option name="PACKAGE_NAME" value="" />
@@ -93,6 +78,15 @@
       <module name="ArithSimplifier" />
       <option name="PACKAGE_NAME" value="" />
       <option name="MAIN_CLASS_NAME" value="TestSum" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestSumProd" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArithSimplifier" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="TestSumProd" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -111,10 +105,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.ArithExpr" />
-        <item itemvalue="JUnit.TestSum" />
+        <item itemvalue="JUnit.TestSumProd" />
         <item itemvalue="JUnit.All in ArithSimplifier" />
+        <item itemvalue="JUnit.TestSum" />
         <item itemvalue="JUnit.TestSumProd.varFold" />
-        <item itemvalue="Application.SimplifySum" />
       </list>
     </recent_temporary>
   </component>

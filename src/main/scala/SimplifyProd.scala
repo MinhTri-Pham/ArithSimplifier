@@ -78,12 +78,18 @@ object SimplifyProd {
     case (_, Cst(1)) => Some(lhs)
 //    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
 //    case (v:Var,Cst(c)) => Some(v.copy(c*v.cstMult))
-    case (x:Var,y:Var) =>
-      if (x==y) Some(Pow(x,2))
+    case (Pow(b1,e1), Pow(b2,e2)) =>
+      if (b1 == b2) Some(Pow(b1, e1+e2))
+      else if (e1 == e2) Some(Pow(b1 * b2,e1))
       else None
-    case (Pow(e1,b1), Pow(e2,b2)) =>
-      if (e1 == e2) Some(Pow(e1, b1+b2))
-      else if (b1 == b2) Some(Pow(e1 * e2,b1))
+    case (x, Pow(b,e)) =>
+      if (x == b) Some(Pow(b, e+1))
+      else None
+    case (Pow(b,e),x) =>
+      if (x == b) Some(Pow(b, e+1))
+      else None
+    case (x,y) =>
+      if (x==y) Some(Pow(x,2))
       else None
     case _ => None
   }
