@@ -86,17 +86,17 @@ object SimplifyProd {
 
     // More general cases
     case (Pow(b1,e1), Pow(b2,e2)) =>
-      if (b1 == b2) Some(Pow(b1, e1+e2))
-      else if (e1 == e2) Some(Pow(b1 * b2,e1))
+      if (b1 == b2) Some(b1 pow (e1+e2))
+      else if (e1 == e2) Some((b1 * b2) pow e1)
       else None
     case (x, Pow(b,e)) =>
-      if (x == b) Some(Pow(b, e+1))
+      if (x == b) Some(b pow (e+1))
       else None
     case (Pow(b,e),x) =>
-      if (x == b) Some(Pow(b, e+1))
+      if (x == b) Some(b pow (e+1))
       else None
     case (x,y) =>
-      if (x==y) Some(Pow(x,2))
+      if (x==y) Some(x pow 2)
       else None
     case _ => None
   }

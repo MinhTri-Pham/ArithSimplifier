@@ -6,11 +6,14 @@ abstract sealed class ArithExpr {
   // Addition operator
   def +(that: ArithExpr) : ArithExpr = SimplifySum(this, that)
 
-  // Subtraction operator
+  // Subtraction operator (x-y = x+(-1)*y)
   def -(that : ArithExpr) : ArithExpr = SimplifySum(this, Cst(-1)*that)
 
   // Multiply operator
   def *(that: ArithExpr) : ArithExpr = SimplifyProd(this, that)
+
+  // Ordinal division operator (x/y = x*(y pow -1))
+  def /^(that: ArithExpr) : ArithExpr = SimplifyProd(this, that pow -1)
 
   // Exponentiation operator
   def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
@@ -40,7 +43,7 @@ case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
 
   override def getTermsFactors: List[ArithExpr] = List[ArithExpr](this)
 
-  var cstMult = 1 // Scalar multiplicity (useful for summing)
+  //var cstMult = 1 // Scalar multiplicity (useful for summing)
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -54,14 +57,14 @@ case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
 //  lazy val asProd : Prod = Prod(List[ArithExpr](Cst(cstMult), this.copy(1)))
 
   // Make copy with different multiplicity (
-  def copy(mult : Int): ArithExpr = {
-    if (mult == 0) Cst(0)
-    else {
-      val v = new Var(name,Some(this.id))
-      v.cstMult = mult
-      v
-    }
-  }
+//  def copy(mult : Int): ArithExpr = {
+//    if (mult == 0) Cst(0)
+//    else {
+//      val v = new Var(name,Some(this.id))
+//      v.cstMult = mult
+//      v
+//    }
+//  }
 
   override def equals(that: Any): Boolean = that match {
     case v: Var => this.id == v.id
@@ -168,7 +171,7 @@ object ArithExpr {
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
 
-    // Want 2a before b (assuming a.id < b.id) to for sum simplification
+    // Want na (where n a constant) < b (assuming a < b) for sum simplification
     case (p : Prod, x: Var) =>
       val nonCst = p.withoutCst
       if (nonCst.isInstanceOf[Var]) isCanonicallySorted(nonCst, x)
@@ -193,7 +196,7 @@ object ArithExpr {
   // So far maps variables to constants
   def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Int = expr match {
     case Cst(c) => c
-    case v: Var => v.cstMult * findSubstitute(v, subs)
+    case v: Var => findSubstitute(v, subs)
     case Sum(terms) => terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
     case Prod(factors) => factors.foldLeft(1) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
     case Pow(b,e) => scala.math.pow(evaluate(b,subs),e).toInt
@@ -204,22 +207,6 @@ object ArithExpr {
       if (variable == varSub) return n
     }
     throw new NotEvaluableException(s"Didn't find a substitution for variable $variable")
-  }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val c = Var("c")
-    val e1 = Cst(3) * b * b - a + Cst(4) * c + a
-    val e2 = Cst(2) * a - Cst(6) * c - (b pow 2)
-    val sum = e1 + e2
-//    val valmap = Map[Var, Cst](
-//      (a, Cst(4)),
-//      (b, Cst(2)),
-//      (c, Cst(3))
-//    )
-    println(sum)
-//    println(evaluate(sum,valmap))
   }
 }
 

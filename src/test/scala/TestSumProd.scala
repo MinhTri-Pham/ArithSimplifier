@@ -19,4 +19,10 @@ class TestSumProd {
     val e5 = e1 * e1 * e1
     assertEquals(e5, e1 pow 3)
   }
+
+  @Test
+  def ordDivTests(): Unit = {
+    assertEquals(Cst(2) * b, Cst(2) * a * b /^ a)
+   // assertEquals(Cst(2), Cst(2) * a * b /^ (a * b) // Need to expand the power in denominator as product
+  }
 }
