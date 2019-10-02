@@ -5,17 +5,39 @@ object SimplifySum {
 
   // Adds two expressions
   def addExprs(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = (lhs, rhs) match {
-    // If either side is a product, introduce that as a standalone term
+    // If either side is a product, try to convert to a sum and work with sums instead
     case (p1:Prod, p2:Prod) =>
-      val lhsTerms = List[ArithExpr](p1)
-      val rhsTerms = List[ArithExpr](p2)
-      mergeTerms(lhsTerms, rhsTerms)
+      val lhsSum = p1.asSum
+      val rhsSum = p2.asSum
+      (lhsSum, rhsSum ) match
+      {
+        case (Some(_), Some(_)) =>
+          val lhsTerms = lhsSum.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+          val rhsTerms = rhsSum.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+          mergeTerms(lhsTerms, rhsTerms)
+
+        case (Some(_), None)  =>
+          val lhsTerms = lhsSum.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+          val rhsTerms = List[ArithExpr](p2)
+          mergeTerms(lhsTerms, rhsTerms)
+
+        case (None, Some(_))  =>
+          val lhsTerms = List[ArithExpr](p1)
+          val rhsTerms = rhsSum.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+          mergeTerms(lhsTerms, rhsTerms)
+
+        case (None, None)  =>
+          val lhsTerms = List[ArithExpr](p1)
+          val rhsTerms = List[ArithExpr](p2)
+          mergeTerms(lhsTerms, rhsTerms)
+      }
 
     case (p:Prod, _) =>
-      // Try to combine the product with whole rhs
-      // If not possible, decompose rhs
-      if (p.withoutCst == rhs) {
-        Cst(1 + p.cstFactor) * rhs
+      val pSum = p.asSum
+      if (pSum.isDefined) {
+        val lhsTerms = pSum.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        val rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        mergeTerms(lhsTerms, rhsTerms)
       }
       else {
         val lhsTerms = List[ArithExpr](p)
@@ -24,10 +46,11 @@ object SimplifySum {
       }
 
     case (_, p:Prod) =>
-      // Try to combine the product with whole lhs
-      // If not possible, decompose lhs
-      if (p.withoutCst == lhs) {
-        Cst(1 + p.cstFactor) * lhs
+      val pSum = p.asSum
+      if (pSum.isDefined) {
+        val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        val rhsTerms = pSum.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        mergeTerms(lhsTerms, rhsTerms)
       }
       else {
         val lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)

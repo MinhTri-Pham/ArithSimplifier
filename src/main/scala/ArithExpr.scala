@@ -123,6 +123,60 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     case _ => 1
   }
 
+  lazy val asSum : Option[Sum] = {
+    assume(factors.length > 1)
+    var sumEncountered = false
+    val dist = factors.foldLeft(Cst(1) : ArithExpr) {(acc,f) => distribute(acc,f) match
+      {
+      case None => acc * f
+      case x : Some[Sum]  =>
+        sumEncountered = true
+        x.get
+      }
+    }
+    if (sumEncountered) {
+      Some(Sum(dist.getTermsFactors))
+    }
+    else {
+      None
+    }
+  }
+
+  // Distributes product of two expressions into a sum if possible
+  def distribute(e1: ArithExpr, e2: ArithExpr) : Option[Sum] = (e1,e2) match {
+    case (s1: Sum, s2:Sum) =>
+      val lts = s1.terms
+      val rts = s2.terms
+      var combined: ArithExpr = Cst(0)
+      for (lt <- lts) {
+        for (rt <- rts) {
+          combined += lt * rt
+        }
+      }
+      Some(Sum(combined.getTermsFactors))
+
+    case (s: Sum, _) =>
+      val lts = s.terms
+      //val rts = s.terms
+      var combined: ArithExpr = Cst(0)
+      for (lt <- lts) {
+        combined += lt * e2
+      }
+      Some(Sum(combined.getTermsFactors))
+
+
+    case (_, s: Sum) =>
+      //val lts = e1.getTermsFactors
+      val rts = s.terms
+      var combined: ArithExpr = Cst(0)
+      for (rt <- rts) {
+        combined += e1 * rt
+      }
+      Some(Sum(combined.getTermsFactors))
+
+    case _ => None
+  }
+
   def withoutCst : ArithExpr = {
     val nonCstFactors = ListBuffer[ArithExpr]()
     for (factor <- factors) {
@@ -171,7 +225,7 @@ object ArithExpr {
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
 
-    // Want na (where n a constant) < b (assuming a < b) for sum simplification
+    // Want na (where n is a constant) < b (assuming a < b) for sum simplification
     case (p : Prod, x: Var) =>
       val nonCst = p.withoutCst
       if (nonCst.isInstanceOf[Var]) isCanonicallySorted(nonCst, x)
@@ -184,8 +238,15 @@ object ArithExpr {
     case (_: Var, _) => true
     case (_, _: Var) => false
 
-    case (p1:Prod, p2:Prod) => p1.withoutCstList.zip(p2.withoutCstList)
-      .map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+    case (p1:Prod, p2:Prod) =>
+      val p1nonCst = p1.withoutCstList
+      val p2nonCst = p2.withoutCstList
+      if (p1nonCst.length == p2nonCst.length) {
+        p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+      }
+      else {
+        p1nonCst.length < p2nonCst.length
+      }
 
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
     case (_, _: Pow) => true

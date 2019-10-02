@@ -6,8 +6,10 @@ object SimplifyProd {
 
   // Multiplies two expressions
   def multExprs(lhs: ArithExpr, rhs: ArithExpr) : ArithExpr = (lhs, rhs) match {
-    // If either side is a sum, introduce that as a standalone term
-    // Later want to use factorisation
+    // Special
+    case (Cst(0), _) => Cst(0)
+    case (_, Cst(0)) => Cst(0)
+    // To do: If either side is a sum, try to convert into a product and then do usual multiplication
     case (s1:Sum, s2:Sum) =>
       val lhsTerms = List[ArithExpr](s1)
       val rhsTerms = List[ArithExpr](s2)
@@ -73,8 +75,6 @@ object SimplifyProd {
   def combineFactors(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
    // Trivial cases
     case (Cst(x), Cst(y)) => Some(Cst(x * y))
-    case (Cst(0), _) => Some(Cst(0))
-    case (_, Cst(0)) => Some(Cst(0))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)
 //    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
