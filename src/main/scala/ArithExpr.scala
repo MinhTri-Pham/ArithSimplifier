@@ -125,56 +125,42 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   lazy val asSum : Option[Sum] = {
     assume(factors.length > 1)
-    var sumEncountered = false
-    val dist = factors.foldLeft(Cst(1) : ArithExpr) {(acc,f) => distribute(acc,f) match
-      {
-      case None => acc * f
-      case x : Some[Sum]  =>
-        sumEncountered = true
-        x.get
-      }
-    }
-    if (sumEncountered) {
-      Some(Sum(dist.getTermsFactors))
-    }
-    else {
-      None
-    }
-  }
 
-  // Distributes product of two expressions into a sum if possible
-  def distribute(e1: ArithExpr, e2: ArithExpr) : Option[Sum] = (e1,e2) match {
-    case (s1: Sum, s2:Sum) =>
-      val lts = s1.terms
-      val rts = s2.terms
-      var combined: ArithExpr = Cst(0)
-      for (lt <- lts) {
-        for (rt <- rts) {
-          combined += lt * rt
+    var expanded = false
+    var accum : ArithExpr = Cst(1)
+    for (f <- factors) f match {
+      case x @ (_:Cst | _:Var) => accum = x * accum
+      case s:Sum =>
+        accum = ArithExpr.expand(accum,s).get
+        expanded = true
+      case p:Pow =>
+        val pSum = p.asSum
+        if (pSum.isDefined) {
+          accum = ArithExpr.expand(accum,pSum.get).get
+          expanded = true
         }
-      }
-      Some(Sum(combined.getTermsFactors))
+        else {
+          if (p.e > 0) accum = accum * p
+          else None
+        }
+    }
+    if (expanded) Some(Sum(accum.getTermsFactors))
+    else None
 
-    case (s: Sum, _) =>
-      val lts = s.terms
-      //val rts = s.terms
-      var combined: ArithExpr = Cst(0)
-      for (lt <- lts) {
-        combined += lt * e2
-      }
-      Some(Sum(combined.getTermsFactors))
-
-
-    case (_, s: Sum) =>
-      //val lts = e1.getTermsFactors
-      val rts = s.terms
-      var combined: ArithExpr = Cst(0)
-      for (rt <- rts) {
-        combined += e1 * rt
-      }
-      Some(Sum(combined.getTermsFactors))
-
-    case _ => None
+//    val dist = factors.foldLeft(Cst(1) : ArithExpr) {(acc,f) => ArithExpr.expand(acc,f) match
+//      {
+//      case None => acc * f
+//      case x : Some[Sum]  =>
+//        sumEncountered = true
+//        x.get
+//      }
+//    }
+//    if (sumEncountered) {
+//      Some(Sum(dist.getTermsFactors))
+//    }
+//    else {
+//      None
+//    }
   }
 
   def withoutCst : ArithExpr = {
@@ -206,6 +192,26 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 // Class for powers, for now just integer exponents
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   override def getTermsFactors: List[ArithExpr] = List[ArithExpr](this)
+
+  lazy val asSum : Option[Sum] = if (e < 0 || !b.isInstanceOf[Sum]) None else {
+    var combined : ArithExpr = Cst(0)
+    for (n <- 1 to e) {
+      if (n == 1)
+        combined = b
+      else
+        combined = ArithExpr.expand(combined,b).get
+    }
+    Some(Sum(combined.getTermsFactors))
+  }
+
+  lazy val asProd : Option[Prod]= if (!b.isInstanceOf[Prod]) None else {
+    val bfacts = b.getTermsFactors
+    val pfacts = ListBuffer[ArithExpr]()
+    for (bfact <- bfacts) {
+      pfacts += bfact pow e
+    }
+    Some(Prod(pfacts.toList))
+  }
 
   override def equals(that: Any): Boolean = that match {
     case Pow(b2,e2) => b == b2 && e == e2
@@ -269,6 +275,40 @@ object ArithExpr {
     }
     throw new NotEvaluableException(s"Didn't find a substitution for variable $variable")
   }
+
+  // Expands product of two expressions into a sum if possible
+  def expand(e1: ArithExpr, e2: ArithExpr) : Option[Sum] = (e1,e2) match {
+    case (s1: Sum, s2:Sum) =>
+      val lts = s1.terms
+      val rts = s2.terms
+      var combined: ArithExpr = Cst(0)
+      for (lt <- lts) {
+        for (rt <- rts) {
+          combined += lt * rt
+        }
+      }
+      Some(Sum(combined.getTermsFactors))
+
+    case (s: Sum, _) =>
+      val lts = s.terms
+      var combined: ArithExpr = Cst(0)
+      for (lt <- lts) {
+        combined += lt * e2
+      }
+      Some(Sum(combined.getTermsFactors))
+
+
+    case (_, s: Sum) =>
+      val rts = s.terms
+      var combined: ArithExpr = Cst(0)
+      for (rt <- rts) {
+        combined += e1 * rt
+      }
+      Some(Sum(combined.getTermsFactors))
+
+    case _ => None
+  }
+
 }
 
 class NotEvaluableException(msg : String) extends Exception(msg)

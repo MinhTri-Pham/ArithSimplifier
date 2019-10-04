@@ -24,7 +24,7 @@ class TestSumProd {
   }
 
   @Test
-  def distributeProdTests() : Unit = {
+  def expandProdPowTests() : Unit = {
     val e1 = Cst(2) * (a+Cst(2)) - Cst(4)
     val e2 = Cst(2) * (a+Cst(2)) - a * Cst(2)
     assertEquals(e1, Cst(2) * a)
@@ -42,6 +42,15 @@ class TestSumProd {
     assertEquals(e6, Cst(3)*a*b)
     val e7 = a*b*(a+(a pow -1)) + a*((a pow -1)-a)* b
     assertEquals(e7, Cst(2) * b)
+
+    val e8 = (a+b pow 2) - Cst(2) * a * b
+    assertEquals(e8, (a pow 2) + (b pow 2))
+
+    val e9 = (a+Cst(2) pow 2) - Cst(4)*(a+Cst(1))
+    assertEquals(e9, a pow 2)
+
+    val e10 = ((a+Cst(2)) pow 2) - ((a+Cst(1)) pow 2)
+    assertEquals(e10, Cst(3) + Cst(2)*a)
 
   }
 }
