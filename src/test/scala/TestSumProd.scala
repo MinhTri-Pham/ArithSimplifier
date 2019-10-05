@@ -24,7 +24,7 @@ class TestSumProd {
   }
 
   @Test
-  def expandProdPowTests() : Unit = {
+  def expandProdTests() : Unit = {
     val e1 = Cst(2) * (a+Cst(2)) - Cst(4)
     val e2 = Cst(2) * (a+Cst(2)) - a * Cst(2)
     assertEquals(e1, Cst(2) * a)

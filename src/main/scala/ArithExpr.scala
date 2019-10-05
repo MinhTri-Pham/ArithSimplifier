@@ -234,11 +234,33 @@ object ArithExpr {
     // Want na (where n is a constant) < b (assuming a < b) for sum simplification
     case (p : Prod, x: Var) =>
       val nonCst = p.withoutCst
-      if (nonCst.isInstanceOf[Var]) isCanonicallySorted(nonCst, x)
+      if (nonCst.isInstanceOf[Var]) {
+        if (nonCst == x) false
+        else isCanonicallySorted(nonCst, x)
+      }
       else false
     case (x: Var, p : Prod) =>
       val nonCst = p.withoutCst
-      if (nonCst.isInstanceOf[Var]) isCanonicallySorted(x, nonCst)
+      if (nonCst.isInstanceOf[Var]) {
+        if (nonCst == x) true
+        else isCanonicallySorted(x, nonCst)
+      }
+      else true
+
+    // Want a^n (where n is a constant) < b (assuming a < b) for product simplification
+    case (p : Pow, x: Var) =>
+      val base = p.b
+      if (base.isInstanceOf[Var]) {
+        if (base == x) false
+        else isCanonicallySorted(p.b, x)
+      }
+      else false
+    case (x: Var, p : Pow) =>
+      val base = p.b
+      if (base.isInstanceOf[Var]) {
+        if (base == x) true
+        else isCanonicallySorted(x, base)
+      }
       else true
 
     case (_: Var, _) => true
