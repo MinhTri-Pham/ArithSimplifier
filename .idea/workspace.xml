@@ -2,17 +2,31 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumProd.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestPowProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumProdSimplification.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumProd.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumProd.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestPowProd.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSum.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumProd.class" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -66,6 +80,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="FactoriseSum" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="FactoriseSum" />
+      <module name="ArithSimplifier" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="All in ArithSimplifier" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ArithSimplifier" />
       <option name="PACKAGE_NAME" value="" />
@@ -74,19 +95,10 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestSum" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="TestSumProdSimplification" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ArithSimplifier" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestSum" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="TestSumProd" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ArithSimplifier" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestSumProd" />
+      <option name="MAIN_CLASS_NAME" value="TestSumProdSimplification" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -94,16 +106,16 @@
     </configuration>
     <list>
       <item itemvalue="Application.ArithExpr" />
+      <item itemvalue="Application.FactoriseSum" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
-      <item itemvalue="JUnit.TestSum" />
-      <item itemvalue="JUnit.TestSumProd" />
+      <item itemvalue="JUnit.TestSumProdSimplification" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.All in ArithSimplifier" />
+        <item itemvalue="Application.FactoriseSum" />
         <item itemvalue="Application.ArithExpr" />
-        <item itemvalue="JUnit.TestSumProd" />
-        <item itemvalue="JUnit.TestSum" />
+        <item itemvalue="JUnit.TestSumProdSimplification" />
       </list>
     </recent_temporary>
   </component>
@@ -170,21 +182,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/test/scala/TestSumProd.scala</url>
-          <line>36</line>
-          <option name="timeStamp" value="19" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/SimplifySum.scala</url>
-          <line>15</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

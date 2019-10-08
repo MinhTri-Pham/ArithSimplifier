@@ -14,20 +14,20 @@ object SimplifyProd {
       // If there's a power (with product as base), expand it into a product
       // To do: If either side is a sum, try to factorise and then collect terms as usual
       case (p1: Pow, p2:Pow) =>
-        val lhsProd = p1.asProd
-        val rhsProd = p2.asProd
+        val lhsProd = p1.asProdPows
+        val rhsProd = p2.asProdPows
         (lhsProd,rhsProd) match {
           case (Some(_), Some(_)) =>
-            lhsFactors = lhsProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-            rhsFactors = rhsProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+            lhsFactors = lhsProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = rhsProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
           case (Some(_), None) =>
-            lhsFactors = lhsProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+            lhsFactors = lhsProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
             rhsFactors = List[ArithExpr](p2)
 
           case (None, Some(_)) =>
             lhsFactors = List[ArithExpr](p1)
-            rhsFactors = rhsProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = rhsProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
           case (None, None) =>
             lhsFactors = List[ArithExpr](p1)
@@ -35,10 +35,10 @@ object SimplifyProd {
         }
 
       case (p: Pow, s:Sum) =>
-        val lhsProd = p.asProd
+        val lhsProd = p.asProdPows
         lhsProd match {
           case Some(_) =>
-            lhsFactors = lhsProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+            lhsFactors = lhsProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
           case None =>
             lhsFactors = List[ArithExpr](p)
@@ -46,10 +46,10 @@ object SimplifyProd {
         rhsFactors = List[ArithExpr](s)
 
       case (s:Sum, p:Pow) =>
-        val rhsProd = p.asProd
+        val rhsProd = p.asProdPows
         rhsProd match {
           case Some(_) =>
-            rhsFactors = rhsProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = rhsProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
           case None =>
             rhsFactors = List[ArithExpr](p)
@@ -61,30 +61,30 @@ object SimplifyProd {
         rhsFactors = List[ArithExpr](s2)
 
       case (p: Pow, _) =>
-        val pProd = p.asProd
-        if (pProd.isDefined) lhsFactors = pProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        val pProd = p.asProdPows
+        if (pProd.isDefined) lhsFactors = pProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
         else lhsFactors = List[ArithExpr](p)
-        rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        rhsFactors = rhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, p: Pow) =>
-        val pProd = p.asProd
-        if (pProd.isDefined) rhsFactors = pProd.get.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        val pProd = p.asProdPows
+        if (pProd.isDefined) rhsFactors = pProd.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
         else rhsFactors = List[ArithExpr](p)
-        lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        lhsFactors = lhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
       case (s: Sum, _) =>
         lhsFactors = List[ArithExpr](s)
-        rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        rhsFactors = rhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, s: Sum) =>
-        lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        lhsFactors = lhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
         rhsFactors = List[ArithExpr](s)
 
       // Neither side is a sum, decompose into smaller terms and merge
       case _ =>
         // Extract and sort factors of both sides and merge
-        lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-        rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        lhsFactors = lhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
+        rhsFactors = rhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
     }
     mergeFactors(lhsFactors,rhsFactors)
   }
