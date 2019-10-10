@@ -86,16 +86,19 @@ object Var {
 // Class for sums
 case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
+  // Returns list of terms converted into products for factorisation
   lazy val asProds : List[Prod] = {
     val prods = ListBuffer[Prod]()
     for (t <- terms) t match {
       case c:Cst => prods += Prod(c.getSumProdList)
       case v:Var => prods += Prod(v.getSumProdList)
-      case p:Prod => prods += p
+      case p:Prod => prods += p.primitiveProd
       case pow:Pow => prods += pow.asProd.get
     }
     prods.toList
   }
+
+  lazy val asProd : Option[Prod] = FactoriseSum(this)
 
   override def getSumProdList: List[ArithExpr] = terms
   override def getFactorisationList: List[ArithExpr] = List[ArithExpr](this)
@@ -114,7 +117,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   override def getSumProdList: List[ArithExpr] = factors
   override def getFactorisationList: List[ArithExpr] = factors
 
-  val cstFactor : Int = factors.head match {
+  lazy val cstFactor : Int = factors.head match {
     case Cst(c) => c
     case _ => 1
   }
@@ -143,6 +146,20 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     if (expanded) Some(Sum(accum.getSumProdList))
     else None
   }
+
+  lazy val primitiveProd : Prod = {
+    var primitiveFactors = ListBuffer[ArithExpr]()
+    for (f <- factors) f match {
+      case _:Cst => primitiveFactors += f
+      case _ @ (_:Var | _:Sum) => primitiveFactors += f
+      case p:Pow => {
+        val pProd = p.asProd.get
+        primitiveFactors = primitiveFactors ++ pProd.factors
+      }
+    }
+    Prod(primitiveFactors.toList)
+  }
+
 
   def withoutCst : ArithExpr = {
     val nonCstFactors = ListBuffer[ArithExpr]()
