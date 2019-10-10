@@ -11,7 +11,7 @@ class TestFactoriseSum {
 
   // Factorisation with a common term
   @Test
-  def commonTermTests(): Unit = {
+  def commonTerm(): Unit = {
     val s1 = Sum(List(a*b,a))
     assertEquals(FactoriseSum(s1),Some(a*(Cst(1)+b)))
 
@@ -33,16 +33,16 @@ class TestFactoriseSum {
     val s7 = Sum(List(a*b*c*d,a*b*e))
     assertEquals(FactoriseSum(s7),Some(a*b*(c*d+e)))
 
-    val s8 = Sum(List(a*(c+d),b*(c+d)))
-    assertEquals(FactoriseSum(s8),Some((a+b)*(c+d)))
+    val s8 = Sum(List((a pow 2)*b,(a pow 2)*c))
+    assertEquals(FactoriseSum(s8),Some((a pow 2)*(b+c)))
 
-    val s9 = Sum(List((a pow 2)*b,(a pow 2)*c))
-    assertEquals(FactoriseSum(s9),Some((a pow 2)*(b+c)))
+    val s9 = Sum(List((a pow 3)*b*c,(a pow 2)*c*d))
+    assertEquals(FactoriseSum(s9),Some((a pow 2)*c*(a*b+d)))
   }
 
   // Factorisation without common term
   @Test
-  def nonCommonTermTests() : Unit = {
+  def nonCommonTerm() : Unit = {
     val s1 = Sum(List(a*c,a*d,b*c,b*d))
     assertEquals(FactoriseSum(s1), Some((a+b)*(c+d)))
 
@@ -61,7 +61,7 @@ class TestFactoriseSum {
 
   // Factorisation not possible
   @Test
-  def nonFactorisableTests() : Unit = {
+  def nonFactorisable() : Unit = {
     val s1 = Sum(List(a,b))
     val s2 = Sum(List(a*b,c*d))
     val s3 = Sum(List(a*b,a*c,b*c))
@@ -74,17 +74,34 @@ class TestFactoriseSum {
     assertEquals(FactoriseSum(s5),None)
   }
 
-  // Differs by first two test suites in the fact that we need to explore more terms to produce a factorisation
+  // Differs by first two test suites in the fact that same variable appears in multiple resulting sum factors
   @Test
-  def nonInstantTests(): Unit = {
+  def repeatedVarInSumFactor(): Unit = {
     val s1 = Sum(List(a pow 2,a*b,a*c,b*c))
     assertEquals(FactoriseSum(s1),Some((a+b)*(a+c)))
 
-    val  s2 = Sum(List(a pow 2,a*d,b*a,b*d,c*a,c*d))
+    val s2 = Sum(List(a pow 2,a*d,b*a,b*d,c*a,c*d))
     assertEquals(FactoriseSum(s2), Some((a+b+c)*(a+d)))
 
     val s3 = Sum(List((a pow 2)*e,a*b*e,a*c*e,b*c*e))
     assertEquals(FactoriseSum(s3),Some((a+b)*(a+c)*e))
+
+    val s4 = Sum(List((a pow 2)*d,(a pow 2)*e,a*b*d,a*b*e,a*c*d,a*c*e,b*c*d,b*c*e))
+    assertEquals(FactoriseSum(s4),Some((a+b)*(a+c)*(d+e)))
+
+    val s5 = Sum(List(a pow 3,(a pow 2)*b,(a pow 2)*c,(a pow 2)*d,a*b*c,a*b*d,a*c*d,b*c*d))
+    assertEquals(FactoriseSum(s5),Some((a+b)*(a+c)*(a+d)))
+  }
+
+  // With constant terms
+  @Test
+  def withConstants(): Unit = {
+    val s1 = Sum(List(Cst(2)*a,Cst(4)))
+    assertEquals(FactoriseSum(s1),Some(Cst(2)*(a+Cst(2))))
+
+    val s2 = Sum(List(Cst(2)*a,Cst(4)*b))
+    assertEquals(FactoriseSum(s2),Some(Cst(2)*(a+Cst(2)*b)))
+
   }
 
 }

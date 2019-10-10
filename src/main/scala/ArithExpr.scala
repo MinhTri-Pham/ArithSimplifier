@@ -21,15 +21,18 @@ abstract sealed class ArithExpr {
   // Returns list of terms or factors for Sum and Prod simplification
   def getSumProdList : List[ArithExpr]
 
-  // Returns list of terms for factorisation
-  def getFactorisationList : List[ArithExpr]
-
 }
 
 // Class for (int) constants
 case class Cst(value : Int) extends ArithExpr {
+
+  // Prime decomposition
+  lazy val asProd : Prod = {
+    val decomposition = ArithExpr.primeDecomposition(value)
+    Prod(decomposition.map(x => Cst(x)))
+  }
+
   override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
-  override def getFactorisationList: List[ArithExpr] = List[ArithExpr](this)
 
   override def equals(that: Any): Boolean = that match {
     case Cst(n) => n == value
@@ -45,7 +48,6 @@ case class Cst(value : Int) extends ArithExpr {
 case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
 
   override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
-  override def getFactorisationList: List[ArithExpr] = List[ArithExpr](this)
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -86,11 +88,15 @@ object Var {
 // Class for sums
 case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
-  // Returns list of terms converted into products for factorisation
-  lazy val asProds : List[Prod] = {
-    val prods = ListBuffer[Prod]()
+  // Returns list of terms converted into products when possible for factorisation
+  // The one exception are prime numbers
+  lazy val asProds : List[ArithExpr] = {
+    var prods = ListBuffer[ArithExpr]()
     for (t <- terms) t match {
-      case c:Cst => prods += Prod(c.getSumProdList)
+      case c:Cst =>
+        val cPrimeFactorisation = c.asProd
+        if (cPrimeFactorisation.getSumProdList.length == 1) prods += c
+        else prods += cPrimeFactorisation
       case v:Var => prods += Prod(v.getSumProdList)
       case p:Prod => prods += p.primitiveProd
       case pow:Pow => prods += pow.asProd.get
@@ -101,7 +107,6 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
   lazy val asProd : Option[Prod] = FactoriseSum(this)
 
   override def getSumProdList: List[ArithExpr] = terms
-  override def getFactorisationList: List[ArithExpr] = List[ArithExpr](this)
 
   override def equals(that: Any): Boolean = that match {
     case Sum(terms2) => terms.length == terms2.length && terms.intersect(terms2).length == terms.length
@@ -115,7 +120,6 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   override def getSumProdList: List[ArithExpr] = factors
-  override def getFactorisationList: List[ArithExpr] = factors
 
   lazy val cstFactor : Int = factors.head match {
     case Cst(c) => c
@@ -150,12 +154,14 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   lazy val primitiveProd : Prod = {
     var primitiveFactors = ListBuffer[ArithExpr]()
     for (f <- factors) f match {
-      case _:Cst => primitiveFactors += f
+      case c:Cst =>
+        val cPrimeFactorisation = c.asProd
+        if (cPrimeFactorisation.getSumProdList.length == 1) primitiveFactors += c
+        else primitiveFactors = primitiveFactors ++ cPrimeFactorisation.factors
       case _ @ (_:Var | _:Sum) => primitiveFactors += f
-      case p:Pow => {
+      case p:Pow =>
         val pProd = p.asProd.get
         primitiveFactors = primitiveFactors ++ pProd.factors
-      }
     }
     Prod(primitiveFactors.toList)
   }
@@ -190,7 +196,6 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 // Class for powers, for now just integer exponents
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
-  override def getFactorisationList: List[ArithExpr] = List[ArithExpr](this)
 
   // Expansion into sum
   lazy val asSum : Option[Sum] = if (e < 0 || !b.isInstanceOf[Sum]) None else {
@@ -342,6 +347,49 @@ object ArithExpr {
     case _ => None
   }
 
+  // Finds all primes up to (and including) n using sieve algorithm
+  private def sieve(n : Int) : List[Int] = {
+    val isPrime = Array.fill[Boolean](n+1)(true)
+    isPrime(0) = false
+    isPrime(1) = false
+    for (i <- 2 to n) {
+      if (isPrime(i) && i*i <= n) {
+        for (j <- i*i to n by i) {
+          isPrime(j) = false
+        }
+      }
+    }
+    val primes = ListBuffer[Int]()
+    for (i <- 2 until n+1) {
+      if (isPrime(i)) primes += i
+    }
+    primes.toList
+  }
+
+  // Gives decomposition of an integer as prime
+  // If n < 0, include -1 in the decomposition
+  // Repeated factors repeated in the product
+  def primeDecomposition(n : Int) : List[Int] = {
+    var r = scala.math.abs(n)
+    val primes = sieve(r)
+    val factorisation = ListBuffer[Int]()
+    if (n < 0) factorisation += -1
+    var i = 0
+    var lessSquare = true
+    while (i < primes.length && lessSquare) {
+      val p = primes(i)
+      if (p*p > r) lessSquare = false
+      else {
+        while(r % p == 0) {
+          factorisation += p
+          r/= p
+        }
+      }
+      i+=1
+    }
+    if (r > 1) factorisation += r
+    factorisation.toList
+  }
 }
 
 class NotEvaluableException(msg : String) extends Exception(msg)

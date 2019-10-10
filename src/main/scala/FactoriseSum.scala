@@ -29,7 +29,13 @@ object FactoriseSum {
           (factorisedDivision,restDivision) match {
             case (None,None) =>
               //val fTerm = Prod(List[ArithExpr](f,fDivision.reduce((x,y)=>x+y)))
-              val fTerm = Prod(SimplifyProd(f,fDivision.reduce((x,y)=>x+y)).getSumProdList)
+              //val fTerm = Prod(SimplifyProd(f,fDivision.reduce((x,y)=>x+y)).getSumProdList)
+              var fTerm : Prod = Prod(List())
+              val fDivSum = Sum(fDivision.reduce((x,y)=>x+y).getSumProdList)
+              val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
+              if (fDivSumFactorised.isDefined) fTerm = Prod(SimplifyProd(f,fDivSumFactorised.get).getSumProdList)
+              else fTerm = Prod(SimplifyProd(f,fDivSum).getSumProdList)
+
               if (rest.isEmpty) return Some(fTerm)
               else {
                 val restTerm = Sum(rest.toList)
@@ -51,7 +57,13 @@ object FactoriseSum {
 
             case (None, Some(_)) =>
               //val fTerm = Prod(List[ArithExpr](f,fDivision.reduce((x,y)=>x+y)))
-              val fTerm = Prod(SimplifyProd(f,fDivision.reduce((x,y)=>x+y)).getSumProdList)
+              //val fTerm = Prod(SimplifyProd(f,fDivision.reduce((x,y)=>x+y)).getSumProdList)
+              var fTerm : Prod = Prod(List())
+              val fDivSum = Sum(fDivision.reduce((x,y)=>x+y).getSumProdList)
+              val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
+              if (fDivSumFactorised.isDefined) fTerm = Prod(SimplifyProd(f,fDivSumFactorised.get).getSumProdList)
+              else fTerm = Prod(SimplifyProd(f,fDivSum).getSumProdList)
+
               val restTerm = restDivision.get
               val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
               if (combinedFactorisation.isDefined) return combinedFactorisation
