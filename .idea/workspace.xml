@@ -4,14 +4,13 @@
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/FactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/FactoriseSum.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/FactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Factorise.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseSum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseSum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/META-INF/ArithSimplifier.kotlin_module" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseSum$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseSum.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
@@ -21,7 +20,6 @@
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/META-INF/ArithSimplifier.kotlin_module" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -77,7 +75,7 @@
       </method>
     </configuration>
     <configuration name="FactoriseSum" type="Application" factoryName="Application" temporary="true">
-      <option name="MAIN_CLASS_NAME" value="FactoriseSum" />
+      <option name="MAIN_CLASS_NAME" value="Factorise" />
       <module name="ArithSimplifier" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -178,31 +176,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala</url>
-          <line>102</line>
-          <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/FactoriseSum.scala</url>
-          <line>8</line>
-          <option name="timeStamp" value="77" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/ArithExpr.scala</url>
-          <line>95</line>
-          <option name="timeStamp" value="78" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/ArithExpr.scala</url>
-          <line>100</line>
-          <option name="timeStamp" value="79" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

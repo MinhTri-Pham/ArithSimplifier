@@ -27,10 +27,7 @@ abstract sealed class ArithExpr {
 case class Cst(value : Int) extends ArithExpr {
 
   // Prime decomposition
-  lazy val asProd : Prod = {
-    val decomposition = ArithExpr.primeDecomposition(value)
-    Prod(decomposition.map(x => Cst(x)))
-  }
+  lazy val asProd : Prod = Factorise(this).get
 
   override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
 
@@ -104,7 +101,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
     prods.toList
   }
 
-  lazy val asProd : Option[Prod] = FactoriseSum(this)
+  lazy val asProd : Option[Prod] = Factorise(this)
 
   override def getSumProdList: List[ArithExpr] = terms
 
@@ -345,50 +342,6 @@ object ArithExpr {
       Some(Sum(combined.getSumProdList))
 
     case _ => None
-  }
-
-  // Finds all primes up to (and including) n using sieve algorithm
-  private def sieve(n : Int) : List[Int] = {
-    val isPrime = Array.fill[Boolean](n+1)(true)
-    isPrime(0) = false
-    isPrime(1) = false
-    for (i <- 2 to n) {
-      if (isPrime(i) && i*i <= n) {
-        for (j <- i*i to n by i) {
-          isPrime(j) = false
-        }
-      }
-    }
-    val primes = ListBuffer[Int]()
-    for (i <- 2 until n+1) {
-      if (isPrime(i)) primes += i
-    }
-    primes.toList
-  }
-
-  // Gives decomposition of an integer as prime
-  // If n < 0, include -1 in the decomposition
-  // Repeated factors repeated in the product
-  def primeDecomposition(n : Int) : List[Int] = {
-    var r = scala.math.abs(n)
-    val primes = sieve(r)
-    val factorisation = ListBuffer[Int]()
-    if (n < 0) factorisation += -1
-    var i = 0
-    var lessSquare = true
-    while (i < primes.length && lessSquare) {
-      val p = primes(i)
-      if (p*p > r) lessSquare = false
-      else {
-        while(r % p == 0) {
-          factorisation += p
-          r/= p
-        }
-      }
-      i+=1
-    }
-    if (r > 1) factorisation += r
-    factorisation.toList
   }
 }
 
