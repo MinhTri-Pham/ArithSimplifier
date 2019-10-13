@@ -183,7 +183,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
 
   override def equals(that: Any): Boolean = that match {
-    case Prod(factors2)=> factors.length == factors2.length && factors.intersect(factors2).length == factors.length
+    case Prod(factors2) => factors.length == factors2.length && factors.intersect(factors2).length == factors.length
     case _ => false
   }
 

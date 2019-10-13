@@ -7,6 +7,7 @@ object Factorise {
       val decomposition = primeDecomposition(c.value)
       Some(Prod(decomposition.map(x => Cst(x))))
     case s:Sum =>factoriseSum(s)
+    // Products - to do once sum factorisation complete, should be straight-forward
     //case p:Prod => p.factors.reduce(x,y => )
     case _ => None
   }
@@ -14,9 +15,13 @@ object Factorise {
   def factoriseSum(s: Sum) : Option[Prod] = {
     if (s.terms.length < 2) return None
     val asProds = s.asProds
-    factoriseTerms(asProds)
+    val factorisation = factoriseTerms(asProds)
+    if (factorisation.isDefined) correctConstants(factorisation.get)
+    else None
   }
 
+
+  // Factorises a sum
   private def factoriseTerms(terms : List[ArithExpr]) : Option[Prod] = {
     if (terms.length < 2) return None
     var i = 0
@@ -48,7 +53,6 @@ object Factorise {
                 val restTerm = Sum(rest.toList)
                 val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                 if (combinedFactorisation.isDefined) return combinedFactorisation
-                else i+=1
               }
 
             case (Some(_), None) =>
@@ -59,7 +63,6 @@ object Factorise {
                 val restTerm = Sum(rest.toList)
                 val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                 if (combinedFactorisation.isDefined) return combinedFactorisation
-                else i+=1
               }
 
             case (None, Some(_)) =>
@@ -74,7 +77,6 @@ object Factorise {
               val restTerm = restDivision.get
               val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
               if (combinedFactorisation.isDefined) return combinedFactorisation
-              else i+=1
 
             case (Some(_), Some(_)) =>
               //val fTerm = Prod(f :: factorisedDivision.get.factors)
@@ -82,13 +84,29 @@ object Factorise {
               val restTerm = restDivision.get
               val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
               if (combinedFactorisation.isDefined) return combinedFactorisation
-              else i+=1
           }
         }
       }
       i+=1
     }
     None
+  }
+
+  // Multiplies remaining products of prime constants in factorisation of a sum into a single constant
+  // Everything else unchanged
+  private def correctConstants(factorisation: Prod) : Option[Prod] = {
+    var cleanedFactors = ListBuffer[ArithExpr]()
+    for (f <- factorisation.factors) f match {
+      case s:Sum =>
+        val cleanedTerms = ListBuffer[ArithExpr]()
+        for (t <- s.terms) t match {
+            case p:Prod => cleanedTerms += p.factors.reduce((x,y) =>x*y)
+          case _ => cleanedTerms += t
+        }
+        cleanedFactors += Sum(cleanedTerms.toList.sortWith(ArithExpr.isCanonicallySorted))
+      case _ => cleanedFactors += f
+    }
+    Some(Prod(cleanedFactors.toList))
   }
 
   // Finds all primes up to (and including) n using sieve algorithm
@@ -110,7 +128,7 @@ object Factorise {
     primes.toList
   }
 
-  // Gives decomposition of an integer as prime
+  // Gives prime decomposition of an integer
   // If n < 0, include -1 in the decomposition
   // Repeated factors repeated in the product
   private def primeDecomposition(n : Int) : List[Int] = {
@@ -133,5 +151,14 @@ object Factorise {
     }
     if (r > 1) factorisation += r
     factorisation.toList
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val e = Factorise(Cst(2)*a - Cst(8))
+    val s = Some(Cst(2)*(a-Cst(4)))
+    println(e)
+    println(s)
+    println(e == s)
   }
 }
