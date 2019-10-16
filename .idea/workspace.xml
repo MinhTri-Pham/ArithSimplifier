@@ -4,11 +4,22 @@
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Factorise.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Factorise.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumProdSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumProdSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/META-INF/ArithSimplifier.kotlin_module" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumProdSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumProdSimplification.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,6 +53,11 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
+  </component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -54,7 +70,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.All in ArithSimplifier">
+  <component name="RunManager" selected="Application.RandomGenerator">
     <configuration name="ArithExpr" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="ArithExpr" />
       <module name="ArithSimplifier" />
@@ -64,6 +80,13 @@
     </configuration>
     <configuration name="Factorise" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="Factorise" />
+      <module name="ArithSimplifier" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RandomGenerator" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="RandomGenerator" />
       <module name="ArithSimplifier" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -88,15 +111,17 @@
     </configuration>
     <list>
       <item itemvalue="Application.ArithExpr" />
+      <item itemvalue="Application.Factorise" />
+      <item itemvalue="Application.RandomGenerator" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
       <item itemvalue="JUnit.TestSumProdSimplification" />
-      <item itemvalue="Application.Factorise" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.RandomGenerator" />
+        <item itemvalue="Application.ArithExpr" />
         <item itemvalue="JUnit.All in ArithSimplifier" />
         <item itemvalue="Application.Factorise" />
-        <item itemvalue="Application.ArithExpr" />
         <item itemvalue="JUnit.TestSumProdSimplification" />
       </list>
     </recent_temporary>
@@ -169,9 +194,14 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala</url>
+          <line>82</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="scala-line">
           <url>file://$PROJECT_DIR$/src/main/scala/Factorise.scala</url>
-          <line>161</line>
-          <option name="timeStamp" value="13" />
+          <line>145</line>
+          <option name="timeStamp" value="38" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

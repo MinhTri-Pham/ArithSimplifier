@@ -21,6 +21,16 @@ abstract sealed class ArithExpr {
   // Returns list of terms or factors for Sum and Prod simplification
   def getSumProdList : List[ArithExpr]
 
+  def digest(): Int
+
+  def HashSeed(): Int
+
+  // Whether expression can be seen as a variable
+  lazy val asVar : Option[Var] = this match {
+    case x: Var => Some(x)
+    case _ => None
+  }
+
 }
 
 // Class for (int) constants
@@ -30,6 +40,10 @@ case class Cst(value : Int) extends ArithExpr {
   lazy val asProd : Prod = Factorise(this).get
 
   override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
+
+  override val HashSeed: Int = java.lang.Long.hashCode(value)
+
+  override lazy val digest: Int = java.lang.Long.hashCode(value)
 
   override def equals(that: Any): Boolean = that match {
     case Cst(n) => n == value
@@ -53,6 +67,10 @@ case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
       Var.incCnt
     }
   }
+
+  override val HashSeed = 0x54e9bd5e
+
+  override lazy val digest: Int = HashSeed ^ name.hashCode ^ id.hashCode
 
   override def equals(that: Any): Boolean = that match {
     case v: Var => this.id == v.id
@@ -105,6 +123,10 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   override def getSumProdList: List[ArithExpr] = terms
 
+  override val HashSeed = 0x8e535130
+
+  override lazy val digest: Int = terms.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
+
   override def equals(that: Any): Boolean = that match {
     case Sum(terms2) => terms.length == terms2.length && terms.intersect(terms2).length == terms.length
     case _ => false
@@ -116,6 +138,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 // Class for products
 case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
+
   override def getSumProdList: List[ArithExpr] = factors
 
   lazy val cstFactor : Int = factors.head match {
@@ -124,28 +147,39 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   }
 
   lazy val asSum : Option[Sum] = {
-    assume(factors.length > 1)
-
-    var expanded = false
-    var accum : ArithExpr = Cst(1)
-    for (f <- factors) f match {
-      case x @ (_:Cst | _:Var) => accum = x * accum
-      case s:Sum =>
-        accum = ArithExpr.expand(accum,s).get
-        expanded = true
-      case p:Pow =>
-        val pSum = p.asSum
-        if (pSum.isDefined) {
-          accum = ArithExpr.expand(accum,pSum.get).get
+    if (factors.length <= 1) None
+    else {
+      var expanded = false
+      var accum : ArithExpr = Cst(1)
+      for (f <- factors) f match {
+        case x @ (_:Cst | _:Var) =>
+          if (accum.isInstanceOf[Sum]) {
+            accum = ArithExpr.expand(accum, x).get
+            expanded = true
+          }
+          else accum = x * accum
+        case s:Sum =>
+          accum = ArithExpr.expand(accum,s).get
           expanded = true
-        }
-        else {
-          if (p.e > 0) accum = accum * p
-          else None
-        }
+        case p:Pow =>
+          val pSum = p.asSum
+          if (pSum.isDefined) {
+            accum = ArithExpr.expand(accum,pSum.get).get
+            expanded = true
+          }
+          else if (accum.isInstanceOf[Sum]) {
+            accum = ArithExpr.expand(accum,p).get
+            expanded = true
+          }
+          else {
+            if (p.e > 0) accum = accum * p
+            else None
+          }
+        println(accum)
+      }
+      if (expanded) Some(Sum(accum.getSumProdList.reduce((x,y)=>x+y).getSumProdList))
+      else None
     }
-    if (expanded) Some(Sum(accum.getSumProdList))
-    else None
   }
 
   lazy val primitiveProd : Prod = {
@@ -181,6 +215,9 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     nonCstFactors.toList
   }
 
+  override val HashSeed = 0x286be17e
+
+  override lazy val digest: Int = factors.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
 
   override def equals(that: Any): Boolean = that match {
     case Prod(factors2) => factors.length == factors2.length && factors.intersect(factors2).length == factors.length
@@ -225,6 +262,10 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     Some(Prod(pfacts.toList))
   }
 
+  override val HashSeed = 0x63fcd7c2
+
+  override lazy val digest: Int = HashSeed ^ b.digest() ^ e
+
   override def equals(that: Any): Boolean = that match {
     case Pow(b2,e2) => b == b2 && e == e2
     case _ => false
@@ -238,7 +279,7 @@ object ArithExpr {
   // Used for sorting terms of Sum or factors of Prod
   // For ease of simplification
   val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
-    //case (Cst(a), Cst(b)) => a < b
+    case (Cst(a), Cst(b)) => a < b
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
@@ -281,17 +322,18 @@ object ArithExpr {
     case (p1:Prod, p2:Prod) =>
       val p1nonCst = p1.withoutCstList
       val p2nonCst = p2.withoutCstList
-      if (p1nonCst.length == p2nonCst.length) {
-        p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
-      }
-      else {
-        p1nonCst.length < p2nonCst.length
-      }
+//      if (p1nonCst.length == p2nonCst.length) {
+//        p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+//      }
+//      else {
+//        p1nonCst.length < p2nonCst.length
+//      }
+      p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
 
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
     case (_, _: Pow) => true
     case (_: Pow, _) => false
-    case _ => false
+    case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
   }
 
   // Evaluates an expression given substitutions for variables
@@ -342,6 +384,22 @@ object ArithExpr {
       Some(Sum(combined.getSumProdList))
 
     case _ => None
+  }
+
+  def main(args: Array[String]): Unit = {
+    val av = Var("a")
+    val ev = Var("e")
+    val gv = Var("g")
+    val hv = Var("h")
+    val iv = Var("i")
+    val jv = Var("j")
+    val kv = Var("k")
+    val mv = Var("m")
+    val nv = Var("n")
+    val ov = Var("o")
+
+    val p = Prod(List(gv+ov,hv+iv+jv,ev+kv,av+nv+mv))
+    println(p.asSum)
   }
 }
 
