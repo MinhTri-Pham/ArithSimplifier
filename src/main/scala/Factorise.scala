@@ -152,13 +152,4 @@ object Factorise {
     if (r > 1) factorisation += r
     factorisation.toList
   }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val e = Factorise(Cst(2)*a - Cst(8))
-    val s = Some(Cst(2)*(a-Cst(4)))
-    println(e)
-    println(s)
-    println(e == s)
-  }
 }

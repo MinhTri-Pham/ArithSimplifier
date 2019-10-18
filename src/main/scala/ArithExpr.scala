@@ -23,6 +23,8 @@ abstract sealed class ArithExpr {
 
   def digest(): Int
 
+  override def hashCode: Int = digest()
+
   def HashSeed(): Int
 
   // Whether expression can be seen as a variable
@@ -175,7 +177,6 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             if (p.e > 0) accum = accum * p
             else None
           }
-        println(accum)
       }
       if (expanded) Some(Sum(accum.getSumProdList.reduce((x,y)=>x+y).getSumProdList))
       else None
@@ -278,7 +279,8 @@ object ArithExpr {
 
   // Used for sorting terms of Sum or factors of Prod
   // For ease of simplification
-  val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
+  val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) =>
+    (x, y) match {
     case (Cst(a), Cst(b)) => a < b
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
@@ -320,15 +322,41 @@ object ArithExpr {
     case (_, _: Var) => false
 
     case (p1:Prod, p2:Prod) =>
+      // Sorting based on non-constant factors
       val p1nonCst = p1.withoutCstList
       val p2nonCst = p2.withoutCstList
-//      if (p1nonCst.length == p2nonCst.length) {
-//        p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
-//      }
-//      else {
-//        p1nonCst.length < p2nonCst.length
-//      }
-      p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+      if (p1nonCst.length == p2nonCst.length) {
+        // If non-constant factors same, compare constant factors
+        if (p1nonCst == p2nonCst) p1.cstFactor < p2.cstFactor
+        else {
+          // Same length of non-constant factors but these factors are different
+          // Compute pair comparisons (element-wise)
+          val pairComparisons = p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2))
+          var firstSorted = -1
+          var numSorted = 0
+          var numUnsorted = 0
+          var i = 0
+          val len = pairComparisons.length
+          // Count how many pairs sorted
+          while (i < len) {
+            if (pairComparisons(i) && firstSorted == -1) {
+              numSorted+=1
+              firstSorted = i
+            }
+            else if (pairComparisons(i)) numSorted +=1
+            else numUnsorted +=1
+            i+=1
+          }
+          // If more pairs sorted or equal number of sorted/unsorted with first sorted pair in the first half
+          // The product is sorted
+          (numSorted > numUnsorted) || (numSorted == numUnsorted && firstSorted <= len / 2 - 1)
+        }
+      }
+        // Shorter products first
+      else {
+        p1nonCst.length < p2nonCst.length
+      }
+      //p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
 
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
     case (_, _: Pow) => true
@@ -387,19 +415,12 @@ object ArithExpr {
   }
 
   def main(args: Array[String]): Unit = {
-    val av = Var("a")
-    val ev = Var("e")
-    val gv = Var("g")
-    val hv = Var("h")
-    val iv = Var("i")
-    val jv = Var("j")
-    val kv = Var("k")
-    val mv = Var("m")
-    val nv = Var("n")
-    val ov = Var("o")
-
-    val p = Prod(List(gv+ov,hv+iv+jv,ev+kv,av+nv+mv))
-    println(p.asSum)
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    val d = Var("d")
+    println(isCanonicallySorted(a*d,b*c))
+    println(isCanonicallySorted(b*c,a*d))
   }
 }
 

@@ -97,7 +97,7 @@ object RandomGenerator {
 
   def main(args: Array[String]): Unit = {
     println("Trying a few random tests \n")
-    for (depth <- 2 to 6) {
+    for (depth <- 2 to 8) {
       val p = genNonRepeatVarRandomProd(depth)
       println(s"Generated product:$p")
       val pSum = p.asSum
