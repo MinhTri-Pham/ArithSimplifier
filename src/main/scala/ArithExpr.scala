@@ -27,9 +27,32 @@ abstract sealed class ArithExpr {
 
   def HashSeed(): Int
 
-  // Whether expression can be seen as a variable
-  lazy val asVar : Option[Var] = this match {
+  // Convert expression to variable if possible
+  lazy val toVar : Option[Var] = this match {
     case x: Var => Some(x)
+    case _ => None
+  }
+
+  // Convert expression to sum if possible
+  lazy val toSum : Option[Sum] = this match {
+    case x:Sum => Some(x)
+    case x:Prod => x.asExpandedSum
+    case x:Pow => x.asSum
+    case _ => None
+  }
+
+  // Convert expression to product if possible
+  lazy val toProd : Option[Prod] = this match {
+    case x:Prod => Some(x)
+    case x:Sum => x.asProd
+    case x:Pow => x.asProd
+    case _ => None
+  }
+
+  // Convert expression to power if possible
+  lazy val toPow : Option[Pow] = this match {
+    case x:Prod => x.asPow
+    case x:Pow => Some(x)
     case _ => None
   }
 
@@ -115,8 +138,19 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
         if (cPrimeFactorisation.getSumProdList.length == 1) prods += c
         else prods += cPrimeFactorisation
       case v:Var => prods += Prod(v.getSumProdList)
-      case p:Prod => prods += p.primitiveProd
-      case pow:Pow => prods += pow.asProd.get
+      case p:Prod =>
+        val expandCst = p.asNonCstFactorsSum
+        if (expandCst.isDefined) {
+          val expandCstProds = expandCst.get.asProds
+          prods = prods ++ expandCstProds
+        }
+        else {
+          prods += p.primitiveProd
+        }
+
+      case pow:Pow =>
+        if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
+        else prods += pow.asProd.get
     }
     prods.toList
   }
@@ -148,7 +182,28 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     case _ => 1
   }
 
-  lazy val asSum : Option[Sum] = {
+  lazy val nonCstList : List[ArithExpr] = {
+    val nonCstFactors = ListBuffer[ArithExpr]()
+    for (factor <- factors) {
+      if (!factor.isInstanceOf[Cst]) nonCstFactors += factor
+    }
+    nonCstFactors.toList
+  }
+
+  lazy val nonCstFactor : ArithExpr = {
+    if (cstFactor == 1) this
+    else this.nonCstList.reduce((x, y) => x*y)
+  }
+
+  lazy val asNonCstFactorsSum : Option[Sum] = if (factors.length < 2 || cstFactor < 2) None else {
+    val terms = ListBuffer[ArithExpr]()
+    for (i <- 0 until cstFactor) {
+      terms += nonCstFactor
+    }
+    Some(Sum(terms.toList))
+  }
+
+  lazy val asExpandedSum : Option[Sum] = {
     if (factors.length <= 1) None
     else {
       var expanded = false
@@ -178,9 +233,14 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             else None
           }
       }
-      if (expanded) Some(Sum(accum.getSumProdList.reduce((x,y)=>x+y).getSumProdList))
+      if (expanded) accum.getSumProdList.reduce((x,y)=>x+y).toSum
       else None
     }
+  }
+
+  lazy val asPow : Option[Pow] = if (factors.length < 2) None else {
+    if (nonCstList.distinct.length == 1) Some (Pow(nonCstList.head,nonCstList.length))
+    else None
   }
 
   lazy val primitiveProd : Prod = {
@@ -192,28 +252,16 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
         else primitiveFactors = primitiveFactors ++ cPrimeFactorisation.factors
       case _ @ (_:Var | _:Sum) => primitiveFactors += f
       case p:Pow =>
-        val pProd = p.asProd.get
-        primitiveFactors = primitiveFactors ++ pProd.factors
+        if (p.asProdPows.isDefined) {
+          val pProdPows = p.asProdPows.get
+          primitiveFactors = primitiveFactors ++ pProdPows.primitiveProd.factors
+        }
+        else {
+          val pProd = p.asProd.get
+          primitiveFactors = primitiveFactors ++ pProd.factors
+        }
     }
     Prod(primitiveFactors.toList)
-  }
-
-
-  def withoutCst : ArithExpr = {
-    val nonCstFactors = ListBuffer[ArithExpr]()
-    for (factor <- factors) {
-      if (!factor.isInstanceOf[Cst]) nonCstFactors += factor
-    }
-    if (nonCstFactors.length == 1) nonCstFactors.head
-    else Prod(nonCstFactors.toList)
-  }
-
-  def withoutCstList : List[ArithExpr] = {
-    val nonCstFactors = ListBuffer[ArithExpr]()
-    for (factor <- factors) {
-      if (!factor.isInstanceOf[Cst]) nonCstFactors += factor
-    }
-    nonCstFactors.toList
   }
 
   override val HashSeed = 0x286be17e
@@ -288,14 +336,14 @@ object ArithExpr {
 
     // Want na (where n is a constant) < b (assuming a < b) for sum simplification
     case (p : Prod, x: Var) =>
-      val nonCst = p.withoutCst
+      val nonCst = p.nonCstFactor
       if (nonCst.isInstanceOf[Var]) {
         if (nonCst == x) false
         else isCanonicallySorted(nonCst, x)
       }
       else false
     case (x: Var, p : Prod) =>
-      val nonCst = p.withoutCst
+      val nonCst = p.nonCstFactor
       if (nonCst.isInstanceOf[Var]) {
         if (nonCst == x) true
         else isCanonicallySorted(x, nonCst)
@@ -323,8 +371,8 @@ object ArithExpr {
 
     case (p1:Prod, p2:Prod) =>
       // Sorting based on non-constant factors
-      val p1nonCst = p1.withoutCstList
-      val p2nonCst = p2.withoutCstList
+      val p1nonCst = p1.nonCstList
+      val p2nonCst = p2.nonCstList
       if (p1nonCst.length == p2nonCst.length) {
         // If non-constant factors same, compare constant factors
         if (p1nonCst == p2nonCst) p1.cstFactor < p2.cstFactor
@@ -359,8 +407,12 @@ object ArithExpr {
       //p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
 
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
+    case (Pow(b,_),_:Sum) => b.isInstanceOf[Var]
+    case (_:Sum,Pow(b,_)) => !b.isInstanceOf[Var]
+
     case (_, _: Pow) => true
     case (_: Pow, _) => false
+
     case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
   }
 
@@ -417,10 +469,7 @@ object ArithExpr {
   def main(args: Array[String]): Unit = {
     val a = Var("a")
     val b = Var("b")
-    val c = Var("c")
-    val d = Var("d")
-    println(isCanonicallySorted(a*d,b*c))
-    println(isCanonicallySorted(b*c,a*d))
+    print((a+b)*(a+b))
   }
 }
 

@@ -96,29 +96,28 @@ class TestFactoriseSum {
   }
 
   // With constants
-  @Test
-  def withConstants(): Unit = {
-    val s1 = Cst(2)*a + Cst(8)
-    assertEquals(Factorise(s1),Some(Cst(2)*(a+Cst(4))))
-
-    val s2 = Cst(2)*a + Cst(8)*b
-    assertEquals(Factorise(s2),Some(Cst(2)*(a+Cst(4)*b)))
-
-    val s3 = a*b + Cst(4)*a + Cst(4)*b + Cst(16)
-    assertEquals(Factorise(s3),Some((a+Cst(4))*(b+Cst(4))))
-
-    val s4 = Cst(2)*a*c + Cst(4)*a*d + b*c + Cst(2)*b*d
-    assertEquals(Factorise(s4),Some((Cst(2)*a+b)*(c+Cst(2)*d)))
-
-    val s5 = Cst(8)*a*d*f + Cst(48)*a*e*f + Cst(4)*b*d*f + Cst(24)*b*e*f + Cst(16)*c*d*f + Cst(96)*c*e*f
-    assertEquals(Factorise(s5),Some(Cst(4)*(Cst(2)*a+b+Cst(4)*c)*(d+Cst(6)*e)*f))
-
-    val s6 = Cst(24)*a*a + Cst(6)*a*c + Cst(4)*b*a + b*c
-    assertEquals(Factorise(s6),Some((Cst(6)*a+b)*(Cst(4)*a+c)))
-
-    val s7 = Cst(8)*(a pow 2)*c + Cst(8)*(a pow 2)*e + Cst(48)*(a pow 2) + Cst(4)*a*b*c + Cst(4)*a*b*e + Cst(24)*a*b +
-      Cst(32)*a*(c pow 2) + Cst(32)*a*c*e + Cst(192)*a*c + Cst(16)*b*(c pow 2) + Cst(16)*b*c*e + Cst(96)*b*c
-    assertEquals(Factorise(s7), Some(Cst(4)*(Cst(2)*a+b)*(a+Cst(4)*c)*(c+e+Cst(6))))
-  }
-
+//  @Test
+//  def withConstants(): Unit = {
+//    val s1 = Cst(2)*a + Cst(8)
+//    assertEquals(Factorise(s1),Some(Cst(2)*(a+Cst(4))))
+//
+//    val s2 = Cst(2)*a + Cst(8)*b
+//    assertEquals(Factorise(s2),Some(Cst(2)*(a+Cst(4)*b)))
+//
+//    val s3 = a*b + Cst(4)*a + Cst(4)*b + Cst(16)
+//    assertEquals(Factorise(s3),Some((a+Cst(4))*(b+Cst(4))))
+//
+//    val s4 = Cst(2)*a*c + Cst(4)*a*d + b*c + Cst(2)*b*d
+//    assertEquals(Factorise(s4),Some((Cst(2)*a+b)*(c+Cst(2)*d)))
+//
+//    val s5 = Cst(8)*a*d*f + Cst(48)*a*e*f + Cst(4)*b*d*f + Cst(24)*b*e*f + Cst(16)*c*d*f + Cst(96)*c*e*f
+//    assertEquals(Factorise(s5),Some(Cst(4)*(Cst(2)*a+b+Cst(4)*c)*(d+Cst(6)*e)*f))
+//
+//    val s6 = Cst(24)*a*a + Cst(6)*a*c + Cst(4)*b*a + b*c
+//    assertEquals(Factorise(s6),Some((Cst(6)*a+b)*(Cst(4)*a+c)))
+//
+//    val s7 = Cst(8)*(a pow 2)*c + Cst(8)*(a pow 2)*e + Cst(48)*(a pow 2) + Cst(4)*a*b*c + Cst(4)*a*b*e + Cst(24)*a*b +
+//      Cst(32)*a*(c pow 2) + Cst(32)*a*c*e + Cst(192)*a*c + Cst(16)*b*(c pow 2) + Cst(16)*b*c*e + Cst(96)*b*c
+//    assertEquals(Factorise(s7), Some(Cst(4)*(Cst(2)*a+b)*(a+Cst(4)*c)*(c+e+Cst(6))))
+//  }
 }

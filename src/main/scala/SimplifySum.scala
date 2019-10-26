@@ -9,8 +9,8 @@ object SimplifySum {
     (lhs,rhs) match {
       // If either side is a product/power, try to convert to a sum and work with sums instead
       case (p1:Prod,p2: Prod) =>
-        val lhsSum = p1.asSum
-        val rhsSum = p2.asSum
+        val lhsSum = p1.asExpandedSum
+        val rhsSum = p2.asExpandedSum
         (lhsSum, rhsSum) match {
           case (Some(_), Some(_)) =>
             lhsTerms = lhsSum.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
@@ -30,7 +30,7 @@ object SimplifySum {
         }
 
       case (p1:Prod, p2:Pow) =>
-        val lhsSum = p1.asSum
+        val lhsSum = p1.asExpandedSum
         val rhsSum = p2.asSum
         (lhsSum, rhsSum) match {
           case (Some(_), Some(_)) =>
@@ -52,7 +52,7 @@ object SimplifySum {
 
       case (p1:Pow,p2:Prod) =>
         val lhsSum = p1.asSum
-        val rhsSum = p2.asSum
+        val rhsSum = p2.asExpandedSum
         (lhsSum, rhsSum) match {
           case (Some(_), Some(_)) =>
             lhsTerms = lhsSum.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
@@ -93,7 +93,7 @@ object SimplifySum {
         }
 
       case (p: Prod, _) =>
-        val pSum = p.asSum
+        val pSum = p.asExpandedSum
         if (pSum.isDefined) lhsTerms = pSum.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
         else lhsTerms = List[ArithExpr](p)
         rhsTerms = rhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
@@ -105,7 +105,7 @@ object SimplifySum {
         rhsTerms = rhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, p: Prod) =>
-        val pSum = p.asSum
+        val pSum = p.asExpandedSum
         if (pSum.isDefined) rhsTerms = pSum.get.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
         else rhsTerms = List[ArithExpr](p)
         lhsTerms = lhs.getSumProdList.sortWith(ArithExpr.isCanonicallySorted)
@@ -174,10 +174,10 @@ object SimplifySum {
 //      if (x == y)  Some(x.copy(x.cstMult + y.cstMult))
 //      else None
     case (x, y) if x == y => Some(Cst(2) * x)
-    case (p1:Prod, p2:Prod) if p1.withoutCst == p2.withoutCst =>
-      Some(Cst(p1.cstFactor + p2.cstFactor) * p1.withoutCst)
-    case (p:Prod,x) if p.withoutCst == x => Some(Cst(1 + p.cstFactor) * x)
-    case (x, p:Prod) if p.withoutCst == x => Some(Cst(1 + p.cstFactor) * x)
+    case (p1:Prod, p2:Prod) if p1.nonCstFactor == p2.nonCstFactor =>
+      Some(Cst(p1.cstFactor + p2.cstFactor) * p1.nonCstFactor)
+    case (p:Prod,x) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
+    case (x, p:Prod) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
     case _ => None
   }
 

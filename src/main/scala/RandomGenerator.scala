@@ -2,7 +2,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
 object RandomGenerator {
-  // Variables
+  // Possible variables
   val av = Var("a")
   val bv = Var("b")
   val cv = Var("c")
@@ -27,10 +27,14 @@ object RandomGenerator {
   val variables: List[Var] = List(av,bv,cv,dv,ev,gv,hv,iv,jv,kv,lv,mv,nv,ov,pv,qv,rv,sv,tv)
   val numVars: Int = variables.length
 
+  // Below are some min/max values for types of expressions used in the random product
+  // For now fairly small for testing purposes
+  val maxCst = 6
   // Min and max length of sum in factor
   val minSumLen = 2
   val maxSumLen = 4
 
+  // Generates sum with no constants and different variables
   def genNonConstSum(length: Int): Sum = {
     val terms = new ListBuffer[Var]()
     val rand = new Random
@@ -44,42 +48,46 @@ object RandomGenerator {
     Sum(terms.toList.sortWith(ArithExpr.isCanonicallySorted))
   }
 
-
-  def genNonRepeatVarRandomProd(depth : Int) : Prod = {
+  // Generate product sums with no repeating variable across whole expression
+  def genProdSums(depth : Int) : Prod = {
     val rand = new Random
     var accumVariables = ListBuffer[Var]()
     val factors = new ListBuffer[ArithExpr]()
-    // Start with sum so that there's always a factorisation (assuming depth > 1)
-    val startSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
-    factors += startSum
-    for (sumVar <- startSum.terms) {
-      accumVariables += sumVar.asVar.get
-    }
-    // Generate next terms
-    for (_ <- 1 until depth) {
-      val factorType = rand.nextInt(2)
-      factorType match {
-        case 0 =>
-          var randVar = variables(rand.nextInt(numVars))
-          while(listContainsVariable(accumVariables.toList,randVar)) {
-            randVar = variables(rand.nextInt(numVars))
-          }
-          factors += randVar
-          accumVariables += randVar
-        case 1 =>
-          var randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
-          while(accumVariables.foldLeft(false)((flag, v) => flag || listContainsVariable(randSum.terms,v))) {
-            randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
-          }
-          factors += randSum
-          for (sumVar <- randSum.terms) {
-            accumVariables += sumVar.asVar.get
-          }
+    // Generate sums
+    for (_ <- 0 until depth) {
+      var randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
+      // Make sure we don't get any repeating varaibles, i.e. no powers in expansion
+      while(accumVariables.foldLeft(false)((flag, v) => flag || listContainsVariable(randSum.terms,v))) {
+        randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
+      }
+      factors += randSum
+      for (sumVar <- randSum.terms) {
+        accumVariables += sumVar.toVar.get
       }
     }
-    Prod(factors.reduce((x,y) => x*y).getSumProdList)
+    Prod(factors.toList)
   }
 
+  // Generate a product of positive constants, variables or powers of variables
+  // Represents a "common term" in factorisation
+  private def genCommonFactor : ArithExpr = {
+    val rand = new Random
+    val multiplications = 6
+    var commonTerm : ArithExpr = Cst(1)
+    for (_ <- 0 until multiplications) {
+      val exprType = rand.nextInt(3)
+      var genExpr : ArithExpr = av
+      exprType match {
+        // Constant > 2
+        case 0 => genExpr = Cst(2 + rand.nextInt(maxCst - 2 + 1))
+        case 1 => genExpr = variables(rand.nextInt(numVars))
+        // Variable squared (later to higher power as well)
+        case 2 => genExpr = variables(rand.nextInt(numVars)) pow 3
+      }
+      commonTerm = commonTerm * genExpr
+    }
+    commonTerm
+  }
 
   private def listContainsVariable(list: List[ArithExpr], v : Var): Boolean = {
     list.foldLeft(false)((flag,factor) => flag || containsVariable(factor,v))
@@ -94,23 +102,43 @@ object RandomGenerator {
 
   }
 
+  // For i in 2,..,depth, generates a product of sums with no repeating variable across whole expression
+  // Expands it into a sum and compares factorisation with the original product
+  private def tryProdsOfSums(depth: Int): Unit = {
+    println("Trying a few random tests \n")
+    for (d <- 2 to depth) {
+      val p = genProdSums(d)
+      println(s"Generated product:$p")
+      val pSum = p.asExpandedSum.get
+      println(s"Expanded product: $pSum")
+      val sumFactorisation = Factorise(pSum)
+      println(s"Factorisation: ${sumFactorisation.get}")
+      println(s"Factorisation equivalent to generated product: ${p == sumFactorisation.get}")
+      println(s"-------------------------------- End of iteration with depth $d --------------------------------\n")
+    }
+  }
+
+  // For i in 2,..,depth
+  // *  generates a product of sums with no repeating variable across whole expression
+  // *  multiplies the product obtained in previous by a common term
+  // Expands the whole expression into a sum and compares factorisation with the original product
+  private def tryProdsOfSumsWithCF(depth: Int): Unit = {
+    println("Trying a few random tests \n")
+    for (d <- 2 to depth) {
+      val p = genProdSums(d)
+      val cf = genCommonFactor
+      val pcf = cf * p.toProd.get
+      println(s"Generated product with a common factor: $pcf")
+      val pcfSum = pcf.toSum.get
+      println(s"Expanded product: $pcfSum")
+      val sumFactorisation = Factorise(pcfSum)
+      println(s"Factorisation: ${sumFactorisation.get}")
+      println(s"Factorisation equivalent to generated product: ${pcf == sumFactorisation.get}")
+      println(s"-------------------------------- End of iteration with depth $d --------------------------------\n")
+    }
+  }
 
   def main(args: Array[String]): Unit = {
-    println("Trying a few random tests \n")
-    for (depth <- 2 to 8) {
-      val p = genNonRepeatVarRandomProd(depth)
-      println(s"Generated product:$p")
-      val pSum = p.asSum
-      if (pSum.isDefined) {
-        println(s"Expanded product: ${pSum.get}")
-        val sumFactorisation = Factorise(pSum.get)
-        println(s"Factorisation: ${sumFactorisation.get}")
-        println(s"Factorisation equivalent to generated product: ${p == sumFactorisation.get}")
-      }
-      else {
-        println("p can't be expanded into a sum")
-      }
-      println(s"-------------------------------- End of iteration with depth $depth --------------------------------\n")
-    }
+    tryProdsOfSums(7)
   }
 }

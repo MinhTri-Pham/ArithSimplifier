@@ -7,8 +7,6 @@ object Factorise {
       val decomposition = primeDecomposition(c.value)
       Some(Prod(decomposition.map(x => Cst(x))))
     case s:Sum =>factoriseSum(s)
-    // Products - to do once sum factorisation complete, should be straight-forward
-    //case p:Prod => p.factors.reduce(x,y => )
     case _ => None
   }
 
@@ -29,61 +27,56 @@ object Factorise {
       val term = terms(i)
       for (f <- term.getSumProdList) {
         val containsF = ListBuffer[ArithExpr]()
-        val rest = ListBuffer[ArithExpr]()
         for (term <- terms) {
           if (term.getSumProdList.contains(f)) containsF += term
-          else rest += term
         }
-        if (containsF.length > 1) {
-          val fDivision = containsF.map(x => x /^ f)
-          val factorisedDivision = factoriseTerms(fDivision.toList)
-          val restDivision = factoriseTerms(rest.toList)
-          (factorisedDivision,restDivision) match {
-            case (None,None) =>
-              //val fTerm = Prod(List[ArithExpr](f,fDivision.reduce((x,y)=>x+y)))
-              //val fTerm = Prod(SimplifyProd(f,fDivision.reduce((x,y)=>x+y)).getSumProdList)
-              var fTerm : Prod = Prod(List())
-              val fDivSum = Sum(fDivision.reduce((x,y)=>x+y).getSumProdList)
-              val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
-              if (fDivSumFactorised.isDefined) fTerm = Prod(SimplifyProd(f,fDivSumFactorised.get).getSumProdList)
-              else fTerm = Prod(SimplifyProd(f,fDivSum).getSumProdList)
+        for (subset <- powerSet(containsF.toList)) {
+          if (subset.distinct.length > 1) {
+            val rest = terms.diff(subset)
+            val fDivision = subset.map(x => x /^ f)
+            val factorisedDivision = factoriseTerms(fDivision)
+            val restDivision = factoriseTerms(rest)
+            (factorisedDivision,restDivision) match {
+              case (None,None) =>
+                var fTerm : Prod = Prod(List())
+                val fDivSum = fDivision.reduce((x,y)=>x+y).toSum.get
+                val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
+                if (fDivSumFactorised.isDefined) fTerm = (f * fDivSumFactorised.get).toProd.get
+                else fTerm = (f * fDivSum).toProd.get
 
-              if (rest.isEmpty) return Some(fTerm)
-              else {
-                val restTerm = Sum(rest.toList)
+                if (rest.isEmpty) return Some(fTerm)
+                else {
+                  val restTerm = Sum(rest)
+                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                  if (combinedFactorisation.isDefined) return combinedFactorisation
+                }
+
+              case (Some(_), None) =>
+                val fTerm = (f * factorisedDivision.get).toProd.get
+                if (rest.isEmpty) return Some(fTerm)
+                else {
+                  val restTerm = Sum(rest)
+                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                  if (combinedFactorisation.isDefined) return combinedFactorisation
+                }
+
+              case (None, Some(_)) =>
+                var fTerm : Prod = Prod(List())
+                val fDivSum = fDivision.reduce((x,y)=>x+y).toSum.get
+                val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
+                if (fDivSumFactorised.isDefined) fTerm = (f * fDivSumFactorised.get).toProd.get
+                else fTerm = (f * fDivSum).toProd.get
+
+                val restTerm = restDivision.get
                 val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                 if (combinedFactorisation.isDefined) return combinedFactorisation
-              }
 
-            case (Some(_), None) =>
-              //val fTerm = Prod(f :: factorisedDivision.get.factors)
-              val fTerm = Prod(SimplifyProd(f,factorisedDivision.get).getSumProdList)
-              if (rest.isEmpty) return Some(fTerm)
-              else {
-                val restTerm = Sum(rest.toList)
+              case (Some(_), Some(_)) =>
+                val fTerm = (f * factorisedDivision.get).toProd.get
+                val restTerm = restDivision.get
                 val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                 if (combinedFactorisation.isDefined) return combinedFactorisation
-              }
-
-            case (None, Some(_)) =>
-              //val fTerm = Prod(List[ArithExpr](f,fDivision.reduce((x,y)=>x+y)))
-              //val fTerm = Prod(SimplifyProd(f,fDivision.reduce((x,y)=>x+y)).getSumProdList)
-              var fTerm : Prod = Prod(List())
-              val fDivSum = Sum(fDivision.reduce((x,y)=>x+y).getSumProdList)
-              val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
-              if (fDivSumFactorised.isDefined) fTerm = Prod(SimplifyProd(f,fDivSumFactorised.get).getSumProdList)
-              else fTerm = Prod(SimplifyProd(f,fDivSum).getSumProdList)
-
-              val restTerm = restDivision.get
-              val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
-              if (combinedFactorisation.isDefined) return combinedFactorisation
-
-            case (Some(_), Some(_)) =>
-              //val fTerm = Prod(f :: factorisedDivision.get.factors)
-              val fTerm = Prod(SimplifyProd(f,factorisedDivision.get).getSumProdList)
-              val restTerm = restDivision.get
-              val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
-              if (combinedFactorisation.isDefined) return combinedFactorisation
+            }
           }
         }
       }
@@ -151,5 +144,17 @@ object Factorise {
     }
     if (r > 1) factorisation += r
     factorisation.toList
+  }
+
+  private def powerSet[A](xs: List[A]): List[List[A]] =
+    xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l)))
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val sum = a*a*a + a*a*b + a*a*b + a*a*b + Cst(3)*a*b*b + b*b*b
+    println(sum)
+    val p = Factorise(sum).get
+    println(p)
   }
 }
