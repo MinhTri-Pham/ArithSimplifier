@@ -19,7 +19,10 @@ abstract sealed class ArithExpr {
   def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
 
   // Returns list of terms or factors for Sum and Prod simplification
-  def getSumProdList : List[ArithExpr]
+  def getSumProdSimplify : List[ArithExpr]
+
+  // Similarly as above but for sums returns the whole sum
+  def getSumProdFactorise : List[ArithExpr]
 
   def digest(): Int
 
@@ -64,7 +67,9 @@ case class Cst(value : Int) extends ArithExpr {
   // Prime decomposition
   lazy val asProd : Prod = Factorise(this).get
 
-  override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
 
   override val HashSeed: Int = java.lang.Long.hashCode(value)
 
@@ -83,8 +88,6 @@ case class Cst(value : Int) extends ArithExpr {
 // Class for variables
 case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
 
-  override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
-
   val id: Long = {
     if (fixedId.isDefined)
       fixedId.get
@@ -96,6 +99,10 @@ case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
   override val HashSeed = 0x54e9bd5e
 
   override lazy val digest: Int = HashSeed ^ name.hashCode ^ id.hashCode
+
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
 
   override def equals(that: Any): Boolean = that match {
     case v: Var => this.id == v.id
@@ -135,9 +142,9 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
     for (t <- terms) t match {
       case c:Cst =>
         val cPrimeFactorisation = c.asProd
-        if (cPrimeFactorisation.getSumProdList.length == 1) prods += c
+        if (cPrimeFactorisation.getSumProdSimplify.length == 1) prods += c
         else prods += cPrimeFactorisation
-      case v:Var => prods += Prod(v.getSumProdList)
+      case v:Var => prods += Prod(v.getSumProdSimplify)
       case p:Prod =>
         val expandCst = p.asNonCstFactorsSum
         if (expandCst.isDefined) {
@@ -157,7 +164,9 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   lazy val asProd : Option[Prod] = Factorise(this)
 
-  override def getSumProdList: List[ArithExpr] = terms
+  override def getSumProdSimplify: List[ArithExpr] = terms
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
 
   override val HashSeed = 0x8e535130
 
@@ -175,7 +184,9 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
 
-  override def getSumProdList: List[ArithExpr] = factors
+  override def getSumProdSimplify: List[ArithExpr] = factors
+
+  override def getSumProdFactorise: List[ArithExpr] = factors
 
   lazy val cstFactor : Int = factors.head match {
     case Cst(c) => c
@@ -233,7 +244,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             else None
           }
       }
-      if (expanded) accum.getSumProdList.reduce((x,y)=>x+y).toSum
+      if (expanded) accum.getSumProdSimplify.reduce((x, y)=>x+y).toSum
       else None
     }
   }
@@ -248,7 +259,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     for (f <- factors) f match {
       case c:Cst =>
         val cPrimeFactorisation = c.asProd
-        if (cPrimeFactorisation.getSumProdList.length == 1) primitiveFactors += c
+        if (cPrimeFactorisation.getSumProdSimplify.length == 1) primitiveFactors += c
         else primitiveFactors = primitiveFactors ++ cPrimeFactorisation.factors
       case _ @ (_:Var | _:Sum) => primitiveFactors += f
       case p:Pow =>
@@ -278,7 +289,9 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
 // Class for powers, for now just integer exponents
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
-  override def getSumProdList: List[ArithExpr] = List[ArithExpr](this)
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = this.asProd.get.factors
 
   // Expansion into sum
   lazy val asSum : Option[Sum] = if (e < 0 || !b.isInstanceOf[Sum]) None else {
@@ -289,7 +302,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
       else
         combined = ArithExpr.expand(combined,b).get
     }
-    Some(Sum(combined.getSumProdList))
+    Some(Sum(combined.getSumProdSimplify))
   }
 
   // Representation as a product (a^n = a*a...*a (n times))
@@ -303,7 +316,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   }
 
   lazy val asProdPows : Option[Prod]= if (!b.isInstanceOf[Prod]) None else {
-    val bfacts = b.getSumProdList
+    val bfacts = b.getSumProdSimplify
     val pfacts = ListBuffer[ArithExpr]()
     for (bfact <- bfacts) {
       pfacts += bfact pow e
@@ -444,7 +457,7 @@ object ArithExpr {
           combined += lt * rt
         }
       }
-      Some(Sum(combined.getSumProdList))
+      Some(Sum(combined.getSumProdSimplify))
 
     case (s: Sum, _) =>
       val lts = s.terms
@@ -452,7 +465,7 @@ object ArithExpr {
       for (lt <- lts) {
         combined += lt * e2
       }
-      Some(Sum(combined.getSumProdList))
+      Some(Sum(combined.getSumProdSimplify))
 
 
     case (_, s: Sum) =>
@@ -461,15 +474,9 @@ object ArithExpr {
       for (rt <- rts) {
         combined += e1 * rt
       }
-      Some(Sum(combined.getSumProdList))
+      Some(Sum(combined.getSumProdSimplify))
 
     case _ => None
-  }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    print((a+b)*(a+b))
   }
 }
 

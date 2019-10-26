@@ -76,9 +76,8 @@ class TestFactoriseSum {
     assertEquals(Factorise(s6),None)
   }
 
-  // Differs by first two test suites in the fact that same variable appears in multiple resulting sum factors
   @Test
-  def repeatedVarInSumFactor(): Unit = {
+  def withPowers(): Unit = {
     val s1 = (a pow 2) + a*b + a*c + b*c
     assertEquals(Factorise(s1),Some((a+b)*(a+c)))
 
@@ -93,6 +92,18 @@ class TestFactoriseSum {
 
     val s5 = (a pow 3) + (a pow 2)*b + (a pow 2)*c + (a pow 2)*d +a*b*c + a*b*d + a*c*d + b*c*d
     assertEquals(Factorise(s5),Some((a+b)*(a+c)*(a+d)))
+
+    val s6 = (a pow 2) + Cst(2)*a*b + (b pow 2)
+    assertEquals(Factorise(s6).get.toPow, Some((a+b) pow 2))
+
+    val s7 = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*a*(b pow 2) + (b pow 3)
+    assertEquals(Factorise(s7).get.toPow, Some((a+b) pow 3))
+
+    val s8 = (a pow 2) + Cst(2)*a*b + (b pow 2) + a*c + b*c
+    assertEquals(Factorise(s8), Some((a+b+c)*(a+b)))
+
+    val s9 = (a pow 2) + Cst(2)*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
+    assertEquals(Factorise(s9).get.toPow, Some((a+b+c) pow 2))
   }
 
   // With constants
@@ -100,18 +111,18 @@ class TestFactoriseSum {
 //  def withConstants(): Unit = {
 //    val s1 = Cst(2)*a + Cst(8)
 //    assertEquals(Factorise(s1),Some(Cst(2)*(a+Cst(4))))
-//
+
 //    val s2 = Cst(2)*a + Cst(8)*b
 //    assertEquals(Factorise(s2),Some(Cst(2)*(a+Cst(4)*b)))
-//
+
 //    val s3 = a*b + Cst(4)*a + Cst(4)*b + Cst(16)
 //    assertEquals(Factorise(s3),Some((a+Cst(4))*(b+Cst(4))))
 //
-//    val s4 = Cst(2)*a*c + Cst(4)*a*d + b*c + Cst(2)*b*d
-//    assertEquals(Factorise(s4),Some((Cst(2)*a+b)*(c+Cst(2)*d)))
-//
-//    val s5 = Cst(8)*a*d*f + Cst(48)*a*e*f + Cst(4)*b*d*f + Cst(24)*b*e*f + Cst(16)*c*d*f + Cst(96)*c*e*f
-//    assertEquals(Factorise(s5),Some(Cst(4)*(Cst(2)*a+b+Cst(4)*c)*(d+Cst(6)*e)*f))
+//    val s4 = Cst(2)*a*c + Cst(6)*a*d + b*c + Cst(3)*b*d
+//    assertEquals(Factorise(s4),Some((Cst(2)*a+b)*(c+Cst(3)*d)))
+
+//    val s5 = Cst(2)*a*d + Cst(4)*a*e + b*d + Cst(2)*b*e + Cst(3)*c*d + Cst(6)*c*e
+//    assertEquals(Factorise(s5),Some((Cst(2)*a+b+Cst(3)*c)*(d+Cst(2)*e)))
 //
 //    val s6 = Cst(24)*a*a + Cst(6)*a*c + Cst(4)*b*a + b*c
 //    assertEquals(Factorise(s6),Some((Cst(6)*a+b)*(Cst(4)*a+c)))

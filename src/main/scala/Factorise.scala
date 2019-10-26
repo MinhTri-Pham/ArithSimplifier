@@ -14,7 +14,7 @@ object Factorise {
     if (s.terms.length < 2) return None
     val asProds = s.asProds
     val factorisation = factoriseTerms(asProds)
-    if (factorisation.isDefined) correctConstants(factorisation.get)
+    if (factorisation.isDefined) factorisation.get.factors.reduce((x,y) => x*y).toProd
     else None
   }
 
@@ -25,10 +25,10 @@ object Factorise {
     var i = 0
     while (i < terms.length) {
       val term = terms(i)
-      for (f <- term.getSumProdList) {
+      for (f <- term.getSumProdFactorise) {
         val containsF = ListBuffer[ArithExpr]()
         for (term <- terms) {
-          if (term.getSumProdList.contains(f)) containsF += term
+          if (term.getSumProdFactorise.contains(f)) containsF += term
         }
         for (subset <- powerSet(containsF.toList)) {
           if (subset.distinct.length > 1) {
@@ -41,7 +41,7 @@ object Factorise {
                 var fTerm : Prod = Prod(List())
                 val fDivSum = fDivision.reduce((x,y)=>x+y).toSum.get
                 val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
-                if (fDivSumFactorised.isDefined) fTerm = (f * fDivSumFactorised.get).toProd.get
+                if (fDivSumFactorised.isDefined) fTerm = (f * fDivSumFactorised.get).toProd.get.primitiveProd
                 else fTerm = (f * fDivSum).toProd.get
 
                 if (rest.isEmpty) return Some(fTerm)
@@ -52,7 +52,7 @@ object Factorise {
                 }
 
               case (Some(_), None) =>
-                val fTerm = (f * factorisedDivision.get).toProd.get
+                val fTerm = (f * factorisedDivision.get).toProd.get.primitiveProd
                 if (rest.isEmpty) return Some(fTerm)
                 else {
                   val restTerm = Sum(rest)
@@ -64,7 +64,7 @@ object Factorise {
                 var fTerm : Prod = Prod(List())
                 val fDivSum = fDivision.reduce((x,y)=>x+y).toSum.get
                 val fDivSumFactorised = factoriseTerms(fDivSum.asProds)
-                if (fDivSumFactorised.isDefined) fTerm = (f * fDivSumFactorised.get).toProd.get
+                if (fDivSumFactorised.isDefined) fTerm = (f * fDivSumFactorised.get).toProd.get.primitiveProd
                 else fTerm = (f * fDivSum).toProd.get
 
                 val restTerm = restDivision.get
@@ -72,7 +72,7 @@ object Factorise {
                 if (combinedFactorisation.isDefined) return combinedFactorisation
 
               case (Some(_), Some(_)) =>
-                val fTerm = (f * factorisedDivision.get).toProd.get
+                val fTerm = (f * factorisedDivision.get).toProd.get.primitiveProd
                 val restTerm = restDivision.get
                 val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                 if (combinedFactorisation.isDefined) return combinedFactorisation
@@ -152,9 +152,11 @@ object Factorise {
   def main(args: Array[String]): Unit = {
     val a = Var("a")
     val b = Var("b")
-    val sum = a*a*a + a*a*b + a*a*b + a*a*b + Cst(3)*a*b*b + b*b*b
-    println(sum)
-    val p = Factorise(sum).get
-    println(p)
+    val s = a*a*a + a*a*b + a*a*b + a*a*b + a*b*b + a*b*b + a*b*b + b*b*b
+    println(s)
+    println(Factorise(s).get.toPow.get)
+//    val s1 = a*b*(a+b)
+//    val s2 = (b*(a+b)*(a+b)).toProd.get.primitiveProd
+//    println(factoriseTerms(List(s1,s2)))
   }
 }
