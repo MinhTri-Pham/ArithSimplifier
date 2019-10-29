@@ -143,7 +143,6 @@ object SimplifyProd {
     // More general cases
     case (Pow(b1,e1), Pow(b2,e2)) =>
       if (b1 == b2) Some(b1 pow (e1+e2))
-      else if (e1 == e2) Some((b1 * b2) pow e1)
       else None
     case (x, Pow(b,e)) =>
       if (x == b) Some(b pow (e+1))

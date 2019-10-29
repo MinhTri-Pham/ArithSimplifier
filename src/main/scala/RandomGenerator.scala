@@ -29,10 +29,10 @@ object RandomGenerator {
 
   // Below are some min/max values for types of expressions used in the random product
   // For now fairly small for testing purposes
-  val maxCst = 6
+  val maxCst = 5
   // Min and max length of sum in factor
   val minSumLen = 2
-  val maxSumLen = 4
+  val maxSumLen = 2
 
   // Generates sum with no constants and different variables
   def genNonConstSum(length: Int): Sum = {
@@ -56,10 +56,6 @@ object RandomGenerator {
     // Generate sums
     for (_ <- 0 until depth) {
       var randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
-      // Make sure we don't get any repeating varaibles, i.e. no powers in expansion
-      while(accumVariables.foldLeft(false)((flag, v) => flag || listContainsVariable(randSum.terms,v))) {
-        randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
-      }
       factors += randSum
       for (sumVar <- randSum.terms) {
         accumVariables += sumVar.toVar.get
@@ -72,17 +68,16 @@ object RandomGenerator {
   // Represents a "common term" in factorisation
   private def genCommonFactor : ArithExpr = {
     val rand = new Random
-    val multiplications = 6
+    val multiplications = 4
     var commonTerm : ArithExpr = Cst(1)
     for (_ <- 0 until multiplications) {
       val exprType = rand.nextInt(3)
       var genExpr : ArithExpr = av
       exprType match {
-        // Constant > 2
         case 0 => genExpr = Cst(2 + rand.nextInt(maxCst - 2 + 1))
         case 1 => genExpr = variables(rand.nextInt(numVars))
         // Variable squared (later to higher power as well)
-        case 2 => genExpr = variables(rand.nextInt(numVars)) pow 3
+        case 2 => genExpr = variables(rand.nextInt(numVars)) pow 2
       }
       commonTerm = commonTerm * genExpr
     }
@@ -102,7 +97,7 @@ object RandomGenerator {
 
   }
 
-  // For i in 2,..,depth, generates a product of sums with no repeating variable across whole expression
+  // For i in 2,..,depth, generates a product of sums with no constant term
   // Expands it into a sum and compares factorisation with the original product
   private def tryProdsOfSums(depth: Int): Unit = {
     println("Trying a few random tests \n")
@@ -119,7 +114,7 @@ object RandomGenerator {
   }
 
   // For i in 2,..,depth
-  // *  generates a product of sums with no repeating variable across whole expression
+  // *  generates a product of sums with no constant term
   // *  multiplies the product obtained in previous by a common term
   // Expands the whole expression into a sum and compares factorisation with the original product
   private def tryProdsOfSumsWithCF(depth: Int): Unit = {
@@ -139,6 +134,6 @@ object RandomGenerator {
   }
 
   def main(args: Array[String]): Unit = {
-    tryProdsOfSums(7)
+    tryProdsOfSumsWithCF(3)
   }
 }
