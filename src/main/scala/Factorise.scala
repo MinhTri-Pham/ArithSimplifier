@@ -20,8 +20,7 @@ object Factorise {
       else (common.get*nonCst).toProd
     }
     else {
-      val asProds = s.asProds
-      val factorisation = factoriseTerms(asProds)
+      val factorisation = factoriseTerms(s.asProds)
       if (factorisation.isDefined) factorisation.get.factors.reduce((x,y) => x*y).toProd
       else None
     }
@@ -31,52 +30,55 @@ object Factorise {
   private def factoriseTerms(terms : List[ArithExpr]) : Option[Prod] = {
     if (terms.length < 2) return None
     var i = 0
+    val triedFactors = ListBuffer[ArithExpr]()
     while (i < terms.length) {
       val term = terms(i)
       for (f <- term.getSumProdFactorise) {
-        val containsF = ListBuffer[ArithExpr]()
-        for (t <- terms) {
-          if (t.getSumProdFactorise.contains(f)) containsF += t
-        }
-        for (subset <- powerSet(containsF.toList)) {
-          if (subset.distinct.length > 1) {
-            val rest = terms.diff(subset)
-            val fDivision = subset.map(x => x /^ f).reduce((x,y) => x+y).toSum.get
-            val factorisedDivision = factoriseTerms(fDivision.asProds)
-            val restDivision = factoriseTerms(rest)
-            (factorisedDivision,restDivision) match {
-              case (None,None) =>
-                val fTerm = (f * fDivision).toProd.get
-                if (rest.isEmpty) return Some(fTerm)
-                else {
-                  val restTerm = Sum(rest)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+        if (!triedFactors.contains(f)) {
+          val containsF = ListBuffer[ArithExpr]()
+          for (t <- terms) {
+            if (t.getSumProdFactorise.contains(f)) containsF += t
+          }
+          for (subset <- powerSet(containsF.toList)) {
+            if (subset.distinct.length > 1) {
+              val rest = terms.diff(subset)
+              val fDivision = subset.map(x => x /^ f).reduce((x,y) => x+y).toSum.get
+              val factorisedDivision = factoriseTerms(fDivision.asProds)
+              var restDivision : Option[Prod] = None
+              if (rest.distinct.length > 1) {
+                restDivision = Factorise(correctList(rest).reduce((x,y)=>x+y))
+              }
+              (factorisedDivision,restDivision) match {
+                case (None,None) =>
+                  val fTerm = (f*fDivision).toProd.get
+                  if (rest.isEmpty) return Some(fTerm)
+                  else {
+                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+                    if (combinedFactorisation.isDefined) return combinedFactorisation
+                  }
+
+                case (Some(_), None) =>
+                  val fTerm = (f * factorisedDivision.get).toProd.get
+                  if (rest.isEmpty) return Some(fTerm)
+                  else {
+                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+                    if (combinedFactorisation.isDefined) return combinedFactorisation
+                  }
+
+                case (None, Some(_)) =>
+                  val fTerm = (f*fDivision).toProd.get
+                  if (rest.isEmpty) return Some(fTerm)
+                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
-                }
 
-              case (Some(_), None) =>
-                val fTerm = (f * factorisedDivision.get).toProd.get
-                if (rest.isEmpty) return Some(fTerm)
-                else {
-                  val restTerm = Sum(rest)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                case (Some(_), Some(_)) =>
+                  val fTerm = (f * factorisedDivision.get).toProd.get
+                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
-                }
-
-              case (None, Some(_)) =>
-                val fTerm = (f * fDivision).toProd.get
-                if (rest.isEmpty) return Some(fTerm)
-                val restTerm = restDivision.get
-                val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
-                if (combinedFactorisation.isDefined) return combinedFactorisation
-
-              case (Some(_), Some(_)) =>
-                val fTerm = (f * factorisedDivision.get).toProd.get
-                val restTerm = restDivision.get
-                val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
-                if (combinedFactorisation.isDefined) return combinedFactorisation
+              }
             }
           }
+          triedFactors += f
         }
       }
       i+=1
@@ -84,21 +86,13 @@ object Factorise {
     None
   }
 
-  // Multiplies remaining products of prime constants in factorisation of a sum into a single constant
-  // Everything else unchanged
-  private def correctConstants(factorisation: Prod) : Option[Prod] = {
-    var cleanedFactors = ListBuffer[ArithExpr]()
-    for (f <- factorisation.factors) f match {
-      case s:Sum =>
-        val cleanedTerms = ListBuffer[ArithExpr]()
-        for (t <- s.terms) t match {
-            case p:Prod => cleanedTerms += p.factors.reduce((x,y) =>x*y)
-          case _ => cleanedTerms += t
-        }
-        cleanedFactors += Sum(cleanedTerms.toList.sortWith(ArithExpr.isCanonicallySorted))
-      case _ => cleanedFactors += f
+  private def correctList(exprs: List[ArithExpr]) : List[ArithExpr] = {
+    val corrected = new ListBuffer[ArithExpr]
+    for (expr <- exprs) expr match {
+      case p:Prod => corrected += p.factors.reduce((x,y) =>x*y)
+      case _ => corrected += expr
     }
-    Some(Prod(cleanedFactors.toList))
+    corrected.toList
   }
 
   // Finds all primes up to (and including) n using sieve algorithm
@@ -155,6 +149,7 @@ object Factorise {
     Some(Cst(gcdList(constantTerms.toList)))
   }
 
+  @scala.annotation.tailrec
   private def gcdPair(first:Int, second:Int) : Int = {
     if (second == 0) first else gcdPair(second, first % second)
   }
@@ -165,11 +160,4 @@ object Factorise {
 
   private def powerSet[A](xs: List[A]): List[List[A]] =
     xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l)))
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val s = a*a + Cst(2)*a*b
-    println(Factorise(s))
-  }
 }

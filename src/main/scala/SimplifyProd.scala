@@ -133,8 +133,6 @@ object SimplifyProd {
     case (Cst(x), Cst(y)) => Some(Cst(x * y))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)
-//    case (Cst(c), v: Var) => Some(v.copy(c*v.cstMult))
-//    case (v:Var,Cst(c)) => Some(v.copy(c*v.cstMult))
 
     // Compute powers when all bases and exponents are positive constants
     case (Pow(Cst(b1), e1), Pow(Cst(b2), e2)) if e1 > 0 && e2 > 0 =>

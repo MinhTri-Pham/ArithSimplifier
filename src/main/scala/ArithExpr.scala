@@ -62,7 +62,7 @@ abstract sealed class ArithExpr {
 case class Cst(value : Int) extends ArithExpr {
 
   // Prime decomposition
-  lazy val asProd : Prod = Factorise(this).get
+  lazy val asProd : Prod = Factorise(this).get.toProd.get
 
   override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
 
@@ -193,7 +193,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   lazy val asNonCstFactorsSum : Option[Sum] = if (factors.length < 2 || cstFactor < 2) None else {
     val terms = ListBuffer[ArithExpr]()
-    for (i <- 0 until cstFactor) {
+    for (_ <- 0 until cstFactor) {
       terms += nonCstFactor
     }
     Some(Sum(terms.toList))
@@ -364,37 +364,22 @@ object ArithExpr {
       val p1nonCst = p1.nonCstList
       val p2nonCst = p2.nonCstList
       if (p1nonCst.length == p2nonCst.length) {
-        // If non-constant factors same, compare constant factors
-        if (p1nonCst == p2nonCst) p1.cstFactor < p2.cstFactor
-        else {
-          // Same length of non-constant factors but these factors are different
-          // Compute pair comparisons (element-wise)
-          val pairComparisons = p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2))
-          var firstSorted = -1
-          var numSorted = 0
-          var numUnsorted = 0
-          var i = 0
-          val len = pairComparisons.length
-          // Count how many pairs sorted
-          while (i < len) {
-            if (pairComparisons(i) && firstSorted == -1) {
-              numSorted+=1
-              firstSorted = i
+        val numFactors = p1nonCst.length
+        var i = 0
+        var result = p1.cstFactor < p2.cstFactor
+          while (i < numFactors) {
+            if (p1nonCst(i) != p2nonCst(i)) {
+              result = isCanonicallySorted(p1nonCst(i),p2nonCst(i))
+              i = numFactors-1
             }
-            else if (pairComparisons(i)) numSorted +=1
-            else numUnsorted +=1
             i+=1
           }
-          // If more pairs sorted or equal number of sorted/unsorted with first sorted pair in the first half
-          // The product is sorted
-          (numSorted > numUnsorted) || (numSorted == numUnsorted && firstSorted <= len / 2 - 1)
-        }
+        result
       }
         // Shorter products first
       else {
         p1nonCst.length < p2nonCst.length
       }
-      //p1nonCst.zip(p2nonCst).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
 
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
     case (Pow(b,_),_:Sum) => b.isInstanceOf[Var]
@@ -402,7 +387,7 @@ object ArithExpr {
 
     case (_, _: Pow) => true
     case (_: Pow, _) => false
-    case _ => true
+    case _ => false
   }
 
   // Evaluates an expression given substitutions for variables
@@ -453,6 +438,14 @@ object ArithExpr {
       Some(Sum(combined.getSumProdSimplify))
 
     case _ => None
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    println(isCanonicallySorted(a*b,a*c))
+    println(isCanonicallySorted(a*c,a*b))
   }
 }
 
