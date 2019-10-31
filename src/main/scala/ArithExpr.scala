@@ -296,13 +296,25 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     Some(Prod(factors.toList))
   }
 
-  lazy val asProdPows : Option[Prod]= if (!b.isInstanceOf[Prod]) None else {
-    val bfacts = b.getSumProdSimplify
-    val pfacts = ListBuffer[ArithExpr]()
-    for (bfact <- bfacts) {
-      pfacts += bfact pow e
-    }
-    Some(Prod(pfacts.toList))
+  lazy val asProdPows : Option[Prod]= b match {
+    case Prod(_) =>
+      val bfacts = b.getSumProdSimplify
+      val pfacts = ListBuffer[ArithExpr]()
+      for (bfact <- bfacts) {
+        pfacts += bfact pow e
+      }
+      Some(Prod(pfacts.toList))
+    case Sum(_) =>
+      if (b.toProd.isDefined) {
+        val bfacts = b.toProd.get.factors
+        val pfacts = ListBuffer[ArithExpr]()
+        for (bfact <- bfacts) {
+          pfacts += bfact pow e
+        }
+        Some(Prod(pfacts.toList))
+      }
+      else None
+    case _ => None
   }
 
   override def equals(that: Any): Boolean = that match {
@@ -381,13 +393,35 @@ object ArithExpr {
         p1nonCst.length < p2nonCst.length
       }
 
+    case (s1:Sum, s2:Sum) =>
+      // Sorting based on non-constant factors
+      val s1Terms = s1.terms
+      val s2Terms = s2.terms
+      if (s1Terms.length == s2Terms.length) {
+        val numTerms = s1Terms.length
+        var result = false
+        var i = 0
+        while (i < numTerms) {
+          if (s1Terms(i) != s2Terms(i)) {
+            result = isCanonicallySorted(s1Terms(i),s2Terms(i))
+            i = numTerms-1
+          }
+          i+=1
+        }
+        result
+      }
+      // Shorter products first
+      else {
+        s1Terms.length < s2Terms.length
+      }
     case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
-    case (Pow(b,_),_:Sum) => b.isInstanceOf[Var]
-    case (_:Sum,Pow(b,_)) => !b.isInstanceOf[Var]
-
+    case (x, _: Pow) if x.isInstanceOf[Cst] || x.isInstanceOf[Var] => true
+    case (_: Pow, x) if x.isInstanceOf[Cst] || x.isInstanceOf[Var] => false
+//    case (Pow(b,_),x) => isCanonicallySorted(b,x)
+//    case (x,Pow(b,_)) => isCanonicallySorted(x,b)
     case (_, _: Pow) => true
     case (_: Pow, _) => false
-    case _ => false
+    case _ => true
   }
 
   // Evaluates an expression given substitutions for variables
@@ -438,14 +472,6 @@ object ArithExpr {
       Some(Sum(combined.getSumProdSimplify))
 
     case _ => None
-  }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val c = Var("c")
-    println(isCanonicallySorted(a*b,a*c))
-    println(isCanonicallySorted(a*c,a*b))
   }
 }
 

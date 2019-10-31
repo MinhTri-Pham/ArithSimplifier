@@ -12,8 +12,8 @@ class TestFactoriseSum {
   // Factorisation with a common term
   @Test
   def commonTerm(): Unit = {
-    val s1 = a*b+a
-    assertEquals(Factorise(s1),Some(a*(Cst(1)+b)))
+    val s1 = a*b-a
+    assertEquals(Factorise(s1),Some(a*(b-Cst(1))))
 
     val s2 = a*b+a*c
     assertEquals(Factorise(s2),Some(a*(b+c)))
@@ -21,14 +21,14 @@ class TestFactoriseSum {
     val s3 = (a pow 2) + a*b
     assertEquals(Factorise(s3),Some(a*(a+b)))
 
-    val s4 = a*a + a*b + a*c
-    assertEquals(Factorise(s4),Some(a*(a+b+c)))
+    val s4 = a*a + a*b - a*c
+    assertEquals(Factorise(s4),Some(a*(a+b-c)))
 
     val s5 = a*b*c + a*b*d
     assertEquals(Factorise(s5),Some(a*b*(c+d)))
 
-    val s6 = a*b*c*d + a*b*c*e
-    assertEquals(Factorise(s6),Some(a*b*c*(d+e)))
+    val s6 = a*b*c*d - a*b*c*e
+    assertEquals(Factorise(s6),Some(a*b*c*(d-e)))
 
     val s7 = a*b*c*d + a*b*e
     assertEquals(Factorise(s7),Some(a*b*(c*d+e)))
@@ -43,8 +43,8 @@ class TestFactoriseSum {
   // Factorisation without common term
   @Test
   def nonCommonTerm() : Unit = {
-    val s1 = a*c + a*d + b*c + b*d
-    assertEquals(Factorise(s1), Some((a+b)*(c+d)))
+    val s1 = a*c - a*d + b*c - b*d
+    assertEquals(Factorise(s1), Some((a+b)*(c-d)))
 
     val s2 = a*d + a*e + b*d + b*e + c*d + c*e
     assertEquals(Factorise(s2), Some((a+b+c)*(d+e)))
@@ -52,11 +52,11 @@ class TestFactoriseSum {
     val s3 = a*d + a*e + b*d + b*e + c*d + c*e + f*a + f*b + f*c
     assertEquals(Factorise(s3), Some((a+b+c)*(d+e+f)))
 
-    val s4 = a*c*e + a*d*e + b*c*e + b*d*e
-    assertEquals(Factorise(s4), Some((a+b)*(c+d)*e))
+    val s4 = a*c*e - a*d*e + b*c*e - b*d*e
+    assertEquals(Factorise(s4), Some((a+b)*(c-d)*e))
 
-    val s5 = a*c*e + a*c*f + b*c*e + b*c*f + a*d*e + a*d*f + b*d*e + b*d*f
-    assertEquals(Factorise(s5), Some((a+b)*(c+d)*(e+f)))
+    val s5 = a*c*e - a*c*f + b*c*e - b*c*f + a*d*e - a*d*f + b*d*e - b*d*f
+    assertEquals(Factorise(s5), Some((a+b)*(c+d)*(e-f)))
   }
 
   // Factorisation not possible
@@ -112,14 +112,11 @@ class TestFactoriseSum {
     val s1 = Cst(2)*a + Cst(8)
     assertEquals(Factorise(s1),Some(Cst(2)*(a+Cst(4))))
 
-    val s2 = Cst(2)*a + Cst(8)*b
-    assertEquals(Factorise(s2),Some(Cst(2)*(a+Cst(4)*b)))
+    val s2 = a*b + Cst(2)*a + Cst(2)*b + Cst(4)
+    assertEquals(Factorise(s2),Some((a+Cst(2))*(b+Cst(2))))
 
-    val s3 = a*b + Cst(2)*a + Cst(2)*b + Cst(4)
-    assertEquals(Factorise(s3),Some((a+Cst(2))*(b+Cst(2))))
-
-    val s4 = Cst(2)*a*c + Cst(6)*a + b*c + Cst(3)*b
-    assertEquals(Factorise(s4),Some((Cst(2)*a+b)*(c+Cst(3))))
+    val s3 = Cst(2)*a*c + Cst(6)*a + b*c + Cst(3)*b
+    assertEquals(Factorise(s3),Some((Cst(2)*a+b)*(c+Cst(3))))
 
 // These still take long
 //    val s5 = Cst(2)*a*d + Cst(4)*a*e + b*d + Cst(2)*b*e + Cst(3)*c*d + Cst(6)*c*e

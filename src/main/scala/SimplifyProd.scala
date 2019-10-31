@@ -36,29 +36,66 @@ object SimplifyProd {
 
       case (p: Pow, s:Sum) =>
         val lhsProd = p.asProdPows
-        lhsProd match {
-          case Some(_) =>
+        val rhsProd = s.asProd
+        (lhsProd,rhsProd) match {
+          case (Some(_), Some(_)) =>
             lhsFactors = lhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
-
-          case None =>
-            lhsFactors = List[ArithExpr](p)
-        }
-        rhsFactors = List[ArithExpr](s)
-
-      case (s:Sum, p:Pow) =>
-        val rhsProd = p.asProdPows
-        rhsProd match {
-          case Some(_) =>
             rhsFactors = rhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
 
-          case None =>
+          case (Some(_), None) =>
+            lhsFactors = lhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = List[ArithExpr](s)
+
+          case (None, Some(_)) =>
+            lhsFactors = List[ArithExpr](p)
+            rhsFactors = rhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+
+          case (None, None) =>
+            lhsFactors = List[ArithExpr](p)
+            rhsFactors = List[ArithExpr](s)
+        }
+
+      case (s:Sum, p:Pow) =>
+        val lhsProd = s.asProd
+        val rhsProd = p.asProdPows
+        (lhsProd,rhsProd) match {
+          case (Some(_), Some(_)) =>
+            lhsFactors = lhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = rhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+
+          case (Some(_), None) =>
+            lhsFactors = lhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = List[ArithExpr](p)
+
+          case (None, Some(_)) =>
+            lhsFactors = List[ArithExpr](s)
+            rhsFactors = rhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+
+          case (None, None) =>
+            lhsFactors = List[ArithExpr](s)
             rhsFactors = List[ArithExpr](p)
         }
-        lhsFactors = List[ArithExpr](s)
 
       case (s1: Sum, s2: Sum) =>
-        lhsFactors = List[ArithExpr](s1)
-        rhsFactors = List[ArithExpr](s2)
+        val lhsProd = s1.asProd
+        val rhsProd = s2.asProd
+        (lhsProd,rhsProd) match {
+          case (Some(_), Some(_)) =>
+            lhsFactors = lhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = rhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+
+          case (Some(_), None) =>
+            lhsFactors = lhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+            rhsFactors = List[ArithExpr](s2)
+
+          case (None, Some(_)) =>
+            lhsFactors = List[ArithExpr](s1)
+            rhsFactors = rhsProd.get.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+
+          case (None, None) =>
+            lhsFactors = List[ArithExpr](s1)
+            rhsFactors = List[ArithExpr](s2)
+        }
 
       case (p: Pow, _) =>
         val pProd = p.asProdPows
@@ -80,7 +117,7 @@ object SimplifyProd {
         lhsFactors = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
         rhsFactors = List[ArithExpr](s)
 
-      // Neither side is a sum, decompose into smaller terms and merge
+      // Neither side is a sum or power, decompose into smaller terms and merge
       case _ =>
         // Extract and sort factors of both sides and merge
         lhsFactors = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)

@@ -1,7 +1,7 @@
 import org.junit.Test
 import org.junit.Assert._
 
-class TestSumProdSimplification {
+class TestProdExpansion {
 
   val a = Var("a")
   val b = Var("b")

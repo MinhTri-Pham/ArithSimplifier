@@ -135,6 +135,12 @@ object Factorise {
       }
       i+=1
     }
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    println(Factorise(c*a-c*b))
+  }
     if (r > 1) factorisation += r
     factorisation.toList
   }
@@ -143,7 +149,7 @@ object Factorise {
     val constantTerms = ListBuffer[Int]()
     for (term <- terms) term match {
       case Cst(n) => constantTerms += n
-      case p:Prod => constantTerms += p.cstFactor
+      case p:Prod => constantTerms += Math.abs(p.cstFactor)
       case _ => return None
     }
     Some(Cst(gcdList(constantTerms.toList)))
@@ -159,5 +165,5 @@ object Factorise {
   }
 
   private def powerSet[A](xs: List[A]): List[List[A]] =
-    xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l)))
+    xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct
 }

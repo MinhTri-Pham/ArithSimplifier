@@ -121,7 +121,6 @@ object SimplifySum {
         // Extract and canonically sort terms of both sides and merge
         lhsTerms = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
         rhsTerms = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
-        //mergeTerms(lhsTerms, rhsTerms)
     }
     mergeTerms(lhsTerms, rhsTerms)
   }
@@ -170,9 +169,6 @@ object SimplifySum {
     case (Cst(x), Cst(y)) => Some(Cst(x + y))
     case (Cst(0), _) => Some(rhs)
     case (_, Cst(0)) => Some(lhs)
-//    case (x:Var, y:Var) =>
-//      if (x == y)  Some(x.copy(x.cstMult + y.cstMult))
-//      else None
     case (x, y) if x == y => Some(Cst(2) * x)
     case (p1:Prod, p2:Prod) if p1.nonCstFactor == p2.nonCstFactor =>
       Some(Cst(p1.cstFactor + p2.cstFactor) * p1.nonCstFactor)
