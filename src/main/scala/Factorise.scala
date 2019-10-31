@@ -135,12 +135,7 @@ object Factorise {
       }
       i+=1
     }
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val c = Var("c")
-    println(Factorise(c*a-c*b))
-  }
+
     if (r > 1) factorisation += r
     factorisation.toList
   }

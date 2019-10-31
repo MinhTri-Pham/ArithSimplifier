@@ -3,25 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Factorise.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Factorise.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/FactoriseRuntime.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/FactoriseRuntime.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumProdSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestProdExpansion.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/RandomGenerator.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/RandomGenerator.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseRuntime$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseRuntime$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseRuntime.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseRuntime.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/META-INF/ArithSimplifier.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumProdSimplification.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/RandomGenerator$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/RandomGenerator$.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -72,7 +60,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.FactoriseRuntime">
+  <component name="RunManager" selected="JUnit.All in ArithSimplifier">
     <configuration name="Factorise" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="Factorise" />
       <module name="ArithSimplifier" />
@@ -82,6 +70,13 @@
     </configuration>
     <configuration name="FactoriseRuntime" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="FactoriseRuntime" />
+      <module name="ArithSimplifier" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RandomGenerator" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="RandomGenerator" />
       <module name="ArithSimplifier" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -104,29 +99,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestFractionSimplification" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ArithSimplifier" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestFractionSimplification" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Application.Factorise" />
       <item itemvalue="Application.FactoriseRuntime" />
+      <item itemvalue="Application.RandomGenerator" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
-      <item itemvalue="JUnit.TestFractionSimplification" />
       <item itemvalue="JUnit.TestFactoriseSum" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.All in ArithSimplifier" />
         <item itemvalue="Application.FactoriseRuntime" />
+        <item itemvalue="Application.RandomGenerator" />
         <item itemvalue="JUnit.TestFactoriseSum" />
         <item itemvalue="Application.Factorise" />
-        <item itemvalue="JUnit.All in ArithSimplifier" />
-        <item itemvalue="JUnit.TestFractionSimplification" />
       </list>
     </recent_temporary>
   </component>
@@ -193,16 +179,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/FactoriseRuntime.scala</url>
-          <line>28</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

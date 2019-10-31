@@ -32,7 +32,7 @@ object RandomGenerator {
   val maxCst = 5
   // Min and max length of sum in factor
   val minSumLen = 2
-  val maxSumLen = 2
+  val maxSumLen = 3
 
   // Generates sum with no constants and different variables
   def genNonConstSum(length: Int): Sum = {
@@ -56,6 +56,9 @@ object RandomGenerator {
     // Generate sums
     for (_ <- 0 until depth) {
       var randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
+//      while(!randSum.terms.intersect(accumVariables).isEmpty) {
+//        randSum = genNonConstSum(minSumLen + rand.nextInt(maxSumLen - minSumLen+1))
+//      }
       factors += randSum
       for (sumVar <- randSum.terms) {
         accumVariables += sumVar.toVar.get
@@ -134,6 +137,6 @@ object RandomGenerator {
   }
 
   def main(args: Array[String]): Unit = {
-    tryProdsOfSumsWithCF(3)
+    tryProdsOfSums(4)
   }
 }
