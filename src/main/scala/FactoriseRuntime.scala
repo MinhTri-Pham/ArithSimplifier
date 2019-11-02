@@ -4,7 +4,7 @@ object FactoriseRuntime {
   val c = Var("c")
   val d = Var("d")
   val e = Var("e")
-  val variables = List(a,b,c,d,e)
+  val variables: List[Var] = List(a,b,c,d,e)
 
   def runtimeSquared(n : Int) : Unit = {
     val expandSquare = (Sum(variables.take(n)) pow 2).toSum.get
@@ -23,6 +23,6 @@ object FactoriseRuntime {
   }
   def main(args: Array[String]): Unit = {
     // n = 4 already takes very long
-    runtimeBinomPower(4)
+    runtimeBinomPower(2)
   }
 }

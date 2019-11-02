@@ -7,6 +7,7 @@ object Factorise {
       val decomposition = primeDecomposition(c.value)
       Some(Prod(decomposition.map(x => Cst(x))))
     case s:Sum =>factoriseSum(s)
+    case p:Prod => factoriseProd(p)
     case _ => None
   }
 
@@ -26,7 +27,7 @@ object Factorise {
     }
   }
 
-  // Factorises a sum
+//   Factorises a sum
   private def factoriseTerms(terms : List[ArithExpr]) : Option[Prod] = {
     if (terms.length < 2) return None
     var i = 0
@@ -86,6 +87,20 @@ object Factorise {
     None
   }
 
+  // Factorises a product
+  def factoriseProd(p: Prod): Option[Prod] = {
+    var accumExpr : ArithExpr = Cst(1)
+    for (factor <- p.factors) factor match {
+      case s:Sum =>
+        val sFactored = Factorise(s)
+        if (sFactored.isDefined) accumExpr *= sFactored.get
+        else accumExpr *= s
+      case _ => accumExpr *= factor
+    }
+    accumExpr.toProd
+  }
+
+  // Multiples constant decompositions to a single constant
   private def correctList(exprs: List[ArithExpr]) : List[ArithExpr] = {
     val corrected = new ListBuffer[ArithExpr]
     for (expr <- exprs) expr match {

@@ -143,6 +143,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
         else {
           prods += p.primitiveProd
         }
+        //prods += p.primitiveProd
 
       case pow:Pow =>
         if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
