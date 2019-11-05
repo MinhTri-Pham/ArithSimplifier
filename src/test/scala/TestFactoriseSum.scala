@@ -55,8 +55,8 @@ class TestFactoriseSum {
     val s4 = a*c*e + a*d*e + b*c*e + b*d*e
     assertEquals(Factorise(s4), Some((a+b)*(c+d)*e))
 
-    val s5 = a*c*e - a*c*f + b*c*e - b*c*f + a*d*e - a*d*f + b*d*e - b*d*f
-    assertEquals(Factorise(s5), Some((a+b)*(c+d)*(e-f)))
+    val s5 = a*c*e + a*c*f + b*c*e + b*c*f + a*d*e + a*d*f + b*d*e + b*d*f
+    assertEquals(Factorise(s5), Some((a+b)*(c+d)*(e+f)))
   }
 
   // Factorisation not possible
@@ -67,13 +67,11 @@ class TestFactoriseSum {
     val s3 = a*b + a*c + b*c
     val s4 = a*b + a*c + a*d + e*f
     val s5 = a*b*c + b*c*d + c*d*e + d*e*f
-//    val s6 = Cst(2)*a + Cst(9)
     assertEquals(Factorise(s1),None)
     assertEquals(Factorise(s2),None)
     assertEquals(Factorise(s3),None)
     assertEquals(Factorise(s4),None)
     assertEquals(Factorise(s5),None)
-//    assertEquals(Factorise(s6),None)
   }
 
   @Test
@@ -97,6 +95,7 @@ class TestFactoriseSum {
     assertEquals(Factorise(s6).get.toPow, Some((a+b) pow 2))
 
     val s7 = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*a*(b pow 2) + (b pow 3)
+    //println(Factorise(s7))
     assertEquals(Factorise(s7).get.toPow, Some((a+b) pow 3))
 
     val s8 = (a pow 2) + Cst(2)*a*b + (b pow 2) + a*c + b*c
@@ -118,7 +117,6 @@ class TestFactoriseSum {
 //    val s3 = Cst(2)*a*c + Cst(6)*a + b*c + Cst(3)*b
 //    assertEquals(Factorise(s3),Some((Cst(2)*a+b)*(c+Cst(3))))
 
-// These still take long
 //    val s5 = Cst(2)*a*d + Cst(4)*a*e + b*d + Cst(2)*b*e + Cst(3)*c*d + Cst(6)*c*e
 //    assertEquals(Factorise(s5),Some((Cst(2)*a+b+Cst(3)*c)*(d+Cst(2)*e)))
 

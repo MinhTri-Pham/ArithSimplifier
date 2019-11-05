@@ -23,6 +23,6 @@ object FactoriseRuntime {
   }
   def main(args: Array[String]): Unit = {
     // n = 4 already takes very long
-    runtimeBinomPower(2)
+    runtimeSquared(2)
   }
 }

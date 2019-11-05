@@ -138,7 +138,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
         val expandCst = p.asNonCstFactorsSum
         if (expandCst.isDefined) {
           val expandCstProds = expandCst.get.asProds
-          prods = prods ++ expandCstProds
+          prods ++= expandCstProds
         }
         else {
           prods += p.primitiveProd
@@ -152,7 +152,11 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
     prods.toList
   }
 
-  lazy val asProd : Option[Prod] = Factorise(this)
+  lazy val asProd : Option[Prod] = {
+    val factorisation = Factorise(this)
+    if (factorisation.isDefined) factorisation.get.toProd
+    else None
+  }
 
   override def getSumProdSimplify: List[ArithExpr] = terms
 
@@ -257,6 +261,8 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
           val pProd = p.asProd.get
           primitiveFactors = primitiveFactors ++ pProd.factors
         }
+
+      //case _ => primitiveFactors += f
     }
     Prod(primitiveFactors.toList)
   }

@@ -2,7 +2,7 @@ import scala.collection.mutable.ListBuffer
 
 object Factorise {
   // Factorises an expression
-  def apply(e:ArithExpr) : Option[Prod] = e match {
+  def apply(e:ArithExpr) : Option[ArithExpr] = e match {
     case c:Cst =>
       val decomposition = primeDecomposition(c.value)
       Some(Prod(decomposition.map(x => Cst(x))))
@@ -11,84 +11,152 @@ object Factorise {
     case _ => None
   }
 
-  def factoriseSum(s: Sum) : Option[Prod] = {
+  def factoriseSum(s: Sum) : Option[ArithExpr] = {
     if (s.terms.length < 2) return None
-    val common = commonCst(s.terms)
-    if (common.isDefined && common.get != Cst(1)) {
-      val nonCst = (s / common.get).toSum.get
-      val factorisation = factoriseTerms(nonCst.asProds)
-      if (factorisation.isDefined) (common.get*factorisation.get.factors.reduce((x,y) => x*y)).toProd
-      else (common.get*nonCst).toProd
-    }
-    else {
-      val factorisation = factoriseTerms(s.asProds)
-      if (factorisation.isDefined) factorisation.get.factors.reduce((x,y) => x*y).toProd
-      else None
-    }
+//    val common = commonCst(s.terms)
+//    if (common.isDefined && common.get != Cst(1)) {
+//      val nonCst = (s / common.get).toSum.get
+//      val factorisation = factoriseTerms(nonCst.asProds)
+//      if (factorisation.isDefined) Some(common.get*factorisation.get.getSumProdSimplify.reduce((x,y) => x*y))
+//      else Some(common.get*nonCst)
+//    }
+//    else {
+//      val factorisation = factoriseTerms(s.asProds)
+//      if (factorisation.isDefined) Some(factorisation.get.getSumProdFactorise.reduce((x,y) => x*y))
+//      else None
+//    }
+    val factorisation = factoriseTerms(s.asProds)
+    if (factorisation.isDefined) Some(factorisation.get.getSumProdFactorise.reduce((x,y) => x*y))
+    else None
   }
 
 //   Factorises a sum
-  private def factoriseTerms(terms : List[ArithExpr]) : Option[Prod] = {
+//  private def factoriseTerms(terms : List[ArithExpr]) : Option[ArithExpr] = {
+//    if (terms.length < 2) return None
+//    var i = 0
+//    val triedFactors = ListBuffer[ArithExpr]()
+//    while (i < terms.length) {
+//      val term = terms(i)
+//      for (f <- term.getSumProdFactorise) {
+//        if (!triedFactors.contains(f)) {
+//          val containsF = ListBuffer[ArithExpr]()
+//          for (t <- terms) {
+//            if (t.getSumProdFactorise.contains(f)) containsF += t
+//          }
+//          for (subset <- powerSet(containsF)) {
+//            if (subset.distinct.length > 1) {
+//              val rest = terms.diff(subset)
+//              val fDivision = subset.map(x => x /^ f).reduce((x,y) => x+y).toSum.get
+//              val factorisedDivision = factoriseTerms(fDivision.asProds)
+//              var restDivision : Option[ArithExpr] = None
+//                if (rest.distinct.length > 1) {
+//                  restDivision = factoriseTerms(rest.reduce((x,y)=>x+y).toSum.get.asProds)
+//                }
+//              (factorisedDivision,restDivision) match {
+//                case (None,None) =>
+//                  val fTerm = (f*fDivision)
+//                  if (rest.isEmpty) return Some(fTerm)
+//                  else {
+//                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+//                    if (combinedFactorisation.isDefined) return combinedFactorisation
+//                  }
+//
+//                case (Some(_), None) =>
+//                  val fTerm = (f * factorisedDivision.get)
+//                  if (rest.isEmpty) return Some(fTerm)
+//                  else {
+//                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+//                    if (combinedFactorisation.isDefined) return combinedFactorisation
+//                  }
+//
+//                case (None, Some(_)) =>
+//                  val fTerm = (f*fDivision)
+//                  if (rest.isEmpty) return Some(fTerm)
+//                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+//                  if (combinedFactorisation.isDefined) return combinedFactorisation
+//
+//                case (Some(_), Some(_)) =>
+//                  val fTerm = (f * factorisedDivision.get)
+//                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+//                  if (combinedFactorisation.isDefined) return combinedFactorisation
+//              }
+//            }
+//          }
+//          triedFactors += f
+//        }
+//      }
+//      i+=1
+//    }
+//    None
+//  }
+
+  private def factoriseTerms(terms: List[ArithExpr]) : Option[ArithExpr] = {
     if (terms.length < 2) return None
+    val factors = findFactors(terms)
     var i = 0
-    val triedFactors = ListBuffer[ArithExpr]()
-    while (i < terms.length) {
-      val term = terms(i)
-      for (f <- term.getSumProdFactorise) {
-        if (!triedFactors.contains(f)) {
-          val containsF = ListBuffer[ArithExpr]()
-          for (t <- terms) {
-            if (t.getSumProdFactorise.contains(f)) containsF += t
-          }
-          for (subset <- powerSet(containsF.toList)) {
-            if (subset.distinct.length > 1) {
-              val rest = terms.diff(subset)
-              val fDivision = subset.map(x => x /^ f).reduce((x,y) => x+y).toSum.get
-              val factorisedDivision = factoriseTerms(fDivision.asProds)
-              var restDivision : Option[Prod] = None
-              if (rest.distinct.length > 1) {
-                restDivision = Factorise(correctList(rest).reduce((x,y)=>x+y))
-              }
-              (factorisedDivision,restDivision) match {
-                case (None,None) =>
-                  val fTerm = (f*fDivision).toProd.get
-                  if (rest.isEmpty) return Some(fTerm)
-                  else {
-                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
-                    if (combinedFactorisation.isDefined) return combinedFactorisation
-                  }
-
-                case (Some(_), None) =>
-                  val fTerm = (f * factorisedDivision.get).toProd.get
-                  if (rest.isEmpty) return Some(fTerm)
-                  else {
-                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
-                    if (combinedFactorisation.isDefined) return combinedFactorisation
-                  }
-
-                case (None, Some(_)) =>
-                  val fTerm = (f*fDivision).toProd.get
-                  if (rest.isEmpty) return Some(fTerm)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+    // Loop over factors
+    while (i < factors.length) {
+      val currFactor = factors(i)
+      // Find which terms does the variable appear in
+      val containsF = ListBuffer[ArithExpr]()
+      for (t <- terms) {
+        if (t.getSumProdFactorise.contains(currFactor)) containsF += t
+      }
+      // Common factor
+      if (containsF.length == terms.length) {
+        val simplified = terms.map(x => x /^ currFactor).reduce((x,y) => x+y)
+        val simplifiedFactorisation = factoriseTerms(simplified.toSum.get.asProds)
+        if (simplifiedFactorisation.isDefined) return Some(currFactor * simplifiedFactorisation.get)
+        else return Some(currFactor*simplified)
+      }
+      // Compute subsets and rest
+      // Recursively factorise
+      else {
+        for (subset <- powerSet(containsF)) {
+          if (subset.distinct.length > 1) {
+            val rest = terms.diff(subset)
+            val fDivision = subset.map(x => x /^ currFactor).reduce((x,y) => x+y).toSum.get
+            val factorisedDivision = factoriseTerms(fDivision.asProds)
+            var restDivision : Option[ArithExpr] = None
+            if (rest.distinct.length > 1) restDivision = factoriseTerms(rest.reduce((x,y)=>x+y).toSum.get.asProds)
+            (factorisedDivision,restDivision) match {
+              case (None,None) =>
+                val fTerm = currFactor*fDivision
+                if (rest.isEmpty) return Some(fTerm)
+                else {
+                  val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
+                }
 
-                case (Some(_), Some(_)) =>
-                  val fTerm = (f * factorisedDivision.get).toProd.get
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+              case (Some(_), None) =>
+                val fTerm = currFactor * factorisedDivision.get
+                if (rest.isEmpty) return Some(fTerm)
+                else {
+                  val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
-              }
+                }
+
+              case (None, Some(_)) =>
+                val fTerm = currFactor * fDivision
+                if (rest.isEmpty) return Some(fTerm)
+                val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+                if (combinedFactorisation.isDefined) return combinedFactorisation
+
+              case (Some(_), Some(_)) =>
+                val fTerm = currFactor * factorisedDivision.get
+                val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+                if (combinedFactorisation.isDefined) return combinedFactorisation
             }
           }
-          triedFactors += f
         }
+        i+=1
       }
-      i+=1
     }
     None
   }
 
   // Factorises a product
-  def factoriseProd(p: Prod): Option[Prod] = {
+  def factoriseProd(p: Prod): Option[ArithExpr] = {
     var accumExpr : ArithExpr = Cst(1)
     for (factor <- p.factors) factor match {
       case s:Sum =>
@@ -97,7 +165,7 @@ object Factorise {
         else accumExpr *= s
       case _ => accumExpr *= factor
     }
-    accumExpr.toProd
+    Some(accumExpr)
   }
 
   // Multiples constant decompositions to a single constant
@@ -155,6 +223,17 @@ object Factorise {
     factorisation.toList
   }
 
+  private def findFactors(terms: List[ArithExpr]) : List[ArithExpr] = {
+    val factors = ListBuffer[ArithExpr]()
+    for (term <- terms) term match {
+      case _:Var | _:Sum => if (!factors.contains(term)) factors += term
+      case p:Pow => if (!factors.contains(p.b)) factors += p.b
+      case p:Prod => factors ++= findFactors(p.factors)
+      case _ => // Do nothing
+    }
+    factors.distinct.toList
+  }
+
   private def commonCst(terms : List[ArithExpr]) : Option[Cst] = {
     val constantTerms = ListBuffer[Int]()
     for (term <- terms) term match {
@@ -174,6 +253,7 @@ object Factorise {
     nums.reduce((a,b) => gcdPair(a,b))
   }
 
-  private def powerSet[A](xs: List[A]): List[List[A]] =
+  private def powerSet[A](xs: ListBuffer[A]): List[List[A]] =
     xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct
+
 }
