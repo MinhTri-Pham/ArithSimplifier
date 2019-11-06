@@ -15,29 +15,29 @@ class TestFactoriseSum {
     val s1 = a*b+a
     assertEquals(Factorise(s1),Some(a*(b+Cst(1))))
 
-    val s2 = a*b+a*c
-    assertEquals(Factorise(s2),Some(a*(b+c)))
+    val s2 = (a pow 2) + a*b
+    assertEquals(Factorise(s2),Some(a*(a+b)))
 
-    val s3 = (a pow 2) + a*b
-    assertEquals(Factorise(s3),Some(a*(a+b)))
+    val s3 = a*a + a*b + a*c
+    assertEquals(Factorise(s3),Some(a*(a+b+c)))
 
-    val s4 = a*a + a*b + a*c
-    assertEquals(Factorise(s4),Some(a*(a+b+c)))
+    val s4 = a*b*c + a*b*d
+    assertEquals(Factorise(s4),Some(a*b*(c+d)))
 
-    val s5 = a*b*c + a*b*d
-    assertEquals(Factorise(s5),Some(a*b*(c+d)))
+    val s5 = a*b*c*d + a*b*e
+    assertEquals(Factorise(s5),Some(a*b*(c*d+e)))
 
-    val s6 = a*b*c*d + a*b*c*e
-    assertEquals(Factorise(s6),Some(a*b*c*(d+e)))
+    val s6 = (a pow 2)*b + (a pow 2)*c
+    assertEquals(Factorise(s6),Some((a pow 2)*(b+c)))
 
-    val s7 = a*b*c*d + a*b*e
-    assertEquals(Factorise(s7),Some(a*b*(c*d+e)))
+    val s7 = (a pow 3)*b*c+(a pow 2)*c*d
+    assertEquals(Factorise(s7),Some((a pow 2)*c*(a*b+d)))
 
-    val s8 = (a pow 2)*b + (a pow 2)*c
-    assertEquals(Factorise(s8),Some((a pow 2)*(b+c)))
+    val s8 = Cst(2)*a + Cst(2)*b
+    assertEquals(Factorise(s8), Some(Cst(2)*(a+b)))
 
-    val s9 = (a pow 3)*b*c+(a pow 2)*c*d
-    assertEquals(Factorise(s9),Some((a pow 2)*c*(a*b+d)))
+    val s9 = Cst(2)*a + Cst(4)*b
+    assertEquals(Factorise(s9), Some(Cst(2)*(a+Cst(2)*b)))
   }
 
   // Factorisation without common term
@@ -95,7 +95,6 @@ class TestFactoriseSum {
     assertEquals(Factorise(s6).get.toPow, Some((a+b) pow 2))
 
     val s7 = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*a*(b pow 2) + (b pow 3)
-    //println(Factorise(s7))
     assertEquals(Factorise(s7).get.toPow, Some((a+b) pow 3))
 
     val s8 = (a pow 2) + Cst(2)*a*b + (b pow 2) + a*c + b*c
@@ -104,27 +103,4 @@ class TestFactoriseSum {
     val s9 = (a pow 2) + Cst(2)*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
     assertEquals(Factorise(s9).get.toPow, Some((a+b+c) pow 2))
   }
-
-  // With constants
-//  @Test
-//  def withConstants(): Unit = {
-//    val s1 = Cst(2)*a + Cst(8)
-//    assertEquals(Factorise(s1),Some(Cst(2)*(a+Cst(4))))
-//
-//    val s2 = a*b + Cst(2)*a + Cst(2)*b + Cst(4)
-//    assertEquals(Factorise(s2),Some((a+Cst(2))*(b+Cst(2))))
-//
-//    val s3 = Cst(2)*a*c + Cst(6)*a + b*c + Cst(3)*b
-//    assertEquals(Factorise(s3),Some((Cst(2)*a+b)*(c+Cst(3))))
-
-//    val s5 = Cst(2)*a*d + Cst(4)*a*e + b*d + Cst(2)*b*e + Cst(3)*c*d + Cst(6)*c*e
-//    assertEquals(Factorise(s5),Some((Cst(2)*a+b+Cst(3)*c)*(d+Cst(2)*e)))
-
-//    val s6 = Cst(6)*a*a + Cst(2)*a*c + Cst(3)*b*a + b*c
-//    assertEquals(Factorise(s6),Some((Cst(2)*a+b)*(Cst(3)*a+c)))
-
-//    val s7 = Cst(8)*(a pow 2)*c + Cst(8)*(a pow 2)*e + Cst(48)*(a pow 2) + Cst(4)*a*b*c + Cst(4)*a*b*e + Cst(24)*a*b +
-//      Cst(32)*a*(c pow 2) + Cst(32)*a*c*e + Cst(192)*a*c + Cst(16)*b*(c pow 2) + Cst(16)*b*c*e + Cst(96)*b*c
-//    assertEquals(Factorise(s7), Some(Cst(4)*(Cst(2)*a+b)*(a+Cst(4)*c)*(c+e+Cst(6))))
- // }
 }

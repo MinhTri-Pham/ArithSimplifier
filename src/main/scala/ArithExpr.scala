@@ -130,20 +130,21 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
     var prods = ListBuffer[ArithExpr]()
     for (t <- terms) t match {
       case c:Cst =>
-        val cPrimeFactorisation = c.asProd
-        if (cPrimeFactorisation.getSumProdSimplify.length == 1) prods += c
-        else prods += cPrimeFactorisation
+//        val cPrimeFactorisation = c.asProd
+//        if (cPrimeFactorisation.getSumProdSimplify.length == 1) prods += c
+//        else prods += cPrimeFactorisation
+        prods += c
       case v:Var => prods += v
       case p:Prod =>
-        val expandCst = p.asNonCstFactorsSum
-        if (expandCst.isDefined) {
-          val expandCstProds = expandCst.get.asProds
-          prods ++= expandCstProds
-        }
-        else {
-          prods += p.primitiveProd
-        }
-        //prods += p.primitiveProd
+//        val expandCst = p.asNonCstFactorsSum
+//        if (expandCst.isDefined) {
+//          val expandCstProds = expandCst.get.asProds
+//          prods ++= expandCstProds
+//        }
+//        else {
+//          prods += p.primitiveProd
+//        }
+        prods += p.primitiveProd
 
       case pow:Pow =>
         if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
@@ -247,11 +248,11 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   lazy val primitiveProd : Prod = {
     var primitiveFactors = ListBuffer[ArithExpr]()
     for (f <- factors) f match {
-      case c:Cst =>
-        val cPrimeFactorisation = c.asProd
-        if (cPrimeFactorisation.getSumProdSimplify.length == 1) primitiveFactors += c
-        else primitiveFactors = primitiveFactors ++ cPrimeFactorisation.factors
-      case _ @ (_:Var | _:Sum) => primitiveFactors += f
+//      case c:Cst =>
+//        val cPrimeFactorisation = c.asProd
+//        if (cPrimeFactorisation.getSumProdSimplify.length == 1) primitiveFactors += c
+//        else primitiveFactors = primitiveFactors ++ cPrimeFactorisation.factors
+//      case _ @ (_:Var | _:Sum) => primitiveFactors += f
       case p:Pow =>
         if (p.asProdPows.isDefined) {
           val pProdPows = p.asProdPows.get
@@ -262,7 +263,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
           primitiveFactors = primitiveFactors ++ pProd.factors
         }
 
-      //case _ => primitiveFactors += f
+      case _ => primitiveFactors += f
     }
     Prod(primitiveFactors.toList)
   }
@@ -359,6 +360,23 @@ object ArithExpr {
       }
       else true
 
+    // Want na (where n is a constant) < b (assuming a < b) for sum simplification
+    case (p : Prod, x: Pow) =>
+      val nonCst = p.nonCstFactor
+      if (nonCst.isInstanceOf[Pow]) {
+        if (nonCst == x) true
+        else isCanonicallySorted(nonCst, x)
+      }
+      else true
+
+    case (x: Pow, p : Prod) =>
+      val nonCst = p.nonCstFactor
+      if (nonCst.isInstanceOf[Var]) {
+        if (nonCst == x) false
+        else isCanonicallySorted(x, nonCst)
+      }
+      else false
+
     // Want a^n (where n is a constant) < b (assuming a < b) for product simplification
     case (p : Pow, x: Var) =>
       val base = p.b
@@ -379,29 +397,28 @@ object ArithExpr {
     case (_, _: Var) => false
 
     case (p1:Prod, p2:Prod) =>
-      // Sorting based on non-constant factors
       val p1nonCst = p1.nonCstList
       val p2nonCst = p2.nonCstList
       if (p1nonCst.length == p2nonCst.length) {
         val numFactors = p1nonCst.length
         var i = 0
         var result = p1.cstFactor < p2.cstFactor
-          while (i < numFactors) {
-            if (p1nonCst(i) != p2nonCst(i)) {
-              result = isCanonicallySorted(p1nonCst(i),p2nonCst(i))
-              i = numFactors-1
-            }
-            i+=1
+        while (i < numFactors) {
+          if (p1nonCst(i) != p2nonCst(i)) {
+            result = isCanonicallySorted(p1nonCst(i),p2nonCst(i))
+            i = numFactors-1
           }
+          i+=1
+        }
         result
       }
-        // Shorter products first
+      // Shorter products first
       else {
         p1nonCst.length < p2nonCst.length
       }
 
     case (s1:Sum, s2:Sum) =>
-      // Sorting based on non-constant factors
+      // Sorting based on non-constant terms
       val s1Terms = s1.terms
       val s2Terms = s2.terms
       if (s1Terms.length == s2Terms.length) {
@@ -417,15 +434,13 @@ object ArithExpr {
         }
         result
       }
-      // Shorter products first
+      // Shorter sums first
       else {
         s1Terms.length < s2Terms.length
       }
-    case (Pow(b1,_), Pow(b2,_)) => isCanonicallySorted(b1,b2)
-    case (x, _: Pow) if x.isInstanceOf[Cst] || x.isInstanceOf[Var] => true
-    case (_: Pow, x) if x.isInstanceOf[Cst] || x.isInstanceOf[Var] => false
-//    case (Pow(b,_),x) => isCanonicallySorted(b,x)
-//    case (x,Pow(b,_)) => isCanonicallySorted(x,b)
+    case (Pow(b1,e1), Pow(b2,e2)) =>
+      if (b1 == b2) e1 < e2
+      else isCanonicallySorted(b1,b2)
     case (_, _: Pow) => true
     case (_: Pow, _) => false
     case _ => true
@@ -479,6 +494,16 @@ object ArithExpr {
       Some(Sum(combined.getSumProdSimplify))
 
     case _ => None
+  }
+
+  // Check if expression is a multiple of another expression
+  def isMulitpleOf(expr: ArithExpr, that: ArithExpr) : Boolean = (expr, that) match {
+    // Check multiple of constants
+    case (Cst(c1), Cst(c2)) => c1 % c2 == 0
+    case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
+    case (p:Prod, _) => p.factors.contains(that) ||
+      p.factors.foldLeft(false){(accum,factor) => accum || isMulitpleOf(factor,that)}
+    case (x, y) => x == y
   }
 }
 
