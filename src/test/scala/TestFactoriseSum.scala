@@ -36,8 +36,11 @@ class TestFactoriseSum {
     val s8 = Cst(2)*a + Cst(2)*b
     assertEquals(Factorise(s8), Some(Cst(2)*(a+b)))
 
-    val s9 = Cst(2)*a + Cst(4)*b
-    assertEquals(Factorise(s9), Some(Cst(2)*(a+Cst(2)*b)))
+    val s9 = Cst(4)*a + Cst(6)*b
+    assertEquals(Factorise(s9), Some(Cst(2)*(Cst(2)*a+Cst(3)*b)))
+
+    val s10 = Cst(4)*a*c + Cst(8)*b*c
+    assertEquals(Factorise(s10), Some(Cst(4)*c*(a+Cst(2)*b)))
   }
 
   // Factorisation without common term

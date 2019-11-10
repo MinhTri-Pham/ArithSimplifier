@@ -71,7 +71,7 @@ object RandomGenerator {
   // Represents a "common term" in factorisation
   private def genCommonFactor : ArithExpr = {
     val rand = new Random
-    val multiplications = 4
+    val multiplications = 3
     var commonTerm : ArithExpr = Cst(1)
     for (_ <- 0 until multiplications) {
       val exprType = rand.nextInt(3)
@@ -109,9 +109,12 @@ object RandomGenerator {
       println(s"Generated product:$p")
       val pSum = p.asExpandedSum.get
       println(s"Expanded product: $pSum")
+      val start = System.nanoTime()
       val sumFactorisation = Factorise(pSum)
+      val end = System.nanoTime()
       println(s"Factorisation: ${sumFactorisation.get}")
       println(s"Factorisation equivalent to generated product: ${p == sumFactorisation.get}")
+      println(s"Runtime: ${(end - start) / 1e6d} ms \n")
       println(s"-------------------------------- End of iteration with depth $d --------------------------------\n")
     }
   }

@@ -85,30 +85,46 @@ object Factorise {
     // Loop over factors
     while (i < factors.length) {
       val currFactor = factors(i)
-      // Find which terms does the variable appear in
+      // Find which terms does the factor appear in
       val containsF = ListBuffer[ArithExpr]()
       for (t <- terms) {
         if (ArithExpr.isMulitpleOf(t,currFactor)) containsF += t
       }
       // Common factor
       if (containsF.length == terms.length) {
-        val simplified = terms.map(x => x /^ currFactor).reduce((x,y) => x+y)
+        // Constant or something else
+        val simplified = if (currFactor.isInstanceOf[Cst]) terms.map(x => x / currFactor).reduce((x,y) => x+y) else
+          terms.map(x => x /^ currFactor).reduce((x,y) => x+y)
+        // Factor out common factor
         val simplifiedFactorisation = factoriseTerms(simplified.toSum.get.asProds)
+        // Try to factorise the simplified expression
         if (simplifiedFactorisation.isDefined) return Some(currFactor * simplifiedFactorisation.get)
         else return Some(currFactor*simplified)
       }
-      // Compute subsets and rest
-      // Recursively factorise
+      // Idea: divide expression into two subexpressions
+      // One subexpression contains some of the terms the factor is contained in
+      // All other terms form the second subexpression
+      // Try to recursively factorise these
+      // Then combine factorisations (or just the subexpression(s) when can't factor) and try same algorithm with
+      // the two formed expressions
+      // Have to try all combinations
       else {
         if (!currFactor.isInstanceOf[Cst]) {
+          // Fully expand all terms and the ones the factor is contained in
           val containsExpanded = expandTerms(containsF.toList)
+          val termsExpanded = expandTerms(terms)
+          // Try combinations
           for (subset <- powerSet(containsExpanded)) {
             if (subset.distinct.length > 1) {
-              val rest = expandTerms(terms).diff(subset)
+              val rest = termsExpanded.diff(subset)
+              // Take out factor from examined subset
+              // Factorise recursively
               val fDivision = subset.map(x => x /^ currFactor).reduce((x,y) => x+y).toSum.get
               val factorisedDivision = factoriseTerms(fDivision.asProds)
+              // Try to factorise the rest
               var restDivision : Option[ArithExpr] = None
               if (rest.distinct.length > 1) restDivision = factoriseTerms(rest.reduce((x,y)=>x+y).toSum.get.asProds)
+              // See if we could factorise the two subexpressions and combine appropriately
               (factorisedDivision,restDivision) match {
                 case (None,None) =>
                   val fTerm = currFactor*fDivision
@@ -159,6 +175,7 @@ object Factorise {
     Some(accumExpr)
   }
 
+  // Fully expands terms, i.e a^2 + 2ab + b^2 -> a*a + 2*a*b + b*b
   private def expandTerms(terms: List[ArithExpr]) : List[ArithExpr] = {
     val expanded = ListBuffer[ArithExpr]()
     for (term <- terms) term match {
@@ -223,7 +240,10 @@ object Factorise {
   private def findFactors(terms: List[ArithExpr]) : List[ArithExpr] = {
     val factors = ListBuffer[ArithExpr]()
     for (term <- terms) term match {
-      case _:Var | _:Sum | _:Cst => if (!factors.contains(term)) factors += term
+      case _:Var | _:Sum => if (!factors.contains(term)) factors += term
+      case c:Cst =>
+        val primes = c.asProd.factors
+        for (prime <- primes) if (!factors.contains(term)) factors += prime
       case p:Pow => if (!factors.contains(p.b)) factors += p.b
       case p:Prod =>
         factors ++= findFactors(p.factors)
@@ -232,16 +252,16 @@ object Factorise {
     factors.distinct.toList
   }
 
-  @scala.annotation.tailrec
-  private def gcdPair(first:Int, second:Int) : Int = {
-    if (second == 0) first else gcdPair(second, first % second)
-  }
-
-  private def gcdList(nums: List[Int]) : Int = {
-    nums.reduce((a,b) => gcdPair(a,b))
-  }
+//  @scala.annotation.tailrec
+//  private def gcdPair(first:Int, second:Int) : Int = {
+//    if (second == 0) first else gcdPair(second, first % second)
+//  }
+//
+//  private def gcdList(nums: List[Int]) : Int = {
+//    nums.reduce((a,b) => gcdPair(a,b))
+//  }
 
   private def powerSet[A](xs: List[A]): List[List[A]] =
-    xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct
+    xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct.reverse
 
 }
