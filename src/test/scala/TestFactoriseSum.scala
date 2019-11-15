@@ -118,7 +118,6 @@ class TestFactoriseSum {
     val s3 = Cst(4)/^(a*a) + Cst(8)*b/^a + Cst(4)*b*b
     assertEquals(Factorise(s3), Some(Cst(4)*((Cst(1)/^a + b) pow 2)))
 
-    // Doesn't pass
     val s4 = d /^(a*a) + (Cst(2)*d*b)/^a + d*b*b
     assertEquals(Factorise(s4), Some(d*((Cst(1)/^a + b) pow 2)))
 

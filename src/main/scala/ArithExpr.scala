@@ -501,19 +501,6 @@ object ArithExpr {
       p.factors.foldLeft(false){(accum,factor) => accum || isMulitpleOf(factor,that)}
     case (x, y) => x == y
   }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val p1 = a pow -1
-    val p2 = (a pow -1) + Cst(2)*b
-    val e1 = Prod(List(p1,p2))
-    val e2 = Prod(List(p2,p1))
-    val s1 = e1.toProd.get.asExpandedSum
-    val s2 = e2.toProd.get.asExpandedSum
-    println(s1)
-    println(s2)
-  }
 }
 
 class NotEvaluableException(msg : String) extends Exception(msg)
