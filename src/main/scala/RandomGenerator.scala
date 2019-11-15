@@ -132,14 +132,17 @@ object RandomGenerator {
       println(s"Generated product with a common factor: $pcf")
       val pcfSum = pcf.toSum.get
       println(s"Expanded product: $pcfSum")
+      val start = System.nanoTime()
       val sumFactorisation = Factorise(pcfSum)
+      val end = System.nanoTime()
       println(s"Factorisation: ${sumFactorisation.get}")
       println(s"Factorisation equivalent to generated product: ${pcf == sumFactorisation.get}")
+      println(s"Runtime: ${(end - start) / 1e6d} ms \n")
       println(s"-------------------------------- End of iteration with depth $d --------------------------------\n")
     }
   }
 
   def main(args: Array[String]): Unit = {
-    tryProdsOfSums(4)
+    tryProdsOfSumsWithCF(6)
   }
 }

@@ -298,8 +298,20 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   lazy val asProd : Option[Prod] = {
     //assume(e > 1)
     val factors = ListBuffer[ArithExpr]()
-    for (_ <-1 to e) {
-      factors += b
+    if (e > 1) {
+      for (_ <- 1 to e) {
+        factors += b
+      }
+    }
+    else if (e < 1) {
+      for (_ <- e to -1) {
+        factors += Pow(b,-1)
+      }
+
+    }
+    // Exponent is 1 or -1
+    else {
+      factors += this
     }
     Some(Prod(factors.toList))
   }

@@ -192,48 +192,34 @@ object Factorise {
     expanded.toList
   }
 
-  // Finds all primes up to (and including) n using sieve algorithm
-  private def sieve(n : Int) : List[Int] = {
-    val isPrime = Array.fill[Boolean](n+1)(true)
-    isPrime(0) = false
-    isPrime(1) = false
-    for (i <- 2 to n) {
-      if (isPrime(i) && i*i <= n) {
-        for (j <- i*i to n by i) {
-          isPrime(j) = false
+  // Prepare array for factorisation using sieve algorithm
+  private def sieve(n : Int) : Array[Int] = {
+    val spf = Array.fill[Int](n+1)(0)
+    var i = 2
+    while(i * i <= n) {
+      if (spf(i) == 0) {
+        var k = i*i
+        while (k <= n) {
+          if (spf(k) == 0) spf(k) = i
+          k += i
         }
       }
+      i += 1
     }
-    val primes = ListBuffer[Int]()
-    for (i <- 2 until n+1) {
-      if (isPrime(i)) primes += i
-    }
-    primes.toList
+    spf
   }
 
-  // Gives prime decomposition of an integer
-  // If n < 0, include -1 in the decomposition
+  // Gives prime decomposition of a positive integer
   // Repeated factors repeated in the product
   private def primeDecomposition(n : Int) : List[Int] = {
-    var r = scala.math.abs(n)
-    val primes = sieve(r)
+    var r = n
+    val spf = sieve(r)
     val factorisation = ListBuffer[Int]()
-    if (n < 0) factorisation += -1
-    var i = 0
-    var lessSquare = true
-    while (i < primes.length && lessSquare) {
-      val p = primes(i)
-      if (p*p > r) lessSquare = false
-      else {
-        while(r % p == 0) {
-          factorisation += p
-          r/= p
-        }
-      }
-      i+=1
+    while(spf(r) > 0) {
+      factorisation += spf(r)
+      r /= spf(r)
     }
-
-    if (r > 1) factorisation += r
+    factorisation += r
     factorisation.toList
   }
 
@@ -244,7 +230,9 @@ object Factorise {
       case c:Cst =>
         val primes = c.asProd.factors
         for (prime <- primes) if (!factors.contains(term)) factors += prime
-      case p:Pow => if (!factors.contains(p.b)) factors += p.b
+      case p:Pow =>
+        if (!factors.contains(p.b)) factors += p.b
+        if (!factors.contains(Pow(p.b,-1))) factors += Pow(p.b,-1)
       case p:Prod =>
         factors ++= findFactors(p.factors)
       case _ => // Do nothing
@@ -252,16 +240,6 @@ object Factorise {
     factors.distinct.toList
   }
 
-//  @scala.annotation.tailrec
-//  private def gcdPair(first:Int, second:Int) : Int = {
-//    if (second == 0) first else gcdPair(second, first % second)
-//  }
-//
-//  private def gcdList(nums: List[Int]) : Int = {
-//    nums.reduce((a,b) => gcdPair(a,b))
-//  }
-
   private def powerSet[A](xs: List[A]): List[List[A]] =
     xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct.reverse
-
 }
