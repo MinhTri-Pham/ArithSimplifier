@@ -130,20 +130,9 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
     var prods = ListBuffer[ArithExpr]()
     for (t <- terms) t match {
       case c:Cst =>
-//        val cPrimeFactorisation = c.asProd
-//        if (cPrimeFactorisation.getSumProdSimplify.length == 1) prods += c
-//        else prods += cPrimeFactorisation
         prods += c
       case v:Var => prods += v
       case p:Prod =>
-//        val expandCst = p.asNonCstFactorsSum
-//        if (expandCst.isDefined) {
-//          val expandCstProds = expandCst.get.asProds
-//          prods ++= expandCstProds
-//        }
-//        else {
-//          prods += p.primitiveProd
-//        }
         prods += p.primitiveProd
 
       case pow:Pow =>
@@ -232,7 +221,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
           }
           else {
             if (p.e > 0) accum = accum * p
-            else None
+            else accum /^= p.b
           }
       }
       if (expanded) accum.getSumProdSimplify.reduce((x, y)=>x+y).toSum
@@ -248,11 +237,6 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   lazy val primitiveProd : Prod = {
     var primitiveFactors = ListBuffer[ArithExpr]()
     for (f <- factors) f match {
-//      case c:Cst =>
-//        val cPrimeFactorisation = c.asProd
-//        if (cPrimeFactorisation.getSumProdSimplify.length == 1) primitiveFactors += c
-//        else primitiveFactors = primitiveFactors ++ cPrimeFactorisation.factors
-//      case _ @ (_:Var | _:Sum) => primitiveFactors += f
       case p:Pow =>
         if (p.asProdPows.isDefined) {
           val pProdPows = p.asProdPows.get
@@ -516,6 +500,19 @@ object ArithExpr {
     case (p:Prod, _) => p.factors.contains(that) ||
       p.factors.foldLeft(false){(accum,factor) => accum || isMulitpleOf(factor,that)}
     case (x, y) => x == y
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val p1 = a pow -1
+    val p2 = (a pow -1) + Cst(2)*b
+    val e1 = Prod(List(p1,p2))
+    val e2 = Prod(List(p2,p1))
+    val s1 = e1.toProd.get.asExpandedSum
+    val s2 = e2.toProd.get.asExpandedSum
+    println(s1)
+    println(s2)
   }
 }
 

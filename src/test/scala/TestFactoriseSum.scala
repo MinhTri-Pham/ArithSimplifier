@@ -78,7 +78,7 @@ class TestFactoriseSum {
   }
 
   @Test
-  def withPowers(): Unit = {
+  def withPositivePowers(): Unit = {
     val s1 = (a pow 2) + a*b + a*c + b*c
     assertEquals(Factorise(s1),Some((a+b)*(a+c)))
 
@@ -95,15 +95,35 @@ class TestFactoriseSum {
     assertEquals(Factorise(s5),Some((a+b)*(a+c)*(a+d)))
 
     val s6 = (a pow 2) + Cst(2)*a*b + (b pow 2)
-    assertEquals(Factorise(s6).get.toPow, Some((a+b) pow 2))
+    assertEquals(Factorise(s6), Some((a+b) pow 2))
 
     val s7 = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*a*(b pow 2) + (b pow 3)
-    assertEquals(Factorise(s7).get.toPow, Some((a+b) pow 3))
+    assertEquals(Factorise(s7), Some((a+b) pow 3))
 
     val s8 = (a pow 2) + Cst(2)*a*b + (b pow 2) + a*c + b*c
     assertEquals(Factorise(s8), Some((a+b+c)*(a+b)))
 
     val s9 = (a pow 2) + Cst(2)*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
-    assertEquals(Factorise(s9).get.toPow, Some((a+b+c) pow 2))
+    assertEquals(Factorise(s9), Some((a+b+c) pow 2))
+  }
+
+  @Test
+  def withNegativePowers() : Unit = {
+    val s1 = b/^a + Cst(2)*c/^a
+    assertEquals(Factorise(s1),Some(Cst(1)/^a*(b+Cst(2)*c)))
+
+    val s2 = Cst(1)/^(a*a) + Cst(2)*b/^a + b*b
+    assertEquals(Factorise(s2), Some((Cst(1)/^a + b) pow 2))
+
+    val s3 = Cst(4)/^(a*a) + Cst(8)*b/^a + Cst(4)*b*b
+    assertEquals(Factorise(s3), Some(Cst(4)*((Cst(1)/^a + b) pow 2)))
+
+    // Doesn't pass
+    val s4 = d /^(a*a) + (Cst(2)*d*b)/^a + d*b*b
+    assertEquals(Factorise(s4), Some(d*((Cst(1)/^a + b) pow 2)))
+
+    val s5 = Cst(1)/^(a*a) + Cst(2)*b*c/^a + b*b*c*c
+    assertEquals(Factorise(s5), Some((Cst(1)/^a + b*c) pow 2))
+
   }
 }

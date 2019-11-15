@@ -93,8 +93,13 @@ object Factorise {
       // Common factor
       if (containsF.length == terms.length) {
         // Constant or something else
-        val simplified = if (currFactor.isInstanceOf[Cst]) terms.map(x => x / currFactor).reduce((x,y) => x+y) else
-          terms.map(x => x /^ currFactor).reduce((x,y) => x+y)
+        val simplified = if (currFactor.isInstanceOf[Cst]) {
+          terms.map(x => x / currFactor).reduce((x,y) => x+y)
+        }
+        else {
+          val divisionCF = terms.map(x => x /^ currFactor)
+          divisionCF.reduce((x,y) => x+y)
+        }
         // Factor out common factor
         val simplifiedFactorisation = factoriseTerms(simplified.toSum.get.asProds)
         // Try to factorise the simplified expression
@@ -130,7 +135,8 @@ object Factorise {
                   val fTerm = currFactor*fDivision
                   if (rest.isEmpty) return Some(fTerm)
                   else {
-                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+                    val restTerm = rest.reduce((x,y) => x+y)
+                    val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                     if (combinedFactorisation.isDefined) return combinedFactorisation
                   }
 
@@ -138,7 +144,9 @@ object Factorise {
                   val fTerm = currFactor * factorisedDivision.get
                   if (rest.isEmpty) return Some(fTerm)
                   else {
-                    val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+                    //val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
+                    val restTerm = rest.reduce((x,y) => x+y)
+                    val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                     if (combinedFactorisation.isDefined) return combinedFactorisation
                   }
 
@@ -228,11 +236,13 @@ object Factorise {
     for (term <- terms) term match {
       case _:Var | _:Sum => if (!factors.contains(term)) factors += term
       case c:Cst =>
-        val primes = c.asProd.factors
-        for (prime <- primes) if (!factors.contains(term)) factors += prime
+        if (c.value != 1) {
+          val primes = c.asProd.factors
+          for (prime <- primes) if (!factors.contains(term)) factors += prime
+        }
       case p:Pow =>
-        if (!factors.contains(p.b)) factors += p.b
-        if (!factors.contains(Pow(p.b,-1))) factors += Pow(p.b,-1)
+        if (p.e == 1 && !factors.contains(p.b)) factors += p.b
+        if (p.e == -1 && !factors.contains(Pow(p.b,-1))) factors += Pow(p.b,-1)
       case p:Prod =>
         factors ++= findFactors(p.factors)
       case _ => // Do nothing
