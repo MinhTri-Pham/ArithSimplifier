@@ -1,5 +1,4 @@
 import java.util.concurrent.atomic.AtomicLong
-
 import scala.collection.mutable.ListBuffer
 
 abstract sealed class ArithExpr {
@@ -56,6 +55,14 @@ abstract sealed class ArithExpr {
     case _ => None
   }
 
+  lazy val (min: ArithExpr, max: ArithExpr) = _minmax()
+
+  private def _minmax(): (ArithExpr, ArithExpr) = this match {
+    case c:Cst => (c,c)
+    case v:Var => (v.range.min, v.range.max)
+    case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
+  }
+
 }
 
 // Class for (int) constants
@@ -79,7 +86,7 @@ case class Cst(value : Int) extends ArithExpr {
 }
 
 // Class for variables
-case class Var (name : String, fixedId: Option[Long] = None) extends ArithExpr {
+case class Var (name : String, range: Range = RangeUnknown, fixedId: Option[Long] = None) extends ArithExpr {
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -118,7 +125,7 @@ object Var {
 
   def apply(name: String): Var = new Var(name)
 
-  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, fixedId)
+  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, RangeUnknown, fixedId)
 }
 
 // Class for sums
@@ -501,6 +508,12 @@ object ArithExpr {
       p.factors.foldLeft(false){(accum,factor) => accum || isMulitpleOf(factor,that)}
     case (x, y) => x == y
   }
+}
+
+case object ? extends ArithExpr {
+  override def getSumProdFactorise: List[ArithExpr] = Nil
+
+  override def getSumProdSimplify: List[ArithExpr] = Nil
 }
 
 class NotEvaluableException(msg : String) extends Exception(msg)

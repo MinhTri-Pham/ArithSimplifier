@@ -9,7 +9,7 @@ class TestFractionSimplification {
   val d = Var("d")
 
   @Test
-  def positiveTests() : Unit = {
+  def basicTests() : Unit = {
     val numer1 = Cst(2)*a + Cst(2)*b
     val numer2 = a*a + a*b
     val numer3 = a*a + Cst(2)*a*b + b*b
@@ -28,11 +28,12 @@ class TestFractionSimplification {
     val denom4 = a*a + Cst(3)*a
 
     val numer5 = a*a*a + Cst(4)*a*a + Cst(3)*a
-    val denom5 = a*a*a + Cst(6)*a*a + Cst(11)*a + Cst(6)
+    val denom5 = a*a*a + Cst(3)*a*a + Cst(2)*a
 
     assertEquals(numer4 /^ denom4, (a+Cst(1)) /^ (a+Cst(3)))
-    // Factorises correctly, cancellation not working correctly
-//    assertEquals(numer5 /^ denom5, a /^ (a+Cst(2)))
+    assertEquals(numer5 /^ denom5, (a+Cst(3)) /^ (a+Cst(2)))
+    assertEquals(numer4 /^ denom5, Cst(1) /^ (a+Cst(2)))
+    assertEquals(numer5 /^ denom4, Cst(1)+a)
 
 
   }

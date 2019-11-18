@@ -2,8 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -197,21 +212,6 @@
           <url>file://$PROJECT_DIR$/src/main/scala/Factorise.scala</url>
           <line>100</line>
           <option name="timeStamp" value="260" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/ArithExpr.scala</url>
-          <line>199</line>
-          <option name="timeStamp" value="267" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/ArithExpr.scala</url>
-          <line>202</line>
-          <option name="timeStamp" value="269" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/ArithExpr.scala</url>
-          <line>212</line>
-          <option name="timeStamp" value="271" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
