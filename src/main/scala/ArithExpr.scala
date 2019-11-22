@@ -55,12 +55,26 @@ abstract sealed class ArithExpr {
     case _ => None
   }
 
+  lazy val sign: Sign.Value = Sign(this)
+
   lazy val (min: ArithExpr, max: ArithExpr) = _minmax()
 
   private def _minmax(): (ArithExpr, ArithExpr) = this match {
     case c:Cst => (c,c)
     case v:Var => (v.range.min, v.range.max)
     case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
+    case Pow(b,e) =>
+      if (e == 0) (Cst(1), Cst(1))
+      // Odd exponent - easy
+      else if (e > 0 && e % 2 == 1) (b.min pow e, b.max pow e)
+      // Even exponent, consider sign of min/max of b
+      else if (e > 0 && e % 2 == 0) {
+        if (b.min.sign.equals(Sign.Positive)) (b.min pow e, b.max pow e)
+        else if (b.max.sign.equals(Sign.Negative)) (b.max pow e, b.min pow e)
+        // This should be (0, max(x1^e,x2^e)) - need to know which bigger
+        else (Cst(0), ?)
+      }
+      else (?,?)
   }
 
 }
@@ -86,7 +100,7 @@ case class Cst(value : Int) extends ArithExpr {
 }
 
 // Class for variables
-case class Var (name : String, range: Range = RangeUnknown, fixedId: Option[Long] = None) extends ArithExpr {
+case class Var (name : String, range: Interval = IntervalUnknown, fixedId: Option[Long] = None) extends ArithExpr {
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -125,7 +139,7 @@ object Var {
 
   def apply(name: String): Var = new Var(name)
 
-  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, RangeUnknown, fixedId)
+  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, IntervalUnknown, fixedId)
 }
 
 // Class for sums
@@ -500,13 +514,24 @@ object ArithExpr {
   }
 
   // Check if expression is a multiple of another expression
-  def isMulitpleOf(expr: ArithExpr, that: ArithExpr) : Boolean = (expr, that) match {
+  def isMultitpleOf(expr: ArithExpr, that: ArithExpr) : Boolean = (expr, that) match {
     // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
     case (p:Prod, _) => p.factors.contains(that) ||
-      p.factors.foldLeft(false){(accum,factor) => accum || isMulitpleOf(factor,that)}
+      p.factors.foldLeft(false){(accum,factor) => accum || isMultitpleOf(factor,that)}
     case (x, y) => x == y
+  }
+
+  def main(args: Array[String]): Unit = {
+    val x = Var("x",ClosedInterval(Cst(-2),Cst(-1)))
+    val y = Var("y",ClosedInterval(Cst(-1),Cst(4)))
+    val s = x+y
+    println(s.min, s.max)
+    println(s.sign)
+    val p = s pow 2
+    println(p.min, p.max)
+    println(p.sign)
   }
 }
 
