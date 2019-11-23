@@ -8,9 +8,6 @@ object SimplifyProd {
   def multExprs(lhs: ArithExpr, rhs: ArithExpr): ArithExpr = {
     var lhsFactors, rhsFactors: List[ArithExpr] = List[ArithExpr]()
     (lhs, rhs) match {
-      // Special case
-      case (Cst(0), _) => return Cst(0)
-      case (_, Cst(0)) => return Cst(0)
       // If there's a power (with product as base), expand it into a product
       // To do: If either side is a sum, try to factorise and then collect terms as usual
       case (p1: Pow, p2:Pow) =>
@@ -122,6 +119,8 @@ object SimplifyProd {
         // Extract and sort factors of both sides and merge
         lhsFactors = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
         rhsFactors = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        if (lhsFactors.head == ? || rhsFactors.head == ?) return ?
+        if (lhsFactors.head == Cst(0) || rhsFactors.head == Cst(0)) return Cst(0)
     }
     mergeFactors(lhsFactors,rhsFactors)
   }
@@ -170,6 +169,8 @@ object SimplifyProd {
     case (Cst(x), Cst(y)) => Some(Cst(x * y))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)
+    case (Cst(0), _) => Some(lhs)
+    case (_, Cst(0)) => Some(rhs)
 
     // Compute powers when all bases and exponents are positive constants
     case (Pow(Cst(b1), e1), Pow(Cst(b2), e2)) if e1 > 0 && e2 > 0 =>

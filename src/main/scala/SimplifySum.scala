@@ -121,6 +121,8 @@ object SimplifySum {
         // Extract and canonically sort terms of both sides and merge
         lhsTerms = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
         rhsTerms = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        if (lhsTerms.head == ? || rhsTerms.head == ?) return ?
+
     }
     mergeTerms(lhsTerms, rhsTerms)
   }

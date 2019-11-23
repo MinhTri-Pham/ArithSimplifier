@@ -1,5 +1,6 @@
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.mutable.ListBuffer
+import NotEvaluableException.NotEvaluable
 
 abstract sealed class ArithExpr {
   // Addition operator
@@ -57,6 +58,8 @@ abstract sealed class ArithExpr {
 
   lazy val sign: Sign.Value = Sign(this)
 
+  lazy val evalDouble: Double = ArithExpr.evalDouble(this)
+
   lazy val (min: ArithExpr, max: ArithExpr) = _minmax()
 
   private def _minmax(): (ArithExpr, ArithExpr) = this match {
@@ -71,10 +74,33 @@ abstract sealed class ArithExpr {
       else if (e > 0 && e % 2 == 0) {
         if (b.min.sign.equals(Sign.Positive)) (b.min pow e, b.max pow e)
         else if (b.max.sign.equals(Sign.Negative)) (b.max pow e, b.min pow e)
-        // This should be (0, max(x1^e,x2^e)) - need to know which bigger
-        else (Cst(0), ?)
+        // (0, max(x1^e,x2^e)), x1 = min(b), x2 = max(b)
+        else {
+          val x1 = b.min pow e
+          val x2 = b.max pow e
+          val comp = ArithExpr.isSmaller(x1,x2)
+          if (comp.isDefined) {
+            if (comp.get) (Cst(0), x2)
+            else (Cst(0),x1)
+          }
+          else {
+            (Cst(0), ?)
+          }
+        }
       }
-      else (?,?)
+      else {
+        if (b.min.sign.equals(Sign.Positive)) (b.max pow e, b.min pow e)
+        else if (b.max.sign.equals(Sign.Negative)) (b.min pow e, b.max pow e)
+        else (?,?)
+      }
+    case ? => (?,?)
+    case _ => (?, ?)
+  }
+
+  lazy val isEvaluable: Boolean = {
+    !ArithExpr.visitUntil(this, x => {
+      x.isInstanceOf[Var] || x == ?
+    })
   }
 
 }
@@ -356,6 +382,8 @@ object ArithExpr {
   // For ease of simplification
   val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) =>
     (x, y) match {
+    case (?, _) => true
+    case (_, ?) => false
     case (Cst(a), Cst(b)) => a < b
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
@@ -477,7 +505,7 @@ object ArithExpr {
     for ((varSub, Cst(n)) <- replacements) {
       if (variable == varSub) return n
     }
-    throw new NotEvaluableException(s"Didn't find a substitution for variable $variable")
+    throw NotEvaluable
   }
 
   // Expands product of two expressions into a sum if possible
@@ -513,19 +541,73 @@ object ArithExpr {
     case _ => None
   }
 
-  // Check if expression is a multiple of another expression
-  def isMultitpleOf(expr: ArithExpr, that: ArithExpr) : Boolean = (expr, that) match {
+  // Check if an expression is a multiple of another expression
+  def isMultitpleOf(ae1: ArithExpr, ae2: ArithExpr) : Boolean = (ae1, ae2) match {
     // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
-    case (p:Prod, _) => p.factors.contains(that) ||
-      p.factors.foldLeft(false){(accum,factor) => accum || isMultitpleOf(factor,that)}
+    case (p:Prod, _) => p.factors.contains(ae2) ||
+      p.factors.foldLeft(false){(accum,factor) => accum || isMultitpleOf(factor,ae2)}
     case (x, y) => x == y
   }
 
+  // Check if an expression is a smaller than another expression
+  def isSmaller(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
+    try {
+      // we check to see if the difference can be evaluated
+      val diff = ae2 - ae1
+      if (diff.isEvaluable)
+        return Some(diff.evalDouble > 0)
+    } catch {
+      case NotEvaluableException() =>
+    }
+
+    try {
+      Some(ae1.max.evalDouble < ae2.min.evalDouble)
+    } catch {
+      case NotEvaluableException() =>
+    }
+
+    if (ae1 == ? | ae2 == ?)
+      return None
+    None
+  }
+
+  def visitUntil(e: ArithExpr, f: (ArithExpr) => Boolean): Boolean = {
+    if (f(e)) true
+    else {
+      e match {
+        case Pow(base, _) =>
+          visitUntil(base, f)
+        case Sum(terms) =>
+          terms.foreach(t => if (visitUntil(t, f)) return true)
+          false
+        case Prod(terms) =>
+          terms.foreach(t => if (visitUntil(t, f)) return true)
+          false
+        case _:Var | Cst(_) => false
+        case x if x.getClass == ?.getClass => false
+      }
+    }
+  }
+
+  private def evalDouble(e: ArithExpr): Double = e match {
+    case Cst(c) => c
+
+    case Pow(base, exp) => scala.math.pow(evalDouble(base),exp)
+
+    case Sum(terms) => terms.foldLeft(0.0)((result, expr) => result + evalDouble(expr))
+    case Prod(terms) => terms.foldLeft(1.0)((result, expr) => result * evalDouble(expr))
+
+//    case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
+//    case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
+
+    case `?` => throw NotEvaluable
+  }
+
   def main(args: Array[String]): Unit = {
-    val x = Var("x",ClosedInterval(Cst(-2),Cst(-1)))
-    val y = Var("y",ClosedInterval(Cst(-1),Cst(4)))
+    val x = Var("x",ClosedInterval(Cst(-2),?))
+    val y = Var("y",ClosedInterval(?,Cst(4)))
     val s = x+y
     println(s.min, s.max)
     println(s.sign)
@@ -536,11 +618,8 @@ object ArithExpr {
 }
 
 case object ? extends ArithExpr {
-  override def getSumProdFactorise: List[ArithExpr] = Nil
+  override def getSumProdFactorise: List[ArithExpr] = List(?)
 
-  override def getSumProdSimplify: List[ArithExpr] = Nil
+  override def getSumProdSimplify: List[ArithExpr] = List(?)
 }
-
-class NotEvaluableException(msg : String) extends Exception(msg)
-
 
