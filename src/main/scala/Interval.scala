@@ -1,35 +1,30 @@
-sealed abstract class Interval {
+class Interval(min: ArithExpr, max: ArithExpr) {
 
-  val min : ArithExpr
-  val max : ArithExpr
+  lazy val intervalMin: ArithExpr = min
+  lazy val intervalMax: ArithExpr = max
 
   override def equals(that: Any): Boolean = that match {
-    case r: Interval => this.min == r.min && this.max == r.max
+    case r: Interval => this.intervalMin == r.intervalMin && this.intervalMax == r.intervalMax
     case _ => false
+  }
+
+  def * (that: Interval) : Interval = {
+    val x1 = min
+    val x2 = max
+    val y1 = that.intervalMin
+    val y2 = that.intervalMax
+    val prods = List(x1*y1,x1*y2,x2*y1,x2*y2)
+    val minProd = ArithExpr.minList(prods)
+    val maxProd = ArithExpr.maxList(prods)
+    if (minProd == ? || maxProd == ?) Interval(?,?)
+    else if (minProd == ?) Interval(?,maxProd)
+    else if (maxProd == ?) Interval(minProd,?)
+    else Interval(minProd, maxProd)
   }
 }
 
-case class ClosedInterval(start: ArithExpr, end: ArithExpr) extends Interval {
-  override val min: ArithExpr = start
-  override val max: ArithExpr = end
-}
+object Interval {
+  def apply(min: ArithExpr, max: ArithExpr): Interval = new Interval(min, max)
 
-//case class OpenRightInterval(start: ArithExpr, end: ArithExpr) extends Interval {
-//  override val min: ArithExpr = start
-//  override val max: ArithExpr = ?
-//}
-//
-//case class OpenLeftInterval(start: ArithExpr, end: ArithExpr) extends Interval {
-//  override val min: ArithExpr = ?
-//  override val max: ArithExpr = end
-//}
-//
-//case class OpenInterval(start: ArithExpr, end: ArithExpr) extends Interval {
-//  override val min: ArithExpr = ?
-//  override val max: ArithExpr = ?
-//}
-
-case object IntervalUnknown extends Interval {
-  override val min: ArithExpr = ?
-  override val max: ArithExpr = ?
+  def apply() : Interval = new Interval(?,?)
 }

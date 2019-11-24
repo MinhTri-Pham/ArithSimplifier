@@ -88,7 +88,7 @@ object Factorise {
       // Find which terms does the factor appear in
       val containsF = ListBuffer[ArithExpr]()
       for (t <- terms) {
-        if (ArithExpr.isMultitpleOf(t,currFactor)) containsF += t
+        if (ArithExpr.isMultipleOf(t,currFactor)) containsF += t
       }
       // Common factor
       if (containsF.length == terms.length) {

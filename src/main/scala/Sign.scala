@@ -10,7 +10,7 @@ object Sign extends Enumeration {
       case Prod(factors) => signProd(factors)
       case Sum(terms) => signSum(terms)
       case Pow(b,e) =>
-        if (e > 0 && e % 2 == 0) Sign.Positive
+        if (e % 2 == 0) Sign.Positive
         else b.sign
       case _ => Sign.Unknown
     }
@@ -25,9 +25,9 @@ object Sign extends Enumeration {
   }
 
   private def signVar(range: Interval): Sign.Value = {
-    if (range.min.sign == Sign.Positive)
+    if (range.intervalMin.sign == Sign.Positive)
       Sign.Positive
-    else if (range.max.sign == Sign.Negative)
+    else if (range.intervalMax.sign == Sign.Negative)
       Sign.Negative
     else
       Sign.Unknown

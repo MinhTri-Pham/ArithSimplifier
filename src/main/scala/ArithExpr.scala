@@ -64,8 +64,12 @@ abstract sealed class ArithExpr {
 
   private def _minmax(): (ArithExpr, ArithExpr) = this match {
     case c:Cst => (c,c)
-    case v:Var => (v.range.min, v.range.max)
+    case v:Var => (v.range.intervalMin, v.range.intervalMax)
     case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
+    case Prod(factors) =>
+      val prodInterval = ArithExpr.computeIntervalProd(factors)
+      (prodInterval.intervalMin, prodInterval.intervalMax)
+
     case Pow(b,e) =>
       if (e == 0) (Cst(1), Cst(1))
       // Odd exponent - easy
@@ -89,12 +93,34 @@ abstract sealed class ArithExpr {
         }
       }
       else {
+        // Both positive or both negative easy
         if (b.min.sign.equals(Sign.Positive)) (b.max pow e, b.min pow e)
         else if (b.max.sign.equals(Sign.Negative)) (b.min pow e, b.max pow e)
-        else (?,?)
+        // Minimum negative and maximum positive
+        else {
+          // Even negative exponent
+          if (e % 2 == 0) {
+            // Try to evaluate min and max of base
+            // Then use absolute value
+            try {
+              val minAbs = abs(b.min)
+              val maxAbs = abs(b.max)
+              val comp = ArithExpr.isSmaller(maxAbs,minAbs)
+              if (comp.isDefined) {
+                if (comp.get) (b.min pow e, b.max pow e)
+                else (b.max pow e, b.min pow e)
+              }
+              else (?,?)
+            } catch {
+              case NotEvaluableException() => (?,?)
+            }
+          }
+          // Odd negative easy
+          else (b.min pow e, b.max pow e)
+        }
       }
     case ? => (?,?)
-    case _ => (?, ?)
+    case _ => (?,?)
   }
 
   lazy val isEvaluable: Boolean = {
@@ -126,7 +152,7 @@ case class Cst(value : Int) extends ArithExpr {
 }
 
 // Class for variables
-case class Var (name : String, range: Interval = IntervalUnknown, fixedId: Option[Long] = None) extends ArithExpr {
+case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None) extends ArithExpr {
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -165,7 +191,7 @@ object Var {
 
   def apply(name: String): Var = new Var(name)
 
-  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, IntervalUnknown, fixedId)
+  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, Interval(), fixedId)
 }
 
 // Class for sums
@@ -373,7 +399,23 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     case _ => false
   }
 
-  override def toString: String = s"pow(${b.toString},$e)"
+  override def toString: String = {
+    if (e == -1) s"1/${b.toString}"
+    else s"pow(${b.toString},$e)"
+  }
+}
+
+object abs {
+  def apply(ae: ArithExpr): ArithExpr = SimplifyAbs(ae)
+}
+
+case class AbsFunction(ae: ArithExpr) extends ArithExpr {
+
+  override def toString: String = "Abs(" + ae + ")"
+
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
 }
 
 object ArithExpr {
@@ -542,12 +584,12 @@ object ArithExpr {
   }
 
   // Check if an expression is a multiple of another expression
-  def isMultitpleOf(ae1: ArithExpr, ae2: ArithExpr) : Boolean = (ae1, ae2) match {
+  def isMultipleOf(ae1: ArithExpr, ae2: ArithExpr) : Boolean = (ae1, ae2) match {
     // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
     case (p:Prod, _) => p.factors.contains(ae2) ||
-      p.factors.foldLeft(false){(accum,factor) => accum || isMultitpleOf(factor,ae2)}
+      p.factors.foldLeft(false){(accum,factor) => accum || isMultipleOf(factor,ae2)}
     case (x, y) => x == y
   }
 
@@ -573,22 +615,65 @@ object ArithExpr {
     None
   }
 
-  def visitUntil(e: ArithExpr, f: (ArithExpr) => Boolean): Boolean = {
-    if (f(e)) true
-    else {
-      e match {
-        case Pow(base, _) =>
-          visitUntil(base, f)
-        case Sum(terms) =>
-          terms.foreach(t => if (visitUntil(t, f)) return true)
-          false
-        case Prod(terms) =>
-          terms.foreach(t => if (visitUntil(t, f)) return true)
-          false
-        case _:Var | Cst(_) => false
-        case x if x.getClass == ?.getClass => false
-      }
+  // Check if an expression is a bigger than another expression
+  def isBigger(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
+    try {
+      // we check to see if the difference can be evaluated
+      val diff = ae2 - ae1
+      if (diff.isEvaluable)
+        return Some(diff.evalDouble < 0)
+    } catch {
+      case NotEvaluableException() =>
     }
+
+    try {
+      Some(ae1.min.evalDouble > ae2.max.evalDouble)
+    } catch {
+      case NotEvaluableException() =>
+    }
+
+    if (ae1 == ? | ae2 == ?)
+      return None
+    None
+  }
+
+
+  // Minimum of expressions (if possible)
+  def minList(aes: List[ArithExpr]) : ArithExpr = {
+    aes.reduce((ae1,ae2) => {
+      val comp = isSmaller(ae2,ae1)
+      if (comp.isDefined) {
+        if (comp.get) ae2
+        else ae1
+      }
+      else ?
+    })
+  }
+
+  // Minimum of expressions (if possible)
+  def maxList(aes: List[ArithExpr]) : ArithExpr = {
+    aes.reduce((ae1,ae2) => {
+      val comp = isBigger(ae2,ae1)
+      if (comp.isDefined) {
+        if (comp.get) ae2
+        else ae1
+      }
+      else ?
+    })
+  }
+
+  def visitUntil(e: ArithExpr, f: (ArithExpr) => Boolean): Boolean = if (f(e)) true
+  else e match {
+    case Pow(base, _) =>
+      visitUntil(base, f)
+    case Sum(terms) =>
+      terms.foreach(t => if (visitUntil(t, f)) return true)
+      false
+    case Prod(terms) =>
+      terms.foreach(t => if (visitUntil(t, f)) return true)
+      false
+    case _:Var | Cst(_) => false
+    case x if x.getClass == ?.getClass => false
   }
 
   private def evalDouble(e: ArithExpr): Double = e match {
@@ -603,17 +688,12 @@ object ArithExpr {
 //    case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
 
     case `?` => throw NotEvaluable
+
   }
 
-  def main(args: Array[String]): Unit = {
-    val x = Var("x",ClosedInterval(Cst(-2),?))
-    val y = Var("y",ClosedInterval(?,Cst(4)))
-    val s = x+y
-    println(s.min, s.max)
-    println(s.sign)
-    val p = s pow 2
-    println(p.min, p.max)
-    println(p.sign)
+  private def computeIntervalProd(factors: List[ArithExpr]) : Interval = {
+    val minMax = factors.map(x => Interval(x.min, x.max))
+    minMax.reduce((x,y) => x*y)
   }
 }
 
