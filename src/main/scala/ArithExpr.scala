@@ -595,6 +595,9 @@ object ArithExpr {
 
   // Check if an expression is a smaller than another expression
   def isSmaller(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
+    if (ae1 == ? | ae2 == ?)
+      return None
+
     try {
       // we check to see if the difference can be evaluated
       val diff = ae2 - ae1
@@ -604,19 +607,79 @@ object ArithExpr {
       case NotEvaluableException() =>
     }
 
+    var lhsNonCommon = ae1
+    var rhsNonCommon = ae2
+
+    (ae1, ae2) match {
+      case (s1:Sum,s2:Sum)=>
+        // Two sums: filter out common terms first
+        // Example: x+y < y+z if x < z (assuming y has a finite range)
+        val ae1Terms = s1.terms
+        val ae2Terms = s2.terms
+        val commonTerms = ae1Terms.intersect(ae2Terms)
+        if (commonTerms.nonEmpty) {
+          lhsNonCommon = Sum(ae1Terms.diff(commonTerms))
+          rhsNonCommon = Sum(ae2Terms.diff(commonTerms))
+        }
+      // Product or powers present: take out common term
+      case (_:Prod, _) | (_, _:Prod) | (_:Pow, _) | (_, _:Pow) =>
+        var ae1NonCommon = ae1
+        var ae2NonCommon = ae2
+        val gcd = ComputeGCD(ae1, ae2)
+        if (gcd != Cst(1)) {
+          ae1NonCommon = ae1 /^ gcd
+          ae2NonCommon = ae2 /^ gcd
+          // If signs of common or uncommon parts not known, can't determine
+          if (gcd.sign == Sign.Unknown || ae1NonCommon.sign == Sign.Unknown || ae2NonCommon.sign == Sign.Unknown)
+            return None
+          // Depending on signs on gcd and uncommon parts, determine further action
+          (gcd.sign, ae1NonCommon.sign, ae2NonCommon.sign) match {
+            case (Sign.Positive, Sign.Positive, Sign.Positive) =>
+              lhsNonCommon = ae1NonCommon
+              rhsNonCommon = ae2NonCommon
+            case (Sign.Positive, Sign.Positive, Sign.Negative) =>
+              return Some(false)
+            case (Sign.Positive, Sign.Negative, Sign.Positive) =>
+              return Some(true)
+            case (Sign.Positive, Sign.Negative, Sign.Negative) =>
+              lhsNonCommon = ae2NonCommon
+              rhsNonCommon = ae1NonCommon
+            case (Sign.Negative, Sign.Positive, Sign.Positive) =>
+              lhsNonCommon = ae2NonCommon
+              rhsNonCommon = ae1NonCommon
+            case (Sign.Negative, Sign.Positive, Sign.Negative) =>
+              return Some(true)
+            case (Sign.Negative, Sign.Negative, Sign.Positive) =>
+              return Some(false)
+            case (Sign.Negative, Sign.Negative, Sign.Negative) =>
+              lhsNonCommon = ae1NonCommon
+              rhsNonCommon = ae2NonCommon
+          }
+        }
+      // Keep going
+      case _ =>
+    }
+
     try {
-      Some(ae1.max.evalDouble < ae2.min.evalDouble)
+      val lhsNonCommonMinEval = lhsNonCommon.min.evalDouble
+      val lhsNonCommonMaxEval = lhsNonCommon.max.evalDouble
+      val rhsNonCommonMinEval = rhsNonCommon.min.evalDouble
+      val rhsNonCommonMaxEval = rhsNonCommon.max.evalDouble
+      if (lhsNonCommonMinEval <= rhsNonCommonMaxEval && rhsNonCommonMinEval <= lhsNonCommonMaxEval) return None
+      else return Some(lhsNonCommonMaxEval < rhsNonCommonMinEval)
+
     } catch {
       case NotEvaluableException() =>
     }
 
-    if (ae1 == ? | ae2 == ?)
-      return None
     None
   }
 
   // Check if an expression is a bigger than another expression
   def isBigger(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
+    if (ae1 == ? | ae2 == ?)
+      return None
+
     try {
       // we check to see if the difference can be evaluated
       val diff = ae2 - ae1
@@ -626,15 +689,99 @@ object ArithExpr {
       case NotEvaluableException() =>
     }
 
+    var lhsNonCommon = ae1
+    var rhsNonCommon = ae2
+
+    (ae1, ae2) match {
+      case (s1:Sum,s2:Sum)=>
+        // Two sums: filter out common terms first
+        // Example: x+y < y+z if x < z (assuming y has a finite range)
+        val ae1Terms = s1.terms
+        val ae2Terms = s2.terms
+        val commonTerms = ae1Terms.intersect(ae2Terms)
+        if (commonTerms.nonEmpty) {
+          lhsNonCommon = Sum(ae1Terms.diff(commonTerms))
+          rhsNonCommon = Sum(ae2Terms.diff(commonTerms))
+        }
+      // Product/power and product/power: take out common term
+      case (_:Prod, _) | (_, _:Prod) | (_:Pow, _) | (_, _:Pow) =>
+        var ae1NonCommon = ae1
+        var ae2NonCommon = ae2
+        val gcd = ComputeGCD(ae1, ae2)
+        if (gcd != Cst(1)) {
+          ae1NonCommon = ae1 /^ gcd
+          ae2NonCommon = ae2 /^ gcd
+          // If signs of common or uncommon parts not known, can't determine
+          if (gcd.sign == Sign.Unknown || ae1NonCommon.sign == Sign.Unknown || ae2NonCommon.sign == Sign.Unknown)
+            return None
+          // Depending on signs on gcd and uncommon parts, determine further action
+          (gcd.sign, ae1NonCommon.sign, ae2NonCommon.sign) match {
+            case (Sign.Positive, Sign.Positive, Sign.Positive) =>
+              lhsNonCommon = ae1NonCommon
+              rhsNonCommon = ae2NonCommon
+            case (Sign.Positive, Sign.Positive, Sign.Negative) =>
+              return Some(true)
+            case (Sign.Positive, Sign.Negative, Sign.Positive) =>
+              return Some(false)
+            case (Sign.Positive, Sign.Negative, Sign.Negative) =>
+              lhsNonCommon = ae2NonCommon
+              rhsNonCommon = ae1NonCommon
+            case (Sign.Negative, Sign.Positive, Sign.Positive) =>
+              lhsNonCommon = ae2NonCommon
+              rhsNonCommon = ae1NonCommon
+            case (Sign.Negative, Sign.Positive, Sign.Negative) =>
+              return Some(false)
+            case (Sign.Negative, Sign.Negative, Sign.Positive) =>
+              return Some(true)
+            case (Sign.Negative, Sign.Negative, Sign.Negative) =>
+              lhsNonCommon = ae1NonCommon
+              rhsNonCommon = ae2NonCommon
+          }
+        }
+      // Keep going
+      case _ =>
+
+      // Can't determine yet
+      case _ =>
+    }
+
     try {
-      Some(ae1.min.evalDouble > ae2.max.evalDouble)
+      val lhsNonCommonMinEval = lhsNonCommon.min.evalDouble
+      val lhsNonCommonMaxEval = lhsNonCommon.max.evalDouble
+      val rhsNonCommonMinEval = rhsNonCommon.min.evalDouble
+      val rhsNonCommonMaxEval = rhsNonCommon.max.evalDouble
+      if (lhsNonCommonMaxEval >= rhsNonCommonMinEval && rhsNonCommonMaxEval >= lhsNonCommonMinEval) return None
+      else return Some(lhsNonCommonMinEval > rhsNonCommonMaxEval)
+
     } catch {
       case NotEvaluableException() =>
     }
 
-    if (ae1 == ? | ae2 == ?)
-      return None
     None
+  }
+
+  def isSmallerOrEqual(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
+    val smaller = isSmaller(ae1,ae2)
+    if (smaller.isEmpty) {
+      if (ae1 != ae2) None
+      else Some(true)
+    }
+    else if (!smaller.get) {
+      Some(ae1 == ae2)
+    }
+    else Some(true)
+  }
+
+  def isBiggerOrEqual(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
+    val bigger = isBigger(ae1,ae2)
+    if (bigger.isEmpty) {
+      if (ae1 != ae2) None
+      else Some(true)
+    }
+    else if (!bigger.get) {
+      Some(ae1 == ae2)
+    }
+    else Some(true)
   }
 
 
