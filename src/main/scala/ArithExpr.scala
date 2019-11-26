@@ -333,7 +333,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   override def toString: String = factors.mkString(" * ")
 }
 
-// Class for powers, for now just integer exponents
+// Class for powers, integer exponents
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
 
@@ -400,7 +400,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   }
 
   override def toString: String = {
-    if (e == -1) s"1/${b.toString}"
+    if (e == -1 && b.isInstanceOf[Cst]) s"1/${b.toString}"
     else s"pow(${b.toString},$e)"
   }
 }
@@ -416,6 +416,32 @@ case class AbsFunction(ae: ArithExpr) extends ArithExpr {
   override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
 
   override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
+}
+
+case class FloorFunction(ae: ArithExpr) extends ArithExpr {
+
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
+
+  override def toString: String = "Floor(" + ae + ")"
+}
+
+object floor {
+  def apply(ae: ArithExpr): ArithExpr = SimplifyFloor(ae)
+}
+
+case class CeilingFunction(ae: ArithExpr) extends ArithExpr {
+
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
+
+  override def toString: String = "Ceiling(" + ae + ")"
+}
+
+object ceil {
+  def apply(ae: ArithExpr): ArithExpr = SimplifyCeiling(ae)
 }
 
 object ArithExpr {
@@ -831,10 +857,10 @@ object ArithExpr {
     case Sum(terms) => terms.foldLeft(0.0)((result, expr) => result + evalDouble(expr))
     case Prod(terms) => terms.foldLeft(1.0)((result, expr) => result * evalDouble(expr))
 
-//    case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
-//    case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
+    case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
+    case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
 
-    case `?` => throw NotEvaluable
+    case `?` | _:Var => throw NotEvaluable
 
   }
 

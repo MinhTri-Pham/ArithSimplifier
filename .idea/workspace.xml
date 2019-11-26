@@ -4,10 +4,10 @@
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyAbs.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyAbs.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -201,6 +201,11 @@
           <url>file://$PROJECT_DIR$/src/main/scala/Factorise.scala</url>
           <line>100</line>
           <option name="timeStamp" value="260" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/src/main/scala/SimplifyFloor.scala</url>
+          <line>14</line>
+          <option name="timeStamp" value="264" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
