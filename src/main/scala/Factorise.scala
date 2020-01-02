@@ -250,6 +250,6 @@ object Factorise {
     factors.distinct.toList
   }
 
-  private def powerSet[A](xs: List[A]): List[List[A]] =
+  def powerSet[A](xs: List[A]): List[List[A]] =
     xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct.reverse
 }

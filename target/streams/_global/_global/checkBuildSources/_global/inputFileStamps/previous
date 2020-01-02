@@ -1,1 +1,1 @@
-["sbt.Task[scala.collection.Seq[scala.Tuple2[java.nio.file.Path, sbt.nio.FileStamp]]]",{"hashes":[["/afs/inf.ed.ac.uk/user/s16/s1612839/Honours Project/ArithSimplifier/build.sbt","bacce3037d85dc6c9073dccd5e88e927339d4422"]],"lastModifiedTimes":[]}]
+["sbt.Task[scala.collection.Seq[scala.Tuple2[java.nio.file.Path, sbt.nio.FileStamp]]]",{"hashes":[["C:\\Users\\minht\\Honours-Project\\ArithSimplifier\\build.sbt","27484c4427f13c224d4c587e5326700f2e3a1b1f"]],"lastModifiedTimes":[]}]

@@ -405,6 +405,14 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   }
 }
 
+case class IntDiv(numer:ArithExpr, denom:ArithExpr) extends ArithExpr {
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
+
+  override def toString: String = s"(($numer) / ($denom))"
+}
+
 object abs {
   def apply(ae: ArithExpr): ArithExpr = SimplifyAbs(ae)
 }
@@ -617,6 +625,15 @@ object ArithExpr {
     case (p:Prod, _) => p.factors.contains(ae2) ||
       p.factors.foldLeft(false){(accum,factor) => accum || isMultipleOf(factor,ae2)}
     case (x, y) => x == y
+  }
+
+  def hasDivision(factors: List[ArithExpr]): Boolean = {
+    factors.exists(isDivision)
+  }
+
+  def isDivision: ArithExpr => Boolean = {
+    case Pow(_, x) if x < 0 => true
+    case _ => false
   }
 
   // Check if an expression is a smaller than another expression

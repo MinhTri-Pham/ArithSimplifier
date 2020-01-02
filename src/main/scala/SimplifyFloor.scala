@@ -3,6 +3,14 @@ object SimplifyFloor {
   def apply(ae: ArithExpr): ArithExpr = {
     ae match {
       case c: Cst => c
+      // Get constant term out of sum
+      case Sum(terms) if terms.head.isInstanceOf[Cst] =>
+        val cst = terms.head
+        if (terms.length == 2) cst + floor(terms.last)
+        else cst + floor(Sum(terms.tail))
+      // Nested with floor/ceiling
+      case f : FloorFunction => f
+      case c : CeilingFunction => c
       case _ =>
         try {
           val d = FloorFunction(ae).evalDouble
