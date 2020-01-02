@@ -9,7 +9,7 @@ class TestIntDiv {
     assertEquals(Cst(7) / Cst(3), Cst(2))
     val a = Var("a")
     assertEquals(Cst(6)*a / Cst(3), Cst(2)*a)
-    //assertEquals((Cst(6)*a) / (Cst(3)*a), Cst(2)) (Problem with 6a /^ 3a)
+    assertEquals((Cst(6)*a) / (Cst(3)*a), Cst(2))
     val b = Var("b")
     assertEquals((Cst(6)*a + Cst(4)) / Cst(3), Cst(2)*a + Cst(1))
     assertEquals((Cst(6)*a + b) / a, Cst(6) + b/a)
@@ -35,13 +35,13 @@ class TestIntDiv {
     val b = Var("b")
     val c = Var("c")
     val d = Var("d")
-    //val e = Var("e")
+    val e = Var("e")
     // Direct factorisation
     assertEquals((a*c+b*c) / (a+b), c)
     assertEquals((a*c+b*c+a*d+b*d) / (a+b), c+d)
     // Find a good subset
     assertEquals((a+b+c) / (a+b), Cst(1) + c/(a+b))
     assertEquals((a*c+b*c+d) / (a+b), c + d/(a+b))
-    //assertEquals((a*c+b*c+d+e) / (a+b), c + (d+e)/(a+b))
+    assertEquals((a*c+b*c+d+e) / (a+b), c + (d+e)/(a+b))
   }
 }

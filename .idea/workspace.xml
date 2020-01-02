@@ -2,85 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/sbt__org_scala_lang_scala_library_2_13_1_jar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/sbt__org_scala_lang_scala_library_2_13_1_jar.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/ArithSimplifier-build.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/ArithSimplifier-build.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/ArithSimplifier.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/ArithSimplifier.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$2a55ae6e72a4d91b1f95$.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$2a55ae6e72a4d91b1f95.cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$2a55ae6e72a4d91b1f95.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$a0c7166c14252e7c17ee$.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$a0c7166c14252e7c17ee.cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$a0c7166c14252e7c17ee.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$bccb7819bca1476da1cd$.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$bccb7819bca1476da1cd.cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$bccb7819bca1476da1cd.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$f1a9c2cb8ff67838479c$.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$f1a9c2cb8ff67838479c.cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/config-classes/$f1a9c2cb8ff67838479c.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/scala-2.12/sbt-1.0/update/update_cache_2.12/inputs" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/scala-2.12/sbt-1.0/update/update_cache_2.12/inputs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/scala-2.12/sbt-1.0/update/update_cache_2.12/output" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/scala-2.12/sbt-1.0/update/update_cache_2.12/output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/_global/_global/csrLogger/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/_global/_global/csrLogger/_global/streams/out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/_global/update/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/_global/update/_global/streams/out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/_global/_global/compileBinaryFileInputs/previous" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/_global/_global/compileBinaryFileInputs/previous" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/_global/_global/compileOutputs/previous" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/_global/_global/compileOutputs/previous" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/_global/_global/dependencyClasspathFiles/previous" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/_global/_global/dependencyClasspathFiles/previous" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/dependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/dependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/exportedProducts/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/exportedProducts/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/externalDependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/externalDependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/compile/managedClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/compile/managedClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/runtime/dependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/runtime/dependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/runtime/exportedProducts/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/runtime/exportedProducts/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/runtime/externalDependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/runtime/externalDependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/runtime/fullClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/runtime/fullClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/runtime/internalDependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/runtime/internalDependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/target/streams/runtime/managedClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/project/target/streams/runtime/managedClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ComputeGCD.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ComputeGCD.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Factorise.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Factorise.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyCeiling.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyCeiling.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyFloor.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyFloor.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/.history" beforeDir="false" afterPath="$PROJECT_DIR$/target/.history" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ComputeGCD$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ComputeGCD$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ComputeGCD.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ComputeGCD.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Interval.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Interval.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/RandomGenerator$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/RandomGenerator$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyFloor$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyFloor$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestIntDiv.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/abs$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/abs$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/floor$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/floor$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/update/update_cache_2.13/inputs" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/update/update_cache_2.13/inputs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/update/update_cache_2.13/output" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/update/update_cache_2.13/output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/_global/_global/checkBuildSources/_global/inputFileStamps/previous" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/_global/_global/checkBuildSources/_global/inputFileStamps/previous" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/_global/_global/csrLogger/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/_global/_global/csrLogger/_global/streams/out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/_global/_global/dumpStructure/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/_global/_global/dumpStructure/_global/streams/out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/_global/updateClassifiers/_global/streams/out" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/_global/updateClassifiers/_global/streams/out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/_global/updateClassifiers/_global/streams/update_cache_2.13/output" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/_global/updateClassifiers/_global/streams/update_cache_2.13/output" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/compile/externalDependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/externalDependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/compile/managedClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/compile/managedClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/runtime/externalDependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/runtime/externalDependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/runtime/managedClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/runtime/managedClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/test/externalDependencyClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/test/externalDependencyClasspath/_global/streams/export" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/streams/test/managedClasspath/_global/streams/export" beforeDir="false" afterPath="$PROJECT_DIR$/target/streams/test/managedClasspath/_global/streams/export" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestIntDiv.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestIntDiv.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,9 +73,16 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.TestIntDiv">
+  <component name="RunManager" selected="JUnit.All in ArithSimplifier">
     <configuration name="ComputeGCD" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="ComputeGCD" />
+      <module name="ArithSimplifier" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SimplifyProd" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="SimplifyProd" />
       <module name="ArithSimplifier" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -179,15 +116,17 @@
     </configuration>
     <list>
       <item itemvalue="Application.ComputeGCD" />
+      <item itemvalue="Application.SimplifyProd" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
       <item itemvalue="JUnit.TestFloorCeil" />
       <item itemvalue="JUnit.TestIntDiv" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.TestIntDiv" />
-        <item itemvalue="Application.ComputeGCD" />
         <item itemvalue="JUnit.All in ArithSimplifier" />
+        <item itemvalue="JUnit.TestIntDiv" />
+        <item itemvalue="Application.SimplifyProd" />
+        <item itemvalue="Application.ComputeGCD" />
         <item itemvalue="JUnit.TestFloorCeil" />
       </list>
     </recent_temporary>
@@ -280,46 +219,46 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="449" y="161" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1536.864@0.0.1536.864" timestamp="1577717106853" />
-    <state width="746" height="277" key="GridCell.Tab.0.bottom" timestamp="1577978942483">
+    <state width="746" height="277" key="GridCell.Tab.0.bottom" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1577978942483" />
-    <state width="746" height="277" key="GridCell.Tab.0.center" timestamp="1577978942483">
+    <state width="746" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.0.center" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1577978942483" />
-    <state width="746" height="277" key="GridCell.Tab.0.left" timestamp="1577978942483">
+    <state width="746" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.0.left" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1577978942483" />
-    <state width="746" height="277" key="GridCell.Tab.0.right" timestamp="1577978942483">
+    <state width="746" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.0.right" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1577978942483" />
-    <state width="746" height="277" key="GridCell.Tab.1.bottom" timestamp="1577978944035">
+    <state width="746" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.1.bottom" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.bottom/0.0.1536.864@0.0.1536.864" timestamp="1577978944035" />
-    <state width="746" height="277" key="GridCell.Tab.1.center" timestamp="1577978944035">
+    <state width="746" height="277" key="GridCell.Tab.1.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.1.center" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.center/0.0.1536.864@0.0.1536.864" timestamp="1577978944035" />
-    <state width="746" height="277" key="GridCell.Tab.1.left" timestamp="1577978944035">
+    <state width="746" height="277" key="GridCell.Tab.1.center/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.1.left" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.left/0.0.1536.864@0.0.1536.864" timestamp="1577978944035" />
-    <state width="746" height="277" key="GridCell.Tab.1.right" timestamp="1577978944035">
+    <state width="746" height="277" key="GridCell.Tab.1.left/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
+    <state width="746" height="277" key="GridCell.Tab.1.right" timestamp="1578002616339">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1577978944035" />
+    <state width="746" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1578002616339" />
     <state x="249" y="8" key="SettingsEditor" timestamp="1577718951502">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="249" y="8" key="SettingsEditor/0.0.1536.864@0.0.1536.864" timestamp="1577718951502" />
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1577965985944">
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1577999067520">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577965985944" />
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577999067520" />
     <state x="425" y="197" key="run.anything.popup" timestamp="1577966055057">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -329,24 +268,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/SimplifyFloor.scala</url>
-          <line>8</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
           <url>file://$PROJECT_DIR$/src/test/scala/TestIntDiv.scala</url>
-          <line>44</line>
-          <option name="timeStamp" value="33" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/test/scala/TestIntDiv.scala</url>
-          <line>11</line>
-          <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala</url>
-          <line>17</line>
-          <option name="timeStamp" value="39" />
+          <line>42</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

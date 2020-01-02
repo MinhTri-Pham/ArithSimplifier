@@ -29,10 +29,11 @@ object SimplifyIntDiv {
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
           val rest = terms.diff(subset)
-          val subsetDiv = Sum(subset) / denom
-          if (!subsetDiv.isInstanceOf[IntDiv]) {
-            if (rest.length > 1) return subsetDiv + Sum(rest) / denom
-            else return subsetDiv + rest.head / denom
+          val sum = Sum(subset)
+          val sumProd = sum.asProd
+          if (sum == denom || (sumProd.isDefined && sumProd.get.factors.contains(denom))) {
+            if (rest.length > 1) return sum / denom + Sum(rest) / denom
+            else return sum / denom + rest.head / denom
           }
         }
       }

@@ -172,11 +172,25 @@ object SimplifyProd {
     case (Cst(0), _) => Some(lhs)
     case (_, Cst(0)) => Some(rhs)
 
+    // Constant cases
     // Compute powers when all bases and exponents are positive constants
     case (Pow(Cst(b1), e1), Pow(Cst(b2), e2)) if e1 > 0 && e2 > 0 =>
       Some(Cst((Math.pow(b1, e1) * Math.pow(b2, e2)).toInt))
+    // Compute powers when all bases and exponents are negative constants
+    case (Pow(Cst(b1), e1), Pow(Cst(b2), e2)) if e1 < 0 && e2 < 0 =>
+      Some(SimplifyPow(Cst((Math.pow(b1, -e1) * Math.pow(b2, -e2)).toInt), -1))
 
-    // More general cases
+    case (Cst(x), Pow(Cst(y), e2)) if e2 < 0 && x % y == 0 =>
+      Some(Cst(x / y) * SimplifyPow(Cst(y), e2 + 1))
+    case (Pow(Cst(y), e1), Cst(x)) if e1 < 0 && x % y == 0 =>
+      Some(Cst(x / y) * SimplifyPow(Cst(y), e1 + 1))
+
+    case (Cst(x), Pow(Cst(y), -1)) if y % x == 0 && x != -1 =>
+      Some(SimplifyPow(Cst(y / x), -1))
+    case (Pow(Cst(y), -1), Cst(x)) if y % x == 0  && x != -1 =>
+      Some(SimplifyPow(Cst(y / x), -1))
+
+    // Non-constant cases
     case (Pow(b1,e1), Pow(b2,e2)) =>
       if (b1 == b2) Some(b1 pow (e1+e2))
       else None
@@ -200,5 +214,11 @@ object SimplifyProd {
     if (nonOne.isEmpty) Cst(1) // Eliminated everything, so result is 1
     else if (nonOne.length == 1) nonOne.head // Result is a Var or Cst
     else Prod(nonOne) // Have a product of expressions
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val d = Cst(6) * a /^ (Cst(3)*a)
+    println(d)
   }
 }

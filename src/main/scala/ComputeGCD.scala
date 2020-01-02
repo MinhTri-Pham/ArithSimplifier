@@ -31,8 +31,8 @@ object ComputeGCD {
 
       // GCD of sums: try to factorise
       case (s1: Sum, s2: Sum) =>
-        val fac1 = Factorise(s1)
-        val fac2 = Factorise(s2)
+        val fac1 = s1.asProd
+        val fac2 = s2.asProd
         if (fac1.isDefined && fac2.isDefined) {
           ComputeGCD(fac1.get,fac2.get)
         }
@@ -49,7 +49,7 @@ object ComputeGCD {
       case (_, _: Sum) => ComputeGCD(b, a)
       case (s: Sum, x) =>
         // Factorise s
-        val factorAttempt = Factorise(s)
+        val factorAttempt = s.asProd
         var factor : ArithExpr = s
         // If can factorise, try on the resulting factorisation instead of the sum
         if (factorAttempt.isDefined) {
