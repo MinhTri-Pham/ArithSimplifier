@@ -17,6 +17,15 @@ class TestMod {
   }
 
   @Test
+  def intDivFloorTest(): Unit = {
+    val expr = Cst(4) * Var("a", Interval(Cst(0), Cst(31)))
+    val startDiv = (Cst(899) + expr) / Cst(128)
+    val startMod = (Cst(899) + expr) % Cst(128)
+    assertEquals(startDiv, Cst(7))
+    assertEquals(startMod, Cst(3) + expr)
+  }
+
+  @Test
   def sumTests(): Unit = {
     val a = Var("a")
     val b = Var("b")

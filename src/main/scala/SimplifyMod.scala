@@ -14,7 +14,8 @@ object SimplifyMod {
 
     case (x, y) if ComputeGCD(x,y) == y => Cst(0)
 
-    //case (x, y) if ArithExpr.isSmaller(abs(x), abs(y)).getOrElse(false) => x
+    // Try through integer division and floor
+    case (x, y) if floor(x/y).isEvaluable => x - y * floor(x/y)
 
     case (s:Sum,_) if divisor.isInstanceOf[Cst] || divisor.isInstanceOf[Var]=> s.terms.map(x => x % divisor).reduce((a,b) => a+b)
 

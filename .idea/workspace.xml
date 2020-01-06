@@ -4,35 +4,12 @@
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestIntDiv.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyMod.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyMod.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestMod.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestMod.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/CeilingFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/CeilingFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/CeilingFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/CeilingFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/IntDiv$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/IntDiv$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/IntDiv.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/IntDiv.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/abs$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/abs$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ceil$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/ceil$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/floor$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/floor$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestIntDiv.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestIntDiv.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyMod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyMod$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestMod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestMod.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -236,38 +213,38 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="449" y="161" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1536.864@0.0.1536.864" timestamp="1577717106853" />
-    <state width="746" height="277" key="GridCell.Tab.0.bottom" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.0.bottom" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.0.center" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.0.center" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.0.left" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.0.left" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.0.right" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.0.right" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.1.bottom" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.1.bottom" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.1.center" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.1.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.1.center" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.center/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.1.left" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.1.center/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.1.left" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.left/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
-    <state width="746" height="277" key="GridCell.Tab.1.right" timestamp="1578332014634">
+    <state width="746" height="277" key="GridCell.Tab.1.left/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
+    <state width="746" height="277" key="GridCell.Tab.1.right" timestamp="1578346408370">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1578332014634" />
+    <state width="746" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1578346408370" />
     <state x="249" y="8" key="SettingsEditor" timestamp="1577718951502">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -285,9 +262,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/test/scala/TestIntDiv.scala</url>
-          <line>29</line>
-          <option name="timeStamp" value="1" />
+          <url>file://$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala</url>
+          <line>7</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

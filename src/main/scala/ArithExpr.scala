@@ -886,6 +886,13 @@ object ArithExpr {
     case Prod(terms) =>
       terms.foreach(t => if (visitUntil(t, f)) return true)
       false
+    case IntDiv(n, d) =>
+      visitUntil(n, f) || visitUntil(d, f)
+    case Mod(dividend, divisor) =>
+      visitUntil(dividend, f) || visitUntil(divisor, f)
+
+    case FloorFunction(expr) => visitUntil(expr, f)
+    case CeilingFunction(expr) => visitUntil(expr, f)
     case _:Var | Cst(_) => false
     case x if x.getClass == ?.getClass => false
   }
