@@ -21,6 +21,9 @@ abstract sealed class ArithExpr {
   // Exponentiation operator
   def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
 
+  // Modulo operator
+  def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
+
   // Returns list of terms or factors for Sum and Prod simplification
   def getSumProdSimplify : List[ArithExpr]
 
@@ -119,7 +122,21 @@ abstract sealed class ArithExpr {
           else (b.min pow e, b.max pow e)
         }
       }
-    case ? => (?,?)
+    case IntDiv(numer, denom) => this.sign match {
+      case Sign.Positive => (numer.min / denom.max, numer.max / denom.min)
+      case Sign.Negative => (numer.max / denom.min, numer.min / denom.max)
+      case Sign.Unknown => (?,?)
+    }
+
+    case Mod(dividend, divisor) =>
+      (dividend.sign, divisor.sign) match {
+        case (Sign.Positive, Sign.Positive) => (Cst(0), divisor.max - Cst(1))
+        case (Sign.Positive, Sign.Negative) => (Cst(0), (Cst(0) - divisor.max) - Cst(1))
+        case (Sign.Negative, Sign.Positive) => (Cst(0) - (divisor.max - Cst(1)), Cst(0))
+        case (Sign.Negative, Sign.Negative) => (Cst(0) - ((Cst(0) - divisor).max - Cst(1)), Cst(0))
+        case _ => (?, ?) // impossible to determine the min and max
+      }
+
     case _ => (?,?)
   }
 
@@ -413,6 +430,14 @@ case class IntDiv(numer:ArithExpr, denom:ArithExpr) extends ArithExpr {
   override def toString: String = s"(($numer) / ($denom))"
 }
 
+case class Mod(dividend:ArithExpr, divisor:ArithExpr) extends ArithExpr {
+  override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
+
+  override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
+
+  override def toString: String = s"(($dividend) % ($divisor))"
+}
+
 object abs {
   def apply(ae: ArithExpr): ArithExpr = SimplifyAbs(ae)
 }
@@ -456,8 +481,7 @@ object ArithExpr {
 
   // Used for sorting terms of Sum or factors of Prod
   // For ease of simplification
-  val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) =>
-    (x, y) match {
+  val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
     case (?, _) => true
     case (_, ?) => false
     case (Cst(a), Cst(b)) => a < b
@@ -852,7 +876,7 @@ object ArithExpr {
     })
   }
 
-  def visitUntil(e: ArithExpr, f: (ArithExpr) => Boolean): Boolean = if (f(e)) true
+  def visitUntil(e: ArithExpr, f: ArithExpr => Boolean): Boolean = if (f(e)) true
   else e match {
     case Pow(base, _) =>
       visitUntil(base, f)
@@ -877,8 +901,11 @@ object ArithExpr {
     case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
     case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
 
-    case `?` | _:Var => throw NotEvaluable
+    case IntDiv(n, d) => scala.math.floor(evalDouble(n) / evalDouble(d))
 
+    case Mod(dividend, divisor) => dividend.evalDouble % divisor.evalDouble
+
+    case `?` | _:Var => throw NotEvaluable
   }
 
   private def computeIntervalProd(factors: List[ArithExpr]) : Interval = {

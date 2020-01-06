@@ -26,7 +26,8 @@ class TestIntDiv {
     assertEquals(a / c, Cst(0))
     assertEquals((a+b) / c, Cst(0))
     assertEquals(d / c, Cst(1))
-    assertEquals(Cst(2)*c/ (a+d), Cst(1))
+    assertEquals(Cst(2)*c / (a+d), Cst(1))
+    assertEquals((Cst(5) + Cst(4)*b) / d, Cst(1))
   }
 
   @Test
@@ -43,5 +44,6 @@ class TestIntDiv {
     assertEquals((a+b+c) / (a+b), Cst(1) + c/(a+b))
     assertEquals((a*c+b*c+d) / (a+b), c + d/(a+b))
     assertEquals((a*c+b*c+d+e) / (a+b), c + (d+e)/(a+b))
+    assertEquals((a*c+b*c+a*d+b*d+e) / (a+b), c + d + e / (a+b))
   }
 }
