@@ -176,6 +176,10 @@ object SimplifySum {
       Some(Cst(p1.cstFactor + p2.cstFactor) * p1.nonCstFactor)
     case (p:Prod,x) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
     case (x, p:Prod) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
+    // Modulo Identity: a = a / b * b + a % b
+    case (Prod(factors), Mod(a, b)) if factors.reduce(_*_) == (a / b) * b => Some(a)
+    case (Mod(a, b), Prod(factors)) if factors.reduce(_*_) == (a / b) * b => Some(a)
+
     case _ => None
   }
 

@@ -17,7 +17,7 @@ object SimplifyMod {
     // Try through integer division and floor
     case (x, y) if floor(x/y).isEvaluable => x - y * floor(x/y)
 
-    case (s:Sum,_) if divisor.isInstanceOf[Cst] || divisor.isInstanceOf[Var]=> s.terms.map(x => x % divisor).reduce((a,b) => a+b)
+    case (s:Sum,_) if divisor.isInstanceOf[Cst] || divisor.isInstanceOf[Var] => s.terms.map(x => x % divisor).reduce((a,b) => a+b)
 
     // Idea: Otherwise for sum try subsets (larger ones first)??
     // Examples that could be handled through this

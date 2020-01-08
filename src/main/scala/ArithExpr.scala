@@ -313,6 +313,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             if (p.e > 0) accum = accum * p
             else accum /^= p.b
           }
+        case _ => accum *= f
       }
       if (expanded) accum.getSumProdSimplify.reduce((x, y)=>x+y).toSum
       else None

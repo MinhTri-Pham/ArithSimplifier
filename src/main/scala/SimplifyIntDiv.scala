@@ -23,23 +23,19 @@ object SimplifyIntDiv {
       else IntDiv(numer,denom)
     // (AE % div) / div = 0
     case (Mod(_, div1: ArithExpr), div2: ArithExpr) if div1 == div2 => Cst(0)
-    // Sum divided by a constant or a variable, try integer division of sum => sum of integer division of terms
-    // E.g (ax + bx + c) / x => c / x
-    case (s:Sum,_) if denom.isInstanceOf[Cst] || denom.isInstanceOf[Var]=> s.terms.map(x => x / denom).reduce((a,b) => a+b)
-    // Idea: Otherwise for sum try subsets (larger ones first)??
-    // Examples that could be handled through this
-    // (a + b + c) / (a+b)  => 1 + c / (a+b)  (through (a+b) / (a+b) + c / (a+b))
-    // (ax + bx + c) / (a+b) => x + c / (a+b) (through (ax+bx) / (a+b) + c / (a+b))
-    // (ax + bx + c + d) / (a+b) => x + (c+d) / (a+b) (through (ax+bx) / (a+b) + (c+d) / (a+b))
-    // (ax + ay + bx + by + c) / (a+b) => x + y + c / (a+b)  (through (ax + ay + bx + by) / (a+b) + (c) / (a+b))
-    case (s:Sum,_) =>
+    // Pull out multiples from constant
+    case (s@Sum(terms), c@Cst(d)) if terms.collect({ case Cst(_) => }).nonEmpty =>
+      val h = terms.head
+      h/c + (s - h) / c
+    // For sum numerator s, try to partition into s1 and s2 so that s1/d is a multiple of d (d is the denominator)
+    case (s:Sum, _) =>
       val terms = s.terms
-      val termSubsets = Factorise.powerSet(terms).filter(_.length > 1)
+      val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
           val rest = terms.diff(subset)
-          val sum = Sum(subset)
-          val sumProd = sum.asProd
+          val sum = if (subset.length > 1) Sum(subset) else subset.head
+          val sumProd = sum.toProd
           if (sum == denom || (sumProd.isDefined && sumProd.get.factors.contains(denom))) {
             if (rest.length > 1) return sum / denom + Sum(rest) / denom
             else return sum / denom + rest.head / denom
