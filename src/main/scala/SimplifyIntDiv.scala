@@ -23,8 +23,8 @@ object SimplifyIntDiv {
       else IntDiv(numer,denom)
     // (AE % div) / div = 0
     case (Mod(_, div1: ArithExpr), div2: ArithExpr) if div1 == div2 => Cst(0)
-    // Pull out multiples from constant
-    case (s@Sum(terms), c@Cst(d)) if terms.collect({ case Cst(_) => }).nonEmpty =>
+    // Pull out constant
+    case (s@Sum(terms), c:Cst) if terms.collect({ case Cst(_) => }).nonEmpty =>
       val h = terms.head
       h/c + (s - h) / c
     // For sum numerator s, try to partition into s1 and s2 so that s1/d is a multiple of d (d is the denominator)
@@ -42,7 +42,7 @@ object SimplifyIntDiv {
           }
         }
       }
-      // Can't find a good subset
+      // Can't find a good partition
       IntDiv(numer,denom)
     // Flip division in the numerator
     case (IntDiv(numer, denom1), denom2) => numer / (denom1 * denom2)

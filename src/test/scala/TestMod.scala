@@ -66,5 +66,4 @@ class TestMod {
     assertEquals(startDiv, Cst(7))
     assertEquals(startMod, Cst(3) + expr)
   }
-
 }
