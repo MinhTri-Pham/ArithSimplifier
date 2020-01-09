@@ -1,6 +1,5 @@
-package arithmetic.simplifier
-
-import arithmetic._
+package arithmetic
+package simplifier
 
 object SimplifyCeiling {
   def apply(ae: ArithExpr): ArithExpr = {

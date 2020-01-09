@@ -1,6 +1,5 @@
-package arithmetic.simplifier
-
-import arithmetic._
+package arithmetic
+package simplifier
 
 import scala.collection.mutable.ListBuffer
 
