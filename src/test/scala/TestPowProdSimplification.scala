@@ -1,3 +1,4 @@
+import arithmetic._
 import org.junit.Test
 import org.junit.Assert._
 

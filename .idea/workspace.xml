@@ -2,8 +2,102 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyMod.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/SimplifyMod.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ComputeGCD.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Factorise.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/FactoriseRuntime.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Interval.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/Interval.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/NotEvaluableException.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/NotEvaluableException.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/RandomGenerator.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Sign.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyAbs.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyCeiling.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyFloor.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyIntDiv.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyMod.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyPow.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifyProd.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SimplifySum.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFloorCeil.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFloorCeil.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestIntDiv.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestMod.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestMod.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestProdExpansion.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestProdExpansion.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/$qmark.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/AbsFunction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ArithExpr.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/CeilingFunction$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/CeilingFunction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ComputeGCD$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ComputeGCD.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Cst.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Factorise.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseRuntime$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FactoriseRuntime.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/FloorFunction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/IntDiv$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/IntDiv.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Interval$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Interval.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Mod$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Mod.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException$$anon$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/NotEvaluableException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Pow.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Prod.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/RandomGenerator$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/RandomGenerator.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sign$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sign.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyAbs$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyAbs.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyCeiling$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyCeiling.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyFloor$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyFloor.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv$$anonfun$simplifyIntDiv$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyIntDiv.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyMod$$anonfun$simplifyMod$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyMod$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyMod.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyPow$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyPow.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifyProd.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/SimplifySum.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Sum.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/Var.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/abs$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/abs.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ceil$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/ceil.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/floor$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/floor.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFloorCeil.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFloorCeil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestIntDiv.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestIntDiv.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestMod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestMod.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestPowProdSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestPowProdSimplification.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestProdExpansion.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestProdExpansion.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumSimplification.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +129,13 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Scala Object" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -63,12 +164,15 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="arithmetic.simplifier" />
+      <recent name="arithmetic" />
       <recent name="" />
+      <recent name="simplifier" />
     </key>
   </component>
   <component name="RunManager" selected="JUnit.All in ArithSimplifier">
     <configuration name="SimplifyFloor" type="Application" factoryName="Application" temporary="true">
-      <option name="MAIN_CLASS_NAME" value="SimplifyFloor" />
+      <option name="MAIN_CLASS_NAME" value="arithmetic.simplifier.SimplifyFloor" />
       <module name="ArithSimplifier" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -199,6 +303,10 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="583" y="348" width="378" height="170" key="#com.intellij.framework.addSupport.AddSupportForSingleFrameworkDialog/0.0.1536.864@0.0.1536.864" timestamp="1577718875202" />
+    <state x="499" y="214" key="#com.intellij.ide.util.PackageChooserDialog" timestamp="1578587146924">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state x="499" y="214" key="#com.intellij.ide.util.PackageChooserDialog/0.0.1536.864@0.0.1536.864" timestamp="1578587146924" />
     <state x="618" y="322" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog" timestamp="1577629448140">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -207,22 +315,30 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="449" y="161" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1536.864@0.0.1536.864" timestamp="1577717106853" />
-    <state width="746" height="223" key="GridCell.Tab.0.bottom" timestamp="1578499182698">
+    <state x="566" y="293" width="424" height="287" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes" timestamp="1578588516748">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="223" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578499182698" />
-    <state width="746" height="223" key="GridCell.Tab.0.center" timestamp="1578499182698">
+    <state x="566" y="293" width="424" height="287" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.classes/0.0.1536.864@0.0.1536.864" timestamp="1578588516748" />
+    <state x="566" y="305" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages" timestamp="1578587381302">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="223" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1578499182698" />
-    <state width="746" height="223" key="GridCell.Tab.0.left" timestamp="1578499182697">
+    <state x="566" y="305" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages/0.0.1536.864@0.0.1536.864" timestamp="1578587381302" />
+    <state width="1493" height="223" key="GridCell.Tab.0.bottom" timestamp="1578588777217">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="223" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1578499182697" />
-    <state width="746" height="223" key="GridCell.Tab.0.right" timestamp="1578499182698">
+    <state width="1493" height="223" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1578588777217" />
+    <state width="1493" height="223" key="GridCell.Tab.0.center" timestamp="1578588777217">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="746" height="223" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1578499182698" />
+    <state width="1493" height="223" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1578588777217" />
+    <state width="1493" height="223" key="GridCell.Tab.0.left" timestamp="1578588777216">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1493" height="223" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1578588777216" />
+    <state width="1493" height="223" key="GridCell.Tab.0.right" timestamp="1578588777217">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state width="1493" height="223" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1578588777217" />
     <state width="746" height="277" key="GridCell.Tab.1.bottom" timestamp="1578498533554">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -243,10 +359,14 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="249" y="8" key="SettingsEditor/0.0.1536.864@0.0.1536.864" timestamp="1577718951502" />
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1578493404993">
+    <state x="583" y="216" key="chooseDestDirectoryDialog" timestamp="1578499756128">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1578493404993" />
+    <state x="583" y="216" key="chooseDestDirectoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1578499756128" />
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1578586813119">
+      <screen x="0" y="0" width="1536" height="864" />
+    </state>
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1578586813119" />
     <state x="425" y="197" key="run.anything.popup" timestamp="1577966055057">
       <screen x="0" y="0" width="1536" height="864" />
     </state>

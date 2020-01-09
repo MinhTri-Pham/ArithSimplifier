@@ -1,3 +1,4 @@
+import arithmetic._
 import org.junit.Test
 import org.junit.Assert._
 
@@ -97,13 +98,13 @@ class TestFactoriseSum {
     val s6 = (a pow 2) + Cst(2)*a*b + (b pow 2)
     assertEquals(Factorise(s6), Some((a+b) pow 2))
 
-//    val s7 = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*a*(b pow 2) + (b pow 3)
+//    val s7 = (a pow 3) + arithmetic.Cst(3)*(a pow 2)*b + arithmetic.Cst(3)*a*(b pow 2) + (b pow 3)
 //    assertEquals(Factorise(s7), Some((a+b) pow 3))
 //
-//    val s8 = (a pow 2) + Cst(2)*a*b + (b pow 2) + a*c + b*c
+//    val s8 = (a pow 2) + arithmetic.Cst(2)*a*b + (b pow 2) + a*c + b*c
 //    assertEquals(Factorise(s8), Some((a+b+c)*(a+b)))
 //
-//    val s9 = (a pow 2) + Cst(2)*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
+//    val s9 = (a pow 2) + arithmetic.Cst(2)*a*b + arithmetic.Cst(2)*a*c + (b pow 2) + arithmetic.Cst(2)*b*c + (c pow 2)
 //    assertEquals(Factorise(s9), Some((a+b+c) pow 2))
   }
 
