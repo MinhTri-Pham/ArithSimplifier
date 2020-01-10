@@ -30,7 +30,8 @@ object SimplifyIntDiv {
     case (s@Sum(terms), c:Cst) if terms.collect({ case Cst(_) => }).nonEmpty =>
       val h = terms.head
       h/c + (s - h) / c
-    // For sum numerator s, try to partition into s1 and s2 so that s1/d is a multiple of d (d is the denominator)
+    // For sum numerator s, try to partition into s1 and s2 so that s1 is multiple of d in the constant case
+    // or gcd(s1,d) != 1 (d is the denominator)
     case (s:Sum, _) =>
       val terms = s.terms
       val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
@@ -38,8 +39,8 @@ object SimplifyIntDiv {
         for (subset <- termSubsets.tail) {
           val rest = terms.diff(subset)
           val sum = if (subset.length > 1) Sum(subset) else subset.head
-          val sumProd = sum.toProd
-          if (sum == denom || (sumProd.isDefined && sumProd.get.factors.contains(denom))) {
+          val gcd = ComputeGCD(sum, denom)
+          if ((denom.isInstanceOf[Cst] && gcd % denom == Cst(0)) || (!denom.isInstanceOf[Cst] && gcd != Cst(1))) {
             if (rest.length > 1) return sum / denom + Sum(rest) / denom
             else return sum / denom + rest.head / denom
           }

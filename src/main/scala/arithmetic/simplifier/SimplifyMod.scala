@@ -25,7 +25,8 @@ object SimplifyMod {
       val h = terms.head
       h%c + (s - h) % c
 
-    // For sum dividend s, try to partition into s1 and s2 so that s1/d is a multiple of d (d is the divisor)
+    // For sum dividend s, try to partition into s1 and s2 so that s1 is multiple of d in the constant case
+    // or gcd(s1,d) != 1 (d is the divisor)
     case (s:Sum,_) =>
       val terms = s.terms
       val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
@@ -33,8 +34,8 @@ object SimplifyMod {
         for (subset <- termSubsets.tail) {
           val rest = terms.diff(subset)
           val sum = if (subset.length > 1) Sum(subset) else subset.head
-          val sumProd = sum.toProd
-          if (sum == divisor || (sumProd.isDefined && sumProd.get.factors.contains(divisor))) {
+          val gcd = ComputeGCD(sum, divisor)
+          if ((divisor.isInstanceOf[Cst] && gcd % divisor == Cst(0)) || (!divisor.isInstanceOf[Cst] && gcd != Cst(1))) {
             if (rest.length > 1) return Sum(rest) % divisor
             else return rest.head % divisor
           }

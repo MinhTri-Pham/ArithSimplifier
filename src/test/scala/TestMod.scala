@@ -20,7 +20,7 @@ class TestMod {
 
   @Test
   def sumDivisor(): Unit = {
-    val a = Var("a")
+    val a = Cst(2)
     val b = Var("b")
     val c = Var("c")
     val d = Var("d")
@@ -85,5 +85,17 @@ class TestMod {
     val startMod = (Cst(899) + expr) % Cst(128)
     assertEquals(startDiv, Cst(7))
     assertEquals(startMod, Cst(3) + expr)
+  }
+
+  @Test
+  def sumWithMod(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    val expr_1 = b+c
+    val expr_2 = b*c
+    val n = Var("n")
+    assertEquals(a % n, (a % n + expr_1 * n) % n)
+    assertEquals(a % n, (a % n + expr_1 * n + expr_2 * n) % n)
   }
 }

@@ -34,7 +34,7 @@ class TestIntDiv {
 
   @Test
   def sumDenom(): Unit = {
-    val a = Var("a")
+    val a = Cst(2)
     val b = Var("b")
     val c = Var("c")
     val d = Var("d")
@@ -64,5 +64,21 @@ class TestIntDiv {
     val y = Var("y")
     val m = Var("m")
     assertEquals((Cst(4) + x + c*m + c*y + m*y) / (c+m), c+y + (x / (c+m)))
+  }
+
+  @Test
+  def factoriseDenom(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val m = Var("m")
+    val n = Var("n")
+    val c = Cst(2)
+    val x = Var("x")
+    val y = Var("y")
+    // Important that these two don't involve a or b
+    val expr_1 = x+Cst(2)*y
+    val expr_2 = x*x*y
+    assertEquals(a/n + b/(c*n+m*n),(b + c*a + m*a) / (c*n+m*n))
+    assertEquals(expr_1/n + expr_2/(c*n+m*n),(expr_2 + c*expr_1 + m*expr_1) / (c*n+m*n))
   }
 }
