@@ -48,4 +48,21 @@ class TestIntDiv {
     assertEquals((a*c+b*c+d+e) / (a+b), c + (d+e)/(a+b))
     assertEquals((a*c+b*c+a*d+b*d+e) / (a+b), c + d + e / (a+b))
   }
+
+  @Test
+  def constSum(): Unit = {
+    val c = Cst(5)
+    val x = Var("x")
+    val y = Var("y")
+    assertEquals(Cst(1) + (y / (c+x)), (c+x+y) / (c+x))
+  }
+
+  @Test
+  def constFactorisation(): Unit = {
+    val c = Cst(2)
+    val x = Var("x")
+    val y = Var("y")
+    val m = Var("m")
+    assertEquals((Cst(4) + x + c*m + c*y + m*y) / (c+m), c+y + (x / (c+m)))
+  }
 }

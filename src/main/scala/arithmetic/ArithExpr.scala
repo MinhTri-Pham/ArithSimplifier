@@ -224,15 +224,13 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
   lazy val asProds : List[ArithExpr] = {
     var prods = ListBuffer[ArithExpr]()
     for (t <- terms) t match {
-      case c:Cst =>
-        prods += c
-      case v:Var => prods += v
       case p:Prod =>
         prods += p.primitiveProd
 
       case pow:Pow =>
         if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
         else prods += pow.asProd.get
+      case _ => prods += t
     }
     prods.toList
   }

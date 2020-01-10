@@ -60,6 +60,25 @@ class TestMod {
   }
 
   @Test
+  def divPlusModOfSumMultipliedConstants(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val x = Cst(8)
+    val expr_1 = x * Cst(4) * (a+b)
+    val expr_2 = x * Cst(4) * (a + b) / Cst(16) * Cst(16) + x * Cst(4) * (a + b) % Cst(16)
+    assertEquals(expr_1.toSum.get, expr_2)
+  }
+
+  @Test
+  def sumDivModSimplification(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    assertNotEquals(a % Cst(8), (((b * Cst(4)) + a) % Cst(8)) * Cst(1))
+    assertEquals(b * Cst(4) + a, Cst(0) + ((((b * Cst(4)) + a) / Cst(8)) * Cst(8) * Cst(1)) +
+      (((b * Cst(4)) + a) % Cst(8)) * Cst(1))
+  }
+
+  @Test
   def intDivFloorTest(): Unit = {
     val expr = Cst(4) * Var("a", Interval(Cst(0), Cst(31)))
     val startDiv = (Cst(899) + expr) / Cst(128)

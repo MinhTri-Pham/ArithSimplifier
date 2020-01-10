@@ -10,7 +10,13 @@ class TestFractionSimplification {
   val d = Var("d")
 
   @Test
-  def basicTests() : Unit = {
+  def simplificationTest(): Unit = {
+    assertEquals(a /^ Cst(2048), a * Cst(128) * Cst(1) /^ Cst(262144))
+    assertEquals(a /^ Cst(2), a * (a*Cst(1)/^Cst(2)) /^ a)
+  }
+
+  @Test
+  def factorisationTests() : Unit = {
     val numer1 = Cst(2)*a + Cst(2)*b
     val numer2 = a*a + a*b
     val numer3 = a*a + Cst(2)*a*b + b*b
