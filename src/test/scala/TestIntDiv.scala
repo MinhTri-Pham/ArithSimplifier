@@ -34,10 +34,10 @@ class TestIntDiv {
 
   @Test
   def sumDenom(): Unit = {
-    val a = Cst(2)
     val b = Var("b")
-    val c = Var("c")
     val d = Var("d")
+    val a = Cst(2)
+    val c = Var("c")
     val e = Var("e")
     // Direct factorisation
     assertEquals((a*c+b*c) / (a+b), c)
@@ -80,5 +80,19 @@ class TestIntDiv {
     val expr_2 = x*x*y
     assertEquals(a/n + b/(c*n+m*n),(b + c*a + m*a) / (c*n+m*n))
     assertEquals(expr_1/n + expr_2/(c*n+m*n),(expr_2 + c*expr_1 + m*expr_1) / (c*n+m*n))
+  }
+
+  @Test
+  def partitionConstantMultiple(): Unit = {
+    val a = Var("a", Interval(Cst(2), Cst(3)))
+    val b = Var("b", Interval(Cst(6), Cst(8)))
+    val c = Cst(2)
+    val d = Var("d")
+    // Partition as (a+b) / (a+b) + (a+c) / (a+b)
+    assertEquals(Cst(1), (Cst(2)*a+b+c) / (a+b))
+    // Partition as (2a+4b) / (a+2b) + (a+b)/(a+2b)
+    assertEquals(Cst(2),(Cst(3)*a + Cst(5)*b) / (a + Cst(2)*b))
+    // Partition as (ac+bc+ad+bd) / (a+b) + ac / (a+b)
+    assertEquals(c+d,(Cst(2)*a*c+b*c+a*d+b*d) / (a+b))
   }
 }

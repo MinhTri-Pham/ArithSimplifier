@@ -66,7 +66,7 @@ class TestMod {
     val x = Cst(8)
     val expr_1 = x * Cst(4) * (a+b)
     val expr_2 = x * Cst(4) * (a + b) / Cst(16) * Cst(16) + x * Cst(4) * (a + b) % Cst(16)
-    assertEquals(expr_1.toSum.get, expr_2)
+    assertEquals(expr_1, expr_2.toProd.get)
   }
 
   @Test
@@ -97,5 +97,17 @@ class TestMod {
     val n = Var("n")
     assertEquals(a % n, (a % n + expr_1 * n) % n)
     assertEquals(a % n, (a % n + expr_1 * n + expr_2 * n) % n)
+  }
+
+  @Test
+  def partitionConstantMultiple(): Unit = {
+    val a = Var("a", Interval(Cst(2), Cst(3)))
+    val b = Var("b", Interval(Cst(6), Cst(8)))
+    val c = Cst(2)
+    val d = Var("d")
+    // Evaluates using floor of integer division
+    assertEquals(a+c, (Cst(2)*a+b+c) % (a+b))
+    assertEquals(a+b,(Cst(3)*a + Cst(5)*b) % (a + Cst(2)*b))
+    assertEquals(a*c,(Cst(2)*a*c+b*c+a*d+b*d) % (a+b))
   }
 }

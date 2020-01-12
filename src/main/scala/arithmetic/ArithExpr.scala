@@ -44,7 +44,7 @@ abstract sealed class ArithExpr {
   // Convert expression to sum if possible
   lazy val toSum : Option[Sum] = this match {
     case x:Sum => Some(x)
-    case x:Prod => x.asExpandedSum
+    //case x:Prod => x.asExpandedSum
     case x:Pow => x.asSum
     case _ => None
   }
@@ -370,6 +370,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
         combined = ArithExpr.expand(combined,b).get
     }
     Some(Sum(combined.getSumProdSimplify))
+    //combined.toSum
   }
 
   // Representation as a product (a^n = a*a...*a (n times))

@@ -17,6 +17,8 @@ object SimplifyMod {
 
     case (x, y) if ComputeGCD(x,y) == y => Cst(0)
 
+    case (x, y) if ArithExpr.isSmaller(x,y).getOrElse(false) => x
+
     // Try through integer division and floor
     case (x, y) if floor(x/y).isEvaluable => x - y * floor(x/y)
 

@@ -185,8 +185,8 @@ object Factorise {
     Some(accumExpr)
   }
 
-  // Fully expands terms, i.e a^2 + 2ab + b^2 -> a*a + 2*a*b + b*b
-  private def expandTerms(terms: List[ArithExpr]) : List[ArithExpr] = {
+  // Fully expands terms, i.e a^2 + 2ab + b^2 -> a^2 + 2*a*b + b^2
+  def expandTerms(terms: List[ArithExpr]) : List[ArithExpr] = {
     val expanded = ListBuffer[ArithExpr]()
     for (term <- terms) term match {
       case p:Prod =>

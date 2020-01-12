@@ -15,15 +15,9 @@ object SimplifyIntDiv {
     case (x, y) if ComputeGCD(x, y) != Cst(1) =>
       val fac = ComputeGCD(x, y)
       (x /^ fac) / (y /^ fac)
-    case (x,y) if !(x.min == ? || x.max == ? || y.min == ? || y.max == ?)  =>
-      val numMin = x.min
-      val numMax = x.max
-      val denomMin = y.min
-      val denomMax = y.max
-      if ((numMin / denomMax).evalDouble ==(numMax / denomMin).evalDouble) {
-        numMin / denomMax
-      }
-      else IntDiv(numer,denom)
+    case (x,y) if x.min != ? && x.max != ? && y.min != ? && y.max != ? && ((x.min / y.max) == (x.max / y.min)) =>
+      x.min / y.max
+
     // (AE % div) / div = 0
     case (Mod(_, div1: ArithExpr), div2: ArithExpr) if div1 == div2 => Cst(0)
     // Pull out constant
@@ -31,18 +25,31 @@ object SimplifyIntDiv {
       val h = terms.head
       h/c + (s - h) / c
     // For sum numerator s, try to partition into s1 and s2 so that s1 is multiple of d in the constant case
-    // or gcd(s1,d) != 1 (d is the denominator)
+    // or gcd(s1,d) != 1 otherwise (d is the denominator)
     case (s:Sum, _) =>
-      val terms = s.terms
-      val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
+//      val terms = s.terms
+//      val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
+//      if (termSubsets.nonEmpty) {
+//        for (subset <- termSubsets.tail) {
+//          val rest = terms.diff(subset)
+//          val sum = if (subset.length > 1) Sum(subset) else subset.head
+//          val gcd = ComputeGCD(sum, denom)
+//          if ((denom.isInstanceOf[Cst] && gcd % denom == Cst(0)) || (!denom.isInstanceOf[Cst] && gcd != Cst(1))) {
+//            if (rest.length > 1) return sum / denom + Sum(rest) / denom
+//            else return sum / denom + rest.head / denom
+//          }
+//        }
+//      }
+      val termsExpanded = Factorise.expandTerms(s.terms)
+      val termSubsets = Factorise.powerSet(termsExpanded).filter(_.nonEmpty)
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
-          val rest = terms.diff(subset)
-          val sum = if (subset.length > 1) Sum(subset) else subset.head
+          val restExp = termsExpanded.diff(subset)
+          val sum = subset.reduce((x,y) => x+y)
+          val rest = restExp.reduce((x,y) => x+y)
           val gcd = ComputeGCD(sum, denom)
           if ((denom.isInstanceOf[Cst] && gcd % denom == Cst(0)) || (!denom.isInstanceOf[Cst] && gcd != Cst(1))) {
-            if (rest.length > 1) return sum / denom + Sum(rest) / denom
-            else return sum / denom + rest.head / denom
+            return sum / denom + rest / denom
           }
         }
       }
