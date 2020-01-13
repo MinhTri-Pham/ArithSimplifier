@@ -690,8 +690,15 @@ object ArithExpr {
         val ae2Terms = s2.terms
         val commonTerms = ae1Terms.intersect(ae2Terms)
         if (commonTerms.nonEmpty) {
-          lhsNonCommon = Sum(ae1Terms.diff(commonTerms))
-          rhsNonCommon = Sum(ae2Terms.diff(commonTerms))
+          val ae1diff = ae1Terms.diff(commonTerms)
+          val ae2diff = ae2Terms.diff(commonTerms)
+          if (ae1diff.isEmpty) lhsNonCommon = Cst(0)
+          else if (ae1diff.length == 1) lhsNonCommon = ae1diff.head
+          else lhsNonCommon = Sum(ae1diff)
+
+          if (ae2diff.isEmpty) rhsNonCommon = Cst(0)
+          else if (ae2diff.length == 1) rhsNonCommon = ae2diff.head
+          else rhsNonCommon = Sum(ae2diff)
         }
       // Product or powers present: take out common term
       case (_:Prod, _) | (_, _:Prod) | (_:Pow, _) | (_, _:Pow) =>
@@ -772,8 +779,15 @@ object ArithExpr {
         val ae2Terms = s2.terms
         val commonTerms = ae1Terms.intersect(ae2Terms)
         if (commonTerms.nonEmpty) {
-          lhsNonCommon = Sum(ae1Terms.diff(commonTerms))
-          rhsNonCommon = Sum(ae2Terms.diff(commonTerms))
+          val ae1diff = ae1Terms.diff(commonTerms)
+          val ae2diff = ae2Terms.diff(commonTerms)
+          if (ae1diff.isEmpty) lhsNonCommon = Cst(0)
+          else if (ae1diff.length == 1) lhsNonCommon = ae1diff.head
+          else lhsNonCommon = Sum(ae1diff)
+
+          if (ae2diff.isEmpty) rhsNonCommon = Cst(0)
+          else if (ae2diff.length == 1) rhsNonCommon = ae2diff.head
+          else rhsNonCommon = Sum(ae2diff)
         }
       // Product/power and product/power: take out common term
       case (_:Prod, _) | (_, _:Prod) | (_:Pow, _) | (_, _:Pow) =>

@@ -105,12 +105,24 @@ class TestMod {
     val b = Var("b", Interval(Cst(6), Cst(8)))
     val c = Cst(2)
     val d = Var("d")
-    // Using floor
+    // Using int div
     assertEquals(a+c, (Cst(2)*a+b+c) % (a+b))
     assertEquals(a+b,(Cst(3)*a + Cst(5)*b) % (a + Cst(2)*b))
     // Partition dividend
     assertEquals(a*c,(Cst(2)*a*c+b*c+a*d+b*d) % (a+b))
     val e = Var("e")
     assertEquals(a*e % (a+b),(Cst(2)*a*e+b*e+a*d+b*d) % (a+b))
+  }
+
+  @Test
+  def partitionConstant(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    // Partition as (2+a) % (2+a) + (2+b) % (2+a) = (2+b) % (2+a)
+    assertEquals((Cst(2)+b) % (Cst(2)+a),(Cst(4)+a+b) % (Cst(2)+a))
+    // Partition as (4+2a) % (2+a) + (1+b) % (2+a) = (1+b) % (2+a)
+    assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(5)+Cst(2)*a+b) % (Cst(2)+a))
+    // Partition as (ab+a+2b+2) % (2+a) + (1+b) % (2+a)
+    assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(3)+a+Cst(3)*b+a*b) % (Cst(2)+a))
   }
 }

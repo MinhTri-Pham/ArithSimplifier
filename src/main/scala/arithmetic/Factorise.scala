@@ -118,10 +118,10 @@ object Factorise {
       else {
         if (!currFactor.isInstanceOf[Cst]) {
           // Fully expand all terms and the ones the factor is contained in
-          val containsExpanded = expandTerms(containsF.toList)
-          val termsExpanded = expandTerms(terms)
+          val containsExpanded = Helper.expandTerms(containsF.toList)
+          val termsExpanded = Helper.expandTerms(terms)
           // Try combinations
-          for (subset <- powerSet(containsExpanded)) {
+          for (subset <- Helper.powerSet(containsExpanded)) {
             if (subset.distinct.length > 1) {
               val rest = termsExpanded.diff(subset)
               // Take out factor from examined subset
@@ -185,23 +185,6 @@ object Factorise {
     Some(accumExpr)
   }
 
-  // Fully expands terms, i.e a^2 + 2ab + b^2 -> a^2 + 2*a*b + b^2
-  def expandTerms(terms: List[ArithExpr]) : List[ArithExpr] = {
-    val expanded = ListBuffer[ArithExpr]()
-    for (term <- terms) term match {
-      case p:Prod =>
-        val expandCst = p.asNonCstFactorsSum
-        if (expandCst.isDefined) {
-          expanded ++= expandCst.get.asProds
-        }
-        else {
-          expanded += p
-        }
-      case _ => expanded += term
-    }
-    expanded.toList
-  }
-
   // Prepare array for factorisation using sieve algorithm
   private def sieve(n : Int) : Array[Int] = {
     val spf = Array.fill[Int](n+1)(0)
@@ -251,7 +234,4 @@ object Factorise {
     }
     factors.distinct.toList
   }
-
-  def powerSet[A](xs: List[A]): List[List[A]] =
-    xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct.reverse
 }

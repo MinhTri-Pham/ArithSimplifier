@@ -27,22 +27,8 @@ object SimplifyIntDiv {
     // For sum numerator s, try to partition into s1 and s2 so that s1 is multiple of d in the constant case
     // or gcd(s1,d) != 1 otherwise (d is the denominator)
     case (s:Sum, _) =>
-//      val terms = s.terms
-//      val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
-//      if (termSubsets.nonEmpty) {
-//        for (subset <- termSubsets.tail) {
-//          val rest = terms.diff(subset)
-//          val sum = if (subset.length > 1) Sum(subset) else subset.head
-//          val gcd = ComputeGCD(sum, denom)
-//          if ((denom.isInstanceOf[Cst] && gcd % denom == Cst(0)) || (!denom.isInstanceOf[Cst] && gcd != Cst(1))) {
-//            if (rest.length > 1) return sum / denom + Sum(rest) / denom
-//            else return sum / denom + rest.head / denom
-//          }
-//        }
-//      }
-
-      val termsExpanded = Factorise.expandTerms(s.terms)
-      val termSubsets = Factorise.powerSet(termsExpanded).filter(_.nonEmpty)
+      val termsExpanded = Helper.expandTermsCst(s.terms)
+      val termSubsets = Helper.powerSet(termsExpanded).filter(_.nonEmpty)
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
           val restExp = termsExpanded.diff(subset)

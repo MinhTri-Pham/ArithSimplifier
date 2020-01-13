@@ -95,4 +95,18 @@ class TestIntDiv {
     // Partition as (ac+bc+ad+bd) / (a+b) + ac / (a+b)
     assertEquals(c+d,(Cst(2)*a*c+b*c+a*d+b*d) / (a+b))
   }
+
+  @Test
+  def partitionConstant(): Unit = {
+    val a = Var("a", Interval(Cst(4), Cst(6)))
+    val b = Var("b", Interval(Cst(1), Cst(3)))
+    // Partition as (2+a) / (2+a) + 1 / (2+a) = 1
+    assertEquals(Cst(1), (Cst(3)+a) / (Cst(2)+a))
+    // Partition as (2+a) / (2+a) + (2+b) / (2+a) = 1 (since b < a)
+    assertEquals(Cst(1), (Cst(4)+a+b) / (Cst(2)+a))
+    // Partition as (4+2a) / (2+a) + (1+b) / (2+a) = 2 (since 1+b < 2+a)
+    assertEquals(Cst(2),(Cst(5)+Cst(2)*a+b) / (Cst(2)+a))
+    // Partition as (ab+a+2b+2) / (2+a) + (1+b) / (2+a) = 1+b
+    assertEquals(Cst(1)+b,(Cst(3)+a+Cst(3)*b+a*b) / (Cst(2)+a))
+  }
 }
