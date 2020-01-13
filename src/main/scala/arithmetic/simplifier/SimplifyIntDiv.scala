@@ -40,6 +40,7 @@ object SimplifyIntDiv {
 //          }
 //        }
 //      }
+
       val termsExpanded = Factorise.expandTerms(s.terms)
       val termSubsets = Factorise.powerSet(termsExpanded).filter(_.nonEmpty)
       if (termSubsets.nonEmpty) {

@@ -105,9 +105,12 @@ class TestMod {
     val b = Var("b", Interval(Cst(6), Cst(8)))
     val c = Cst(2)
     val d = Var("d")
-    // Evaluates using floor of integer division
+    // Using floor
     assertEquals(a+c, (Cst(2)*a+b+c) % (a+b))
     assertEquals(a+b,(Cst(3)*a + Cst(5)*b) % (a + Cst(2)*b))
+    // Partition dividend
     assertEquals(a*c,(Cst(2)*a*c+b*c+a*d+b*d) % (a+b))
+    val e = Var("e")
+    assertEquals(a*e % (a+b),(Cst(2)*a*e+b*e+a*d+b*d) % (a+b))
   }
 }

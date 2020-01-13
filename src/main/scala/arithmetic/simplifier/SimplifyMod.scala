@@ -30,16 +30,16 @@ object SimplifyMod {
     // For sum dividend s, try to partition into s1 and s2 so that s1 is multiple of d in the constant case
     // or gcd(s1,d) != 1 (d is the divisor)
     case (s:Sum,_) =>
-      val terms = s.terms
-      val termSubsets = Factorise.powerSet(terms).filter(_.nonEmpty)
+      val termsExpanded = Factorise.expandTerms(s.terms)
+      val termSubsets = Factorise.powerSet(termsExpanded).filter(_.nonEmpty)
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
-          val rest = terms.diff(subset)
-          val sum = if (subset.length > 1) Sum(subset) else subset.head
+          val restExp = termsExpanded.diff(subset)
+          val sum = subset.reduce((x,y) => x+y)
+          val rest = restExp.reduce((x,y) => x+y)
           val gcd = ComputeGCD(sum, divisor)
           if ((divisor.isInstanceOf[Cst] && gcd % divisor == Cst(0)) || (!divisor.isInstanceOf[Cst] && gcd != Cst(1))) {
-            if (rest.length > 1) return Sum(rest) % divisor
-            else return rest.head % divisor
+            return rest % divisor
           }
         }
       }
