@@ -94,15 +94,8 @@ object Factorise {
       }
       // Common factor
       if (containsF.length == terms.length) {
-        // Constant or something else
-        val simplified = if (currFactor.isInstanceOf[Cst]) {
-          terms.map(x => x / currFactor).reduce(_ + _)
-        }
-        else {
-          val divisionCF = terms.map(x => x /^ currFactor)
-          divisionCF.reduce(_ + _)
-        }
         // Factor out common factor
+        val simplified = terms.map(x => x /^ currFactor).reduce(_ + _)
         val simplifiedFactorisation = factoriseTerms(simplified.toSum.get.asProds)
         // Try to factorise the simplified expression
         if (simplifiedFactorisation.isDefined) return Some(currFactor * simplifiedFactorisation.get)
@@ -205,9 +198,10 @@ object Factorise {
   // Gives prime decomposition of a positive integer
   // Repeated factors repeated in the product
   private def primeDecomposition(n : Int) : List[Int] = {
-    var r = n
+    var r = scala.math.abs(n)
     val spf = sieve(r)
     val factorisation = ListBuffer[Int]()
+    if (n < 0) factorisation.addOne(-1)
     while(spf(r) > 0) {
       factorisation += spf(r)
       r /= spf(r)
