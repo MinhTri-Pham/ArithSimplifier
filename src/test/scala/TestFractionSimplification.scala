@@ -13,36 +13,44 @@ class TestFractionSimplification {
   def simplificationTest(): Unit = {
     assertEquals(a /^ Cst(2048), a * Cst(128) * Cst(1) /^ Cst(262144))
     assertEquals(a /^ Cst(2), a * (a*Cst(1)/^Cst(2)) /^ a)
+    assertEquals(b,(b/^(a+b))*(a pow -1)*(a+b)*a)
+    assertEquals(Cst(1), (a*b /^b) /^b * (b /^ a))
   }
 
   @Test
-  def factorisationTests() : Unit = {
+  def sumTest(): Unit = {
+    assertEquals(a+b,a*((a pow -1)+(b pow -1))*b)
+  }
+
+  @Test
+  def multiVarBasic() : Unit = {
     val numer1 = Cst(2)*a + Cst(2)*b
     val numer2 = a*a + a*b
     val numer3 = a*a + Cst(2)*a*b + b*b
     val denom1 = a+b
     val denom2 = a*c + b*c + a*d + b*d
 
-    assertEquals(numer1 /^ numer1, Cst(1))
-    assertEquals(denom1 /^ denom1, Cst(1))
+    assertEquals(Cst(1),numer1 /^ numer1)
+    assertEquals(Cst(2),numer1 /^ denom1)
+    assertEquals(a,numer2 /^ denom1)
+    assertEquals(a+b,numer3 /^ denom1)
+    assertEquals((a+b)/^(c+d),numer3 /^ denom2)
+  }
 
-    assertEquals(numer1 /^ denom1,Cst(2))
-    assertEquals(numer2 /^ denom1,a)
-    assertEquals(numer3 /^ denom1,a+b)
-    assertEquals(numer3 /^ denom2,(a+b)/^(c+d))
+  @Test
+  def uniVarCst(): Unit = {
+    val e1 = a*a + a
+    val e2 = a*a + Cst(3)*a + Cst(2)
+    val e3 = (a pow 3) + Cst(6)*a*a+Cst(11)*a+Cst(6)
+    val e4 = (a pow 3) + Cst(5)*a*a+Cst(8)*a+Cst(4)
+    assertEquals(a /^ (a+Cst(2)),e1 /^ e2)
+    assertEquals(a+Cst(3),e3 /^ e2)
+    assertEquals((a+Cst(3)) /^ (a+Cst(2)),e3 /^ e4)
+  }
 
-    val numer4 = a*a + a
-    val denom4 = a*a + Cst(3)*a
-
-    val numer5 = a*a*a + Cst(4)*a*a + Cst(3)*a
-    val denom5 = a*a*a + Cst(3)*a*a + Cst(2)*a
-
-    assertEquals(numer4 /^ denom4, (a+Cst(1)) /^ (a+Cst(3)))
-    assertEquals(numer5 /^ denom5, (a+Cst(3)) /^ (a+Cst(2)))
-    assertEquals(numer4 /^ denom5, Cst(1) /^ (a+Cst(2)))
-    assertEquals(numer5 /^ denom4, Cst(1)+a)
-
-
+  @Test
+  def multiVarSimplification(): Unit = {
+    assertEquals(Cst(2)*a*(a+b),(Cst(4)*a*c+Cst(4)*a*d+Cst(4)*b*c+Cst(4)*b*d) * a * (a /^ Cst(2)) * (Cst(1) /^(a*(c+d))))
   }
 
 }

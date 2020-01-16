@@ -47,9 +47,9 @@ object Sign extends Enumeration {
   private def signSum(terms: List[ArithExpr]) : Sign.Value = {
     val mins = terms.map(term => term.min)
     val maxs = terms.map(term => term.max)
-    val sumMins = mins.reduce((x,y) => x+y)
+    val sumMins = mins.reduce(_ + _)
     if (sumMins.sign.equals(Sign.Positive)) return Sign.Positive
-    val sumMaxs = maxs.reduce((x,y) => x+y)
+    val sumMaxs = maxs.reduce(_ + _)
     if (sumMaxs.sign.equals(Sign.Negative)) return Sign.Negative
     Sign.Unknown
   }

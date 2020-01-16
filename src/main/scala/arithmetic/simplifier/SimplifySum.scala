@@ -182,7 +182,7 @@ object SimplifySum {
     // Modulo Identity: a = a / b * b + a % b
     case (Prod(factors), Mod(a, b)) if factors.reduce(_*_) == (a / b) * b => Some(a)
     case (Mod(a, b), Prod(factors)) if factors.reduce(_*_) == (a / b) * b => Some(a)
-
+    case (Pow(b1,-1), Pow(b2,-1)) => Some((b1+b2)/^(b1*b2))
     case _ => None
   }
 

@@ -39,11 +39,11 @@ object SimplifyMod {
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
           val restExp = termsExpanded.diff(subset)
-          val sum = subset.reduce((x,y) => x+y)
-          val rest = restExp.reduce((x,y) => x+y)
+          val sum = subset.reduce(_ + _)
+          val rest = restExp.reduce(_ + _)
           val gcd = ComputeGCD(sum, divisor)
           if ((divisor.isInstanceOf[Cst] && gcd % divisor == Cst(0)) || (!divisor.isInstanceOf[Cst] && gcd != Cst(1))) {
-            return rest % divisor
+            return sum % divisor + rest % divisor
           }
         }
       }

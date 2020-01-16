@@ -16,7 +16,7 @@ object Factorise {
   def factoriseSum(s: Sum) : Option[ArithExpr] = {
     if (s.terms.length < 2) return None
     val factorisation = factoriseTerms(s.asProds)
-    if (factorisation.isDefined) Some(factorisation.get.getSumProdFactorise.reduce((x,y) => x*y))
+    if (factorisation.isDefined) Some(factorisation.get.getSumProdFactorise.reduce(_*_))
     else None
   }
 
@@ -96,11 +96,11 @@ object Factorise {
       if (containsF.length == terms.length) {
         // Constant or something else
         val simplified = if (currFactor.isInstanceOf[Cst]) {
-          terms.map(x => x / currFactor).reduce((x,y) => x+y)
+          terms.map(x => x / currFactor).reduce(_ + _)
         }
         else {
           val divisionCF = terms.map(x => x /^ currFactor)
-          divisionCF.reduce((x,y) => x+y)
+          divisionCF.reduce(_ + _)
         }
         // Factor out common factor
         val simplifiedFactorisation = factoriseTerms(simplified.toSum.get.asProds)
@@ -126,18 +126,18 @@ object Factorise {
               val rest = termsExpanded.diff(subset)
               // Take out factor from examined subset
               // Factorise recursively
-              val fDivision = subset.map(x => x /^ currFactor).reduce((x,y) => x+y).toSum.get
+              val fDivision = subset.map(x => x /^ currFactor).reduce(_ + _).toSum.get
               val factorisedDivision = factoriseTerms(fDivision.asProds)
               // Try to factorise the rest
               var restDivision : Option[ArithExpr] = None
-              if (rest.distinct.length > 1) restDivision = factoriseTerms(rest.reduce((x,y)=>x+y).toSum.get.asProds)
+              if (rest.distinct.length > 1) restDivision = factoriseTerms(rest.reduce(_ + _).toSum.get.asProds)
               // See if we could factorise the two subexpressions and combine appropriately
               (factorisedDivision,restDivision) match {
                 case (None,None) =>
                   val fTerm = currFactor*fDivision
                   if (rest.isEmpty) return Some(fTerm)
                   else {
-                    val restTerm = rest.reduce((x,y) => x+y)
+                    val restTerm = rest.reduce(_ + _)
                     val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                     if (combinedFactorisation.isDefined) return combinedFactorisation
                   }
@@ -147,7 +147,7 @@ object Factorise {
                   if (rest.isEmpty) return Some(fTerm)
                   else {
                     //val combinedFactorisation = factoriseTerms(List(fTerm,Sum(rest)))
-                    val restTerm = rest.reduce((x,y) => x+y)
+                    val restTerm = rest.reduce(_ + _)
                     val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
                     if (combinedFactorisation.isDefined) return combinedFactorisation
                   }

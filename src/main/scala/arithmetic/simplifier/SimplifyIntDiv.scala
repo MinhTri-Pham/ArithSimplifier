@@ -32,8 +32,8 @@ object SimplifyIntDiv {
       if (termSubsets.nonEmpty) {
         for (subset <- termSubsets.tail) {
           val restExp = termsExpanded.diff(subset)
-          val sum = subset.reduce((x,y) => x+y)
-          val rest = restExp.reduce((x,y) => x+y)
+          val sum = subset.reduce(_ + _)
+          val rest = restExp.reduce(_ + _)
           val gcd = ComputeGCD(sum, denom)
           if ((denom.isInstanceOf[Cst] && gcd % denom == Cst(0)) || (!denom.isInstanceOf[Cst] && gcd != Cst(1))) {
             return sum / denom + rest / denom
@@ -49,5 +49,4 @@ object SimplifyIntDiv {
     // Can't simplify
     case _ => IntDiv(numer,denom)
   }
-
 }

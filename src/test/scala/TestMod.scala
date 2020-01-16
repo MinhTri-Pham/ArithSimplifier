@@ -124,5 +124,8 @@ class TestMod {
     assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(5)+Cst(2)*a+b) % (Cst(2)+a))
     // Partition as (ab+a+2b+2) % (2+a) + (1+b) % (2+a)
     assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(3)+a+Cst(3)*b+a*b) % (Cst(2)+a))
+    val c = Var("c")
+    // Partition as (2+a+2c+ac) % (2+a) + (1+b) % (2+a)
+    assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(3)+a+b+Cst(2)*c+c*a) % (Cst(2)+a))
   }
 }

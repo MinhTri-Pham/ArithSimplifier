@@ -29,6 +29,9 @@ abstract sealed class ArithExpr {
   // Modulo operator
   def %(that: ArithExpr) : ArithExpr = simplifier.SimplifyMod(this, that)
 
+  // Differential operator
+  def diff(v:Var) : ArithExpr = Differentiate(this,v)
+
   // Returns list of terms or factors for arithmetic.Sum and arithmetic.Prod simplification
   def getSumProdSimplify : List[ArithExpr]
 
@@ -267,11 +270,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   }
 
   lazy val nonCstList : List[ArithExpr] = {
-    val nonCstFactors = ListBuffer[ArithExpr]()
-    for (factor <- factors) {
-      if (!factor.isInstanceOf[Cst]) nonCstFactors += factor
-    }
-    nonCstFactors.toList
+    factors.filter(!_.isInstanceOf[Cst])
   }
 
   lazy val nonCstFactor : ArithExpr = {
@@ -487,66 +486,62 @@ object ArithExpr {
   // Used for sorting terms of arithmetic.Sum or factors of arithmetic.Prod
   // For ease of simplification
   val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
-    case (?, _) => true
-    case (_, ?) => false
     case (Cst(a), Cst(b)) => a < b
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
 
     // Want na (where n is a constant) < b (assuming a < b) for sum simplification
-    case (p : Prod, x: Var) =>
+    case (p: Prod, x: Var) =>
       val nonCst = p.nonCstFactor
       if (nonCst.isInstanceOf[Var]) {
         if (nonCst == x) false
         else isCanonicallySorted(nonCst, x)
       }
       else false
-    case (x: Var, p : Prod) =>
+    case (x: Var, p: Prod) =>
       val nonCst = p.nonCstFactor
       if (nonCst.isInstanceOf[Var]) {
         if (nonCst == x) true
         else isCanonicallySorted(x, nonCst)
       }
       else true
-
-    // Want na (where n is a constant) < b (assuming a < b) for sum simplification
-    case (p : Prod, x: Pow) =>
-      val nonCst = p.nonCstFactor
-      if (nonCst.isInstanceOf[Pow]) {
-        if (nonCst == x) true
-        else isCanonicallySorted(nonCst, x)
-      }
-      else true
-
-    case (x: Pow, p : Prod) =>
-      val nonCst = p.nonCstFactor
-      if (nonCst.isInstanceOf[Var]) {
-        if (nonCst == x) false
-        else isCanonicallySorted(x, nonCst)
-      }
-      else false
 
     // Want a^n (where n is a constant) < b (assuming a < b) for product simplification
-    case (p : Pow, x: Var) =>
+    case (p: Pow, x: Var) =>
       val base = p.b
-      if (base.isInstanceOf[Var]) {
-        if (base == x) false
-        else isCanonicallySorted(p.b, x)
-      }
-      else false
-    case (x: Var, p : Pow) =>
+      if (base == x) false
+      else isCanonicallySorted(base,x)
+
+    case (x: Var, p: Pow) =>
       val base = p.b
-      if (base.isInstanceOf[Var]) {
-        if (base == x) true
-        else isCanonicallySorted(x, base)
-      }
+      if (base == x) true
+      else isCanonicallySorted(x,base)
+
+    // Don't care about constant factor of product
+    case (p: Prod, x: Pow) =>
+      val nonCst = p.nonCstFactor
+      if (nonCst == x) true
+      else if (nonCst.isInstanceOf[Pow]) isCanonicallySorted(nonCst,x)
       else true
+
+    case (x: Pow, p: Prod) =>
+      val nonCst = p.nonCstFactor
+      if (nonCst == x) false
+      else if (nonCst.isInstanceOf[Pow]) isCanonicallySorted(x,nonCst)
+      else false
 
     case (_: Var, _) => true
     case (_, _: Var) => false
 
-    case (p1:Prod, p2:Prod) =>
+    case (_, p: Pow) => isCanonicallySorted(x,p.b)
+    case (p: Pow, _) => isCanonicallySorted(p.b,x)
+
+    case (Pow(b1, e1), Pow(b2, e2)) =>
+      if (b1 == b2) e1 < e2
+      else isCanonicallySorted(b1, b2)
+
+    case (p1: Prod, p2: Prod) =>
       val p1nonCst = p1.nonCstList
       val p2nonCst = p2.nonCstList
       if (p1nonCst.length == p2nonCst.length) {
@@ -555,10 +550,10 @@ object ArithExpr {
         var result = p1.cstFactor < p2.cstFactor
         while (i < numFactors) {
           if (p1nonCst(i) != p2nonCst(i)) {
-            result = isCanonicallySorted(p1nonCst(i),p2nonCst(i))
-            i = numFactors-1
+            result = isCanonicallySorted(p1nonCst(i), p2nonCst(i))
+            i = numFactors - 1
           }
-          i+=1
+          i += 1
         }
         result
       }
@@ -567,7 +562,7 @@ object ArithExpr {
         p1nonCst.length < p2nonCst.length
       }
 
-    case (s1:Sum, s2:Sum) =>
+    case (s1: Sum, s2: Sum) =>
       // Sorting based on non-constant terms
       val s1Terms = s1.terms
       val s2Terms = s2.terms
@@ -577,10 +572,10 @@ object ArithExpr {
         var i = 0
         while (i < numTerms) {
           if (s1Terms(i) != s2Terms(i)) {
-            result = isCanonicallySorted(s1Terms(i),s2Terms(i))
-            i = numTerms-1
+            result = isCanonicallySorted(s1Terms(i), s2Terms(i))
+            i = numTerms - 1
           }
-          i+=1
+          i += 1
         }
         result
       }
@@ -588,11 +583,7 @@ object ArithExpr {
       else {
         s1Terms.length < s2Terms.length
       }
-    case (Pow(b1,e1), Pow(b2,e2)) =>
-      if (b1 == b2) e1 < e2
-      else isCanonicallySorted(b1,b2)
-    case (_, _: Pow) => true
-    case (_: Pow, _) => false
+
     case _ => true
   }
 
