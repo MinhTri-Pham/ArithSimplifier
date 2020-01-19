@@ -4,8 +4,8 @@ import org.junit.Assert._
 
 class TestProdExpansion {
 
-  val a = Var("a")
-  val b = Var("b")
+  val a: Var = Var("a")
+  val b: Var = Var("b")
 
 @Test
   def basicTests(): Unit = {

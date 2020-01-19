@@ -3,8 +3,8 @@ import org.junit.Test
 import org.junit.Assert._
 
 class TestFloorCeil {
-  val x = Var("x", Interval(Cst(5), Cst(7)))
-  val y = Var("y", Interval(Cst(8), Cst(9)))
+  val x: Var = Var("x", Interval(Cst(5), Cst(7)))
+  val y: Var = Var("y", Interval(Cst(8), Cst(9)))
 
   @Test
   def constTest(): Unit = {

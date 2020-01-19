@@ -20,7 +20,7 @@ object Differentiate {
         summands.reduce(_ + _)
       }
     case (Pow(f, e), _) => Cst(e)*(f pow (e-1))*(f diff v)
-    case (AbsFunction(ae), _) => (ae /^ expr) * (expr diff v)
+    case (AbsFunction(ae), _) => (ae /^ expr) * (ae diff v)
     case _ => ?
   }
 

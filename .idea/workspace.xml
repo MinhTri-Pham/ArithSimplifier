@@ -3,26 +3,16 @@
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/Differentiate.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/Differentiate.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestDifferentiation.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestDifferentiation.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFloorCeil.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFloorCeil.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestProdExpansion.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestProdExpansion.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/IntDiv.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/IntDiv.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/abs$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/abs$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ceil$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ceil$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/floor$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/floor$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifySum$.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +85,7 @@
       <recent name="simplifier" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.All in ArithSimplifier">
+  <component name="RunManager" selected="JUnit.TestDifferentiation">
     <configuration name="Differentiate" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="arithmetic.Differentiate" />
       <module name="ArithSimplifier" />
@@ -117,6 +107,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="TestDifferentiation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArithSimplifier" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="TestDifferentiation" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TestProdExpansion" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ArithSimplifier" />
       <option name="PACKAGE_NAME" value="" />
@@ -130,11 +129,13 @@
       <item itemvalue="Application.Differentiate" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
       <item itemvalue="JUnit.TestProdExpansion" />
+      <item itemvalue="JUnit.TestDifferentiation" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.All in ArithSimplifier" />
+        <item itemvalue="JUnit.TestDifferentiation" />
         <item itemvalue="Application.Differentiate" />
+        <item itemvalue="JUnit.All in ArithSimplifier" />
         <item itemvalue="JUnit.TestProdExpansion" />
       </list>
     </recent_temporary>
@@ -247,22 +248,22 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="566" y="305" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages/0.0.1536.864@0.0.1536.864" timestamp="1578587381302" />
-    <state width="1493" height="223" key="GridCell.Tab.0.bottom" timestamp="1579455584093">
+    <state width="1493" height="223" key="GridCell.Tab.0.bottom" timestamp="1579458355441">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="223" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579455584093" />
-    <state width="1493" height="223" key="GridCell.Tab.0.center" timestamp="1579455584093">
+    <state width="1493" height="223" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579458355441" />
+    <state width="1493" height="223" key="GridCell.Tab.0.center" timestamp="1579458355441">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="223" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1579455584093" />
-    <state width="1493" height="223" key="GridCell.Tab.0.left" timestamp="1579455584093">
+    <state width="1493" height="223" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1579458355441" />
+    <state width="1493" height="223" key="GridCell.Tab.0.left" timestamp="1579458355441">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="223" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1579455584093" />
-    <state width="1493" height="223" key="GridCell.Tab.0.right" timestamp="1579455584093">
+    <state width="1493" height="223" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1579458355441" />
+    <state width="1493" height="223" key="GridCell.Tab.0.right" timestamp="1579458355441">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="223" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1579455584093" />
+    <state width="1493" height="223" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1579458355441" />
     <state width="1493" height="277" key="GridCell.Tab.1.bottom" timestamp="1579453993183">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -287,10 +288,10 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="583" y="216" key="chooseDestDirectoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1578499756128" />
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1579265652481">
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1579456168468">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1579265652481" />
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1579456168468" />
     <state x="463" y="30" width="618" height="804" key="find.popup" timestamp="1579108263459">
       <screen x="0" y="0" width="1536" height="864" />
     </state>

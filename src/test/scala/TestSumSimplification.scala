@@ -3,8 +3,8 @@ import org.junit.Test
 import org.junit.Assert._
 class TestSumSimplification {
 
-  val a = Var("a")
-  val b = Var("b")
+  val a: Var = Var("a")
+  val b: Var = Var("b")
 
   @Test
   def addZero(): Unit = {

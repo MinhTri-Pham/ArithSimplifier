@@ -4,9 +4,9 @@ import org.junit.Assert._
 
 class TestPowProdSimplification {
 
-  val a = Var("a")
-  val b = Var("b")
-  val c = Var("c")
+  val a: Var = Var("a")
+  val b: Var = Var("b")
+  val c: Var = Var("c")
 
   @Test
   def basicTests(): Unit = {

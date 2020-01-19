@@ -4,10 +4,10 @@ import org.junit.Assert._
 
 class TestFractionSimplification {
 
-  val a = Var("a")
-  val b = Var("b")
-  val c = Var("c")
-  val d = Var("d")
+  val a: Var = Var("a")
+  val b: Var = Var("b")
+  val c: Var = Var("c")
+  val d: Var = Var("d")
 
   @Test
   def simplificationTest(): Unit = {

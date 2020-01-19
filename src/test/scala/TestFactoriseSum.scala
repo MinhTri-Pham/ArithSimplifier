@@ -3,12 +3,12 @@ import org.junit.Test
 import org.junit.Assert._
 
 class TestFactoriseSum {
-  val a = Var("a")
-  val b = Var("b")
-  val c = Var("c")
-  val d = Var("d")
-  val e = Var("e")
-  val f = Var("f")
+  val a: Var = Var("a")
+  val b: Var = Var("b")
+  val c: Var = Var("c")
+  val d: Var = Var("d")
+  val e: Var = Var("e")
+  val f: Var = Var("f")
 
   // Factorisation with a common term
   @Test
