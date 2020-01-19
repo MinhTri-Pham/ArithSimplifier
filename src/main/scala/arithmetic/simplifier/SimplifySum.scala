@@ -175,24 +175,34 @@ object SimplifySum {
     case (Cst(0), _) => Some(rhs)
     case (_, Cst(0)) => Some(lhs)
     case (x, y) if x == y => Some(Cst(2) * x)
+    // Modulo Identity: a = a / b * b + a % b
+    case (Prod(factors), Mod(a, b)) if factors.reduce(_*_) == (a / b) * b => Some(a)
+    case (Mod(a, b), Prod(factors)) if factors.reduce(_*_) == (a / b) * b => Some(a)
+    // Fractions
+    case (Pow(b1,-1), Pow(b2,-1)) => Some((b1+b2)/^(b1*b2))
+//    case (Prod(factors), Pow(b2,-1)) if factors.collect({ case Pow(b1,-1) => b1}).nonEmpty =>
+//      val b1 = factors.collect({ case Pow(b1,-1) => b1}).head
+//      val a1 = lhs * b1
+//      Some((a1*b2 + b1) /^ (b1*b2))
+//    case (Pow(b1,-1), Prod(factors)) if factors.collect({ case Pow(b2,-1) => b2}).nonEmpty =>
+//      val b2 = factors.collect({ case Pow(b2,-1) => b2}).head
+//      val a2 = rhs * b2
+//      Some((b2 + a2*b1) /^ (b1*b2))
+    // Products
     case (p1:Prod, p2:Prod) if p1.nonCstFactor == p2.nonCstFactor =>
       Some(Cst(p1.cstFactor + p2.cstFactor) * p1.nonCstFactor)
     case (p:Prod,x) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
     case (x, p:Prod) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
-    // Modulo Identity: a = a / b * b + a % b
-    case (Prod(factors), Mod(a, b)) if factors.reduce(_*_) == (a / b) * b => Some(a)
-    case (Mod(a, b), Prod(factors)) if factors.reduce(_*_) == (a / b) * b => Some(a)
-    case (Pow(b1,-1), Pow(b2,-1)) => Some((b1+b2)/^(b1*b2))
     case _ => None
   }
 
   // Given list of terms, determine resulting expression
   // Remove unnecessary zero terms that could arise from combining terms
-  // I.e. Sum(0,Var(a),Var(b)) -> Sum(Var(a),Var(b)) but Sum(0,Var(a)) -> Var(a)
+  // I.e. Sum(0,a,b) -> Sum(a,b) but Sum(0) -> 0
   def convert(terms: List[ArithExpr]): ArithExpr = {
     val nonZero = terms.filter(_ != Cst(0))
     if (nonZero.isEmpty) Cst(0) // Eliminated everything, so result is 0
-    else if (nonZero.length == 1) nonZero.head // Result is a Var or Cst
+    else if (nonZero.length == 1) nonZero.head // Simplifies to a primitive expression
     else Sum(nonZero) // Have a sum of expressions
   }
 }

@@ -427,6 +427,8 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
 }
 
 case class IntDiv(numer:ArithExpr, denom:ArithExpr) extends ArithExpr {
+  if (denom == Cst(0)) throw new ArithmeticException()
+
   override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
 
   override def getSumProdFactorise: List[ArithExpr] = List[ArithExpr](this)
