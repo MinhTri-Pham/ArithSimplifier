@@ -15,9 +15,8 @@ object SimplifyIntDiv {
     case (x, y) if ComputeGCD(x, y) != Cst(1) =>
       val fac = ComputeGCD(x, y)
       (x /^ fac) / (y /^ fac)
-    case (x,y) if x.min != ? && x.max != ? && y.min != ? && y.max != ? && ((x.min / y.max) == (x.max / y.min)) =>
-      x.min / y.max
-
+    // Try through floor
+    case (x, y) if floor(x/^y).isEvaluable => floor(x/^y)
     // (AE % div) / div = 0
     case (Mod(_, div1: ArithExpr), div2: ArithExpr) if div1 == div2 => Cst(0)
     // Pull out constant

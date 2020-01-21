@@ -30,9 +30,19 @@ class TestDifferentiation {
 
   @Test
   def powerTest(): Unit = {
-    val expr = (Cst(3)*x-y) pow 2
+    val expr = (Cst(3)*x-y) pow 3
     val xy = Differentiate(Differentiate(expr,x),y)
     val yx = Differentiate(Differentiate(expr,y),x)
+    assertEquals(xy,yx)
+  }
+
+
+  // Generally can cause problems
+  @Test
+  def powerProdTest(): Unit = {
+    val expr = ((x+y)*x) pow 2
+    val xy = Differentiate(Differentiate(expr,x),y)
+    val yx = Differentiate(Differentiate(expr,y),x).toSum.get
     assertEquals(xy,yx)
   }
 

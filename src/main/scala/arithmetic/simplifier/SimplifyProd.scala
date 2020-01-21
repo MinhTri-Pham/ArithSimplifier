@@ -11,8 +11,7 @@ object SimplifyProd {
   def multExprs(lhs: ArithExpr, rhs: ArithExpr): ArithExpr = {
     var lhsFactors, rhsFactors: List[ArithExpr] = List[ArithExpr]()
     (lhs, rhs) match {
-      // If there's a power (with product as base), expand it into a product
-      // To do: If either side is a sum, try to factorise and then collect terms as usual
+      // If there's a power with product as base, expand it into a product of powers
       case (p1: Pow, p2:Pow) =>
         val lhsProd = p1.asProdPows
         val rhsProd = p2.asProdPows
@@ -198,18 +197,10 @@ object SimplifyProd {
       Some(SimplifyPow(Cst(y / x), -1))
 
     // Non-constant cases
-    case (Pow(b1,e1), Pow(b2,e2)) =>
-      if (b1 == b2) Some(b1 pow (e1+e2))
-      else None
-    case (x, Pow(b,e)) =>
-      if (x == b) Some(b pow (e+1))
-      else None
-    case (Pow(b,e),x) =>
-      if (x == b) Some(b pow (e+1))
-      else None
-    case (x,y) =>
-      if (x==y) Some(x pow 2)
-      else None
+    case (Pow(b1,e1), Pow(b2,e2)) if b1 == b2 => Some(b1 pow (e1+e2))
+    case (x, Pow(b,e)) if x == b => Some(b pow (e+1))
+    case (Pow(b,e),x) if x == b => Some(b pow (e+1))
+    case (x,y) if x==y => Some(x pow 2)
     case _ => None
   }
 
@@ -221,5 +212,11 @@ object SimplifyProd {
     if (nonOne.isEmpty) Cst(1) // Eliminated everything, so result is 1
     else if (nonOne.length == 1) nonOne.head // Result is a Var or Cst
     else Prod(nonOne) // Have a product of expressions
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    println((a pow -1) * (b pow -1))
   }
 }

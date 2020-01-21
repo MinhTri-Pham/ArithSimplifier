@@ -21,7 +21,7 @@ object SimplifyMod {
     case (x, y) if ArithExpr.isSmaller(x,y).getOrElse(false) => x
 
     // Try through integer division and floor
-    case (x, y) if floor(x/y).isEvaluable => x - y * floor(x/y)
+    case (x, y) if (x/y).isEvaluable => x - y * (x/y)
 
     // Try through integer division
     //case (x, y) if (x/y).getSumProdSimplify.collect({ case IntDiv(_, _)=> }).isEmpty => x - y * (x/y)

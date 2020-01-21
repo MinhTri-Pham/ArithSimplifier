@@ -25,7 +25,6 @@ class TestPowProdSimplification {
     assertEquals(e1 /^ (a*a*b), b)
     assertEquals(e1 /^ ((a pow 3) * (b pow 2)), Cst(1) /^ a)
 
-    assertEquals((a*b)/^(a*c), b/^c)
     assertEquals((a*b*b*c) /^ ((b*c) pow 2), a/^c)
     assertEquals(((a*b*c) pow 2) /^ ((b*c) pow 2), a pow 2)
   }

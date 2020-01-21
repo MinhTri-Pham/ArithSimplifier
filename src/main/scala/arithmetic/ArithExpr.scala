@@ -31,6 +31,7 @@ abstract sealed class ArithExpr {
 
   // Differential operator
   def diff(v:Var) : ArithExpr = Differentiate(this,v)
+  def diff(v:Var, n:Int) : ArithExpr = Differentiate(this,v,n)
 
   // Returns list of terms or factors for arithmetic.Sum and arithmetic.Prod simplification
   def getSumProdSimplify : List[ArithExpr]
@@ -47,7 +48,7 @@ abstract sealed class ArithExpr {
   // Convert expression to sum if possible
   lazy val toSum : Option[Sum] = this match {
     case x:Sum => Some(x)
-    //case x:Prod => x.asExpandedSum
+    case x:Prod => x.asExpandedSum
     case x:Pow => x.asSum
     case _ => None
   }
@@ -57,13 +58,6 @@ abstract sealed class ArithExpr {
     case x:Prod => Some(x)
     case x:Sum => x.asProd
     case x:Pow => x.asProd
-    case _ => None
-  }
-
-  // Convert expression to power if possible
-  lazy val toPow : Option[Pow] = this match {
-    case x:Prod => x.asPow
-    case x:Pow => Some(x)
     case _ => None
   }
 
@@ -233,6 +227,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
       case pow:Pow =>
         if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
         else prods += pow.asProd.get
+
       case _ => prods += t
     }
     prods.toList
@@ -320,11 +315,6 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
       if (expanded) accum.getSumProdSimplify.reduce((x, y)=>x+y).toSum
       else None
     }
-  }
-
-  lazy val asPow : Option[Pow] = if (factors.length < 2) None else {
-    if (nonCstList.distinct.length == 1) Some (Pow(nonCstList.head,nonCstList.length))
-    else None
   }
 
   lazy val primitiveProd : Prod = {
@@ -520,30 +510,26 @@ object ArithExpr {
       if (base == x) true
       else isCanonicallySorted(x,base)
 
-    // Don't care about constant factor of product
+    case (_: Var, _) => true
+    case (_, _: Var) => false
+
     case (p: Prod, x: Pow) =>
       val nonCst = p.nonCstFactor
       if (nonCst == x) true
       else if (nonCst.isInstanceOf[Pow]) isCanonicallySorted(nonCst,x)
       else true
 
+    // Don't care about constant factor of product
     case (x: Pow, p: Prod) =>
       val nonCst = p.nonCstFactor
       if (nonCst == x) false
       else if (nonCst.isInstanceOf[Pow]) isCanonicallySorted(x,nonCst)
       else false
 
-    case (_: Var, _) => true
-    case (_, _: Var) => false
-
     case (_, p: Pow) => isCanonicallySorted(x,p.b)
     case (p: Pow, _) => isCanonicallySorted(p.b,x)
 
-    case (Pow(b1, e1), Pow(b2, e2)) =>
-      if (b1 == b2) e1 < e2
-      else isCanonicallySorted(b1, b2)
-
-    case (p1: Prod, p2: Prod) =>
+    case (p1:Prod, p2:Prod) =>
       val p1nonCst = p1.nonCstList
       val p2nonCst = p2.nonCstList
       if (p1nonCst.length == p2nonCst.length) {
@@ -564,17 +550,15 @@ object ArithExpr {
         p1nonCst.length < p2nonCst.length
       }
 
-    case (s1: Sum, s2: Sum) =>
-      // Sorting based on non-constant terms
-      val s1Terms = s1.terms
-      val s2Terms = s2.terms
-      if (s1Terms.length == s2Terms.length) {
-        val numTerms = s1Terms.length
+    case (Sum(t1), Sum(t2)) =>
+      // Sorting based on terms
+      if (t1.length == t2.length) {
+        val numTerms = t1.length
         var result = false
         var i = 0
         while (i < numTerms) {
-          if (s1Terms(i) != s2Terms(i)) {
-            result = isCanonicallySorted(s1Terms(i), s2Terms(i))
+          if (t1(i) != t2(i)) {
+            result = isCanonicallySorted(t1(i), t2(i))
             i = numTerms - 1
           }
           i += 1
@@ -583,10 +567,10 @@ object ArithExpr {
       }
       // Shorter sums first
       else {
-        s1Terms.length < s2Terms.length
+        t1.length < t2.length
       }
 
-    case _ => true
+    case _ => false
   }
 
   // Evaluates an expression given substitutions for variables

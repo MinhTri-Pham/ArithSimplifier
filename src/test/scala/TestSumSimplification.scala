@@ -31,10 +31,9 @@ class TestSumSimplification {
   }
 
   @Test
-  def bothCstVar() : Unit = {
+  def constVarFold() : Unit = {
     val e1 = Cst(2) + a - b
     val e2 = b + Cst(-2)
     assertEquals(a, e1+e2)
   }
-
 }
