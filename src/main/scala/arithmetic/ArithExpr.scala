@@ -218,20 +218,20 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   // Returns list of terms converted into products when possible for factorisation
   // The one exception are prime numbers
-  lazy val asProds : List[ArithExpr] = {
-    var prods = ListBuffer[ArithExpr]()
-    for (t <- terms) t match {
-      case p:Prod =>
-        prods += p.primitiveProd
-
-      case pow:Pow =>
-        if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
-        else prods += pow.asProd.get
-
-      case _ => prods += t
-    }
-    prods.toList
-  }
+//  lazy val asProds : List[ArithExpr] = {
+//    var prods = ListBuffer[ArithExpr]()
+//    for (t <- terms) t match {
+//      case p:Prod =>
+//        prods += p.primitiveProd
+//
+//      case pow:Pow =>
+//        if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
+//        else prods += pow.asProd.get
+//
+//      case _ => prods += t
+//    }
+//    prods.toList
+//  }
 
   lazy val asProd : Option[Prod] = {
     val factorisation = Factorise(this)
@@ -628,18 +628,14 @@ object ArithExpr {
     // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
+    // Look for common denominator in fractions
+    case (IntDiv(n1, d1), IntDiv(n2, d2)) => isMultipleOf(d2, d1) && isMultipleOf(n1, n2)
+
+    case (Pow(b1, _), Pow(b2, _)) => isMultipleOf(b1, b2)
     case (p:Prod, _) => p.factors.contains(ae2) ||
       p.factors.foldLeft(false){(accum,factor) => accum || isMultipleOf(factor,ae2)}
+    case (p:Pow, _) => isMultipleOf(p.b,ae2)
     case (x, y) => x == y
-  }
-
-  def hasDivision(factors: List[ArithExpr]): Boolean = {
-    factors.exists(isDivision)
-  }
-
-  def isDivision: ArithExpr => Boolean = {
-    case Pow(_, x) if x < 0 => true
-    case _ => false
   }
 
   // Check if an expression is a smaller than another expression

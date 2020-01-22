@@ -4,58 +4,20 @@
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/Differentiate.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/Differentiate.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ComputeGCD.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ComputeGCD.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/Factorise.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/Factorise.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyIntDiv.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyIntDiv.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyMod.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyMod.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyProd.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestDifferentiation.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestDifferentiation.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestPowProdSimplification.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Differentiate.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/IntDiv$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/IntDiv$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/IntDiv.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/IntDiv.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Mod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/abs$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/abs$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ceil$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ceil$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/floor$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/floor$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyIntDiv$$anonfun$simplifyIntDiv$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyIntDiv$$anonfun$simplifyIntDiv$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyIntDiv$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyIntDiv$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyMod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyMod$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyProd$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyProd$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyProd.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyProd.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifySum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestDifferentiation.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestDifferentiation.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestPowProdSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestPowProdSimplification.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestSumSimplification.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,6 +104,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ComputeGCD" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="arithmetic.ComputeGCD" />
+      <module name="ArithSimplifier" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="arithmetic.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Factorise" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="arithmetic.Factorise" />
       <module name="ArithSimplifier" />
@@ -163,19 +138,10 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestFractionSimplification" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="TestFactoriseSum" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="ArithSimplifier" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestFractionSimplification" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="TestSumSimplification" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="ArithSimplifier" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestSumSimplification" />
+      <option name="MAIN_CLASS_NAME" value="TestFactoriseSum" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -183,17 +149,17 @@
     </configuration>
     <list>
       <item itemvalue="Application.ArithExpr" />
+      <item itemvalue="Application.ComputeGCD" />
       <item itemvalue="Application.Factorise" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
-      <item itemvalue="JUnit.TestFractionSimplification" />
-      <item itemvalue="JUnit.TestSumSimplification" />
+      <item itemvalue="JUnit.TestFactoriseSum" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.All in ArithSimplifier" />
-        <item itemvalue="JUnit.TestSumSimplification" />
+        <item itemvalue="JUnit.TestFactoriseSum" />
+        <item itemvalue="Application.ComputeGCD" />
         <item itemvalue="Application.Factorise" />
-        <item itemvalue="JUnit.TestFractionSimplification" />
         <item itemvalue="Application.ArithExpr" />
       </list>
     </recent_temporary>
@@ -306,38 +272,38 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="566" y="305" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages/0.0.1536.864@0.0.1536.864" timestamp="1578587381302" />
-    <state width="1493" height="277" key="GridCell.Tab.0.bottom" timestamp="1579646010783">
+    <state width="1493" height="277" key="GridCell.Tab.0.bottom" timestamp="1579701686866">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579646010783" />
-    <state width="1493" height="277" key="GridCell.Tab.0.center" timestamp="1579646010781">
+    <state width="1493" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="277" key="GridCell.Tab.0.center" timestamp="1579701686866">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1579646010781" />
-    <state width="1493" height="277" key="GridCell.Tab.0.left" timestamp="1579646010781">
+    <state width="1493" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="277" key="GridCell.Tab.0.left" timestamp="1579701686866">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1579646010781" />
-    <state width="1493" height="277" key="GridCell.Tab.0.right" timestamp="1579646010783">
+    <state width="1493" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="277" key="GridCell.Tab.0.right" timestamp="1579701686866">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1579646010783" />
-    <state width="1493" height="277" key="GridCell.Tab.1.bottom" timestamp="1579646010783">
+    <state width="1493" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="277" key="GridCell.Tab.1.bottom" timestamp="1579701686867">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.1.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579646010783" />
-    <state width="1493" height="277" key="GridCell.Tab.1.center" timestamp="1579646010783">
+    <state width="1493" height="277" key="GridCell.Tab.1.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579701686867" />
+    <state width="1493" height="277" key="GridCell.Tab.1.center" timestamp="1579701686866">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.1.center/0.0.1536.864@0.0.1536.864" timestamp="1579646010783" />
-    <state width="1493" height="277" key="GridCell.Tab.1.left" timestamp="1579646010783">
+    <state width="1493" height="277" key="GridCell.Tab.1.center/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="277" key="GridCell.Tab.1.left" timestamp="1579701686866">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.1.left/0.0.1536.864@0.0.1536.864" timestamp="1579646010783" />
-    <state width="1493" height="277" key="GridCell.Tab.1.right" timestamp="1579646010783">
+    <state width="1493" height="277" key="GridCell.Tab.1.left/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="277" key="GridCell.Tab.1.right" timestamp="1579701686867">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1579646010783" />
+    <state width="1493" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1579701686867" />
     <state x="249" y="8" key="SettingsEditor" timestamp="1577718951502">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -346,42 +312,31 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="583" y="216" key="chooseDestDirectoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1578499756128" />
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1579644498365">
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1579696337423">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1579644498365" />
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1579696337423" />
     <state x="463" y="30" width="618" height="804" key="find.popup" timestamp="1579108263459">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="463" y="30" width="618" height="804" key="find.popup/0.0.1536.864@0.0.1536.864" timestamp="1579108263459" />
-    <state x="425" y="197" key="run.anything.popup" timestamp="1579211957731">
+    <state x="425" y="197" key="run.anything.popup" timestamp="1579651110120">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="425" y="197" key="run.anything.popup/0.0.1536.864@0.0.1536.864" timestamp="1579211957731" />
-    <state x="431" y="181" width="672" height="678" key="search.everywhere.popup" timestamp="1579477105876">
+    <state x="425" y="197" key="run.anything.popup/0.0.1536.864@0.0.1536.864" timestamp="1579651110120" />
+    <state x="431" y="181" width="672" height="678" key="search.everywhere.popup" timestamp="1579653878109">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="431" y="181" width="672" height="678" key="search.everywhere.popup/0.0.1536.864@0.0.1536.864" timestamp="1579477105876" />
+    <state x="431" y="181" width="672" height="678" key="search.everywhere.popup/0.0.1536.864@0.0.1536.864" timestamp="1579653878109" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/test/scala/TestSumSimplification.scala</url>
-          <line>29</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala</url>
-          <line>10</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="JUnit">
         <watch expression="containsExpanded" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ArithSimplifier$TestFactoriseSum.ic" NAME="TestFactoriseSum Coverage Results" MODIFIED="1579649902110" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>
