@@ -3,21 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ComputeGCD.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ComputeGCD.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/Factorise.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/Factorise.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFactoriseSum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/scala/TestFractionSimplification.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Factorise.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFactoriseSum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/test-classes/TestFractionSimplification.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +77,7 @@
       <recent name="simplifier" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.All in ArithSimplifier">
+  <component name="RunManager" selected="JUnit.TestFactoriseSum">
     <configuration name="ArithExpr" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="arithmetic.ArithExpr" />
       <module name="ArithSimplifier" />
@@ -156,8 +143,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.All in ArithSimplifier" />
         <item itemvalue="JUnit.TestFactoriseSum" />
+        <item itemvalue="JUnit.All in ArithSimplifier" />
         <item itemvalue="Application.ComputeGCD" />
         <item itemvalue="Application.Factorise" />
         <item itemvalue="Application.ArithExpr" />
@@ -272,22 +259,22 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="566" y="305" key="#com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog.packages/0.0.1536.864@0.0.1536.864" timestamp="1578587381302" />
-    <state width="1493" height="277" key="GridCell.Tab.0.bottom" timestamp="1579701686866">
+    <state width="1493" height="223" key="GridCell.Tab.0.bottom" timestamp="1579703094876">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
-    <state width="1493" height="277" key="GridCell.Tab.0.center" timestamp="1579701686866">
+    <state width="1493" height="223" key="GridCell.Tab.0.bottom/0.0.1536.864@0.0.1536.864" timestamp="1579703094876" />
+    <state width="1493" height="223" key="GridCell.Tab.0.center" timestamp="1579703094876">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
-    <state width="1493" height="277" key="GridCell.Tab.0.left" timestamp="1579701686866">
+    <state width="1493" height="223" key="GridCell.Tab.0.center/0.0.1536.864@0.0.1536.864" timestamp="1579703094876" />
+    <state width="1493" height="223" key="GridCell.Tab.0.left" timestamp="1579703094876">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
-    <state width="1493" height="277" key="GridCell.Tab.0.right" timestamp="1579701686866">
+    <state width="1493" height="223" key="GridCell.Tab.0.left/0.0.1536.864@0.0.1536.864" timestamp="1579703094876" />
+    <state width="1493" height="223" key="GridCell.Tab.0.right" timestamp="1579703094876">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state width="1493" height="277" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1579701686866" />
+    <state width="1493" height="223" key="GridCell.Tab.0.right/0.0.1536.864@0.0.1536.864" timestamp="1579703094876" />
     <state width="1493" height="277" key="GridCell.Tab.1.bottom" timestamp="1579701686867">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
@@ -312,10 +299,10 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="583" y="216" key="chooseDestDirectoryDialog/0.0.1536.864@0.0.1536.864" timestamp="1578499756128" />
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1579696337423">
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog" timestamp="1579701874550">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
-    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1579696337423" />
+    <state x="465" y="258" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1579701874550" />
     <state x="463" y="30" width="618" height="804" key="find.popup" timestamp="1579108263459">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
