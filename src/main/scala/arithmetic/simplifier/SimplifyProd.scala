@@ -213,10 +213,4 @@ object SimplifyProd {
     else if (nonOne.length == 1) nonOne.head // Result is a Var or Cst
     else Prod(nonOne) // Have a product of expressions
   }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    println((a pow -1) * (b pow -1))
-  }
 }

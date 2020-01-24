@@ -3,18 +3,19 @@ package simplifier
 
 object SimplifyCeiling {
   def apply(ae: ArithExpr): ArithExpr = {
+    if (ae.isInt) return ae
     ae match {
       case c: Cst => c
-      // Get constant term out of sum
-      case Sum(terms) if terms.head.isInstanceOf[Cst] =>
-        val cst = terms.head
-        if (terms.length == 2) cst + ceil(terms.last)
-        else cst + ceil(Sum(terms.tail))
-      // Nested with floor/ceiling
-      case f : FloorFunction => f
-      case c : CeilingFunction => c
+      case _:Var => CeilingFunction(ae)
+      // Get integer terms/factors out of sum/product
+      case Sum(terms) if terms.exists(_.isInt) =>
+        val intTerms = terms.filter(_.isInt)
+        val nonIntTerms = terms.filter(!_.isInt)
+        val nonCstTerm = nonIntTerms.reduce(_+_)
+        intTerms.reduce(_+_) + ceil(nonCstTerm)
       case _ =>
         try {
+          // Try to directly evaluate ceiling using Scala
           val d = CeilingFunction(ae).evalDouble
           assert(d.isValidInt)
           Cst(d.toInt)

@@ -274,4 +274,13 @@ object Factorise {
     }
     prods.toList
   }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    val expr = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*(a pow 2)*c + Cst(3)*a*(b pow 2) + Cst(6)*a*b*c +
+      Cst(3)*a*(c pow 2) + (b pow 3) + Cst(3)*(b pow 2)*c + Cst(3)*b*(c pow 2) + (c pow 3)
+    println(Factorise(expr))
+  }
 }

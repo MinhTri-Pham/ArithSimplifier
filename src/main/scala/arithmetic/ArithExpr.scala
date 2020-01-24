@@ -148,6 +148,17 @@ abstract sealed class ArithExpr {
     })
   }
 
+  lazy val isInt : Boolean = this match {
+    case _: Cst => true
+    case v: Var => v.isInteger
+    case Sum(terms) => terms.forall(_.isInt)
+    case Prod(factors) => factors.forall(_.isInt)
+    case Pow(b, e) => b.isInt && e >= 0
+    case FloorFunction(_) => true
+    case CeilingFunction(_) => true
+    case AbsFunction(ae) => ae.isInt
+  }
+
 }
 
 // Class for (int) constants
@@ -171,7 +182,7 @@ case class Cst(value : Int) extends ArithExpr {
 }
 
 // Class for variables
-case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None) extends ArithExpr {
+case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None, isInteger:Boolean = false) extends ArithExpr {
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -210,7 +221,9 @@ object Var {
 
   def apply(name: String): Var = new Var(name)
 
-  def apply(name: String, fixedId: Option[Long]): Var = new Var(name, Interval(), fixedId)
+  //def apply(name: String, fixedId: Option[Long]): Var = new Var(name, Interval(), fixedId)
+
+  def apply(name: String, isInt: Boolean): Var = new Var(name,Interval(),None,isInt)
 }
 
 // Class for sums

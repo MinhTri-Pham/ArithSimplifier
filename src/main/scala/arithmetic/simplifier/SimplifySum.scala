@@ -194,6 +194,6 @@ object SimplifySum {
     val nonZero = terms.filter(_ != Cst(0))
     if (nonZero.isEmpty) Cst(0) // Eliminated everything, so result is 0
     else if (nonZero.length == 1) nonZero.head // Simplifies to a primitive expression
-    else Sum(nonZero) // Have a sum of expressions
+    else Sum(nonZero)
   }
 }
