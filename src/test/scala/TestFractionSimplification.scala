@@ -58,23 +58,23 @@ class TestFractionSimplification {
 
   @Test
   def sumProd(): Unit = {
-    // To do: try to get this result without having to call factorise
+
     val expr15_1 = Cst(1)/^(a + b) * a.pow(2) + Cst(1)/^(a + b) * Cst(2)*a*b
     val expr15_2 = Cst(1)/^(a + b) * b.pow(2)
 
     val expr15 = expr15_1 + expr15_2
-    assertEquals(Factorise(expr15), Some(a + b))
+    assertEquals(expr15, a+b)
 
     val expr_16_1 = Cst(1)/^(a + b) * c * a.pow(2) + Cst(1)/^(a + b) * c * Cst(2)*a*b
     val expr_16_2 = Cst(1)/^(a + b)* c * b.pow(2)
 
     val expr_16 = expr_16_1 + expr_16_2
-    assertEquals(Factorise(expr_16), Some(c * (a + b)))
+    assertEquals(expr_16, c*(a+b))
 
     val expr_18_1 = Cst(1)/^(a + b) * Cst(3) * a.pow(2) + Cst(1)/^(a + b) * Cst(3) * Cst(2)*a*b
     val expr_18_2 = Cst(1)/^(a + b) * Cst(3) * b.pow(2)
 
     val expr_18 = expr_18_1 + expr_18_2
-    assertEquals(Factorise(expr_18), Some(Cst(3) * (a + b)))
+    assertEquals(expr_18, Cst(3) * (a + b))
   }
 }

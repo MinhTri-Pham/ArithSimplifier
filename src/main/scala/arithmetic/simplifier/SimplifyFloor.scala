@@ -1,6 +1,8 @@
 package arithmetic
 package simplifier
 
+import scala.collection.mutable.ListBuffer
+
 object SimplifyFloor {
 
   def apply(ae: ArithExpr): ArithExpr = {
@@ -8,15 +10,35 @@ object SimplifyFloor {
     ae match {
       case _:Var => FloorFunction(ae)
       // Get integer terms out of sum
-      case Sum(terms) if terms.exists(_.isInt) =>
-        val intTerms = terms.filter(_.isInt)
-        val nonIntTerms = terms.filter(!_.isInt)
-        val nonCstTerm = nonIntTerms.reduce(_+_)
-        intTerms.reduce(_+_) + floor(nonCstTerm)
+      case Sum(terms) =>
+        var intTermsNum = 0
+        var intTerms = ListBuffer[ArithExpr]()
+        var floorEvalNum = 0
+        var floorEvalTerms = ListBuffer[ArithExpr]()
+        var nonEvalNum = 0
+        var nonEvalTerms = ListBuffer[ArithExpr]()
+        for (t <- terms) {
+          if (t.isInt) {
+            intTermsNum += 1
+            intTerms += t
+          }
+          else if (floor(t).isInstanceOf[Cst]) {
+            floorEvalNum += 1
+            floorEvalTerms += floor(t)
+          }
+          else {
+            nonEvalNum += 1
+            nonEvalTerms += t
+          }
+        }
+        val intTerm = if (intTermsNum == 0) Cst(0) else intTerms.reduce(_ + _)
+        val floorEvalTerm = if (floorEvalNum == 0) Cst(0) else floorEvalTerms.reduce(_ + _)
+        val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else FloorFunction(nonEvalTerms.reduce(_ + _))
+        intTerm + floorEvalTerm + nonEvalTerm
 
       // Product - expand out and apply floor to sum
-      case p:Prod if p.asExpandedSum.isDefined =>
-        floor(p.asExpandedSum.get)
+      case p:Prod if p.asSum.isDefined =>
+        floor(p.asSum.get)
       case _ =>
         try {
           // Try to directly evaluate floor using Scala
@@ -41,5 +63,11 @@ object SimplifyFloor {
           case e: Throwable => throw e
         }
     }
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a", isInt = true)
+    val expr = (Cst(9)*a + Cst(2)) /^ Cst(3)
+    println(floor(expr))
   }
 }

@@ -8,7 +8,7 @@ object Sign extends Enumeration {
   def apply(ae: ArithExpr): Value = {
     ae match {
       case Cst(c)=> if (c >= 0) Sign.Positive else Sign.Negative
-      case Var(_,range,_) => signVar(range)
+      case Var(_,range,_,_) => signVar(range)
       case Prod(factors) => signProd(factors)
       case Sum(terms) => signSum(terms)
       case Pow(b,e) =>

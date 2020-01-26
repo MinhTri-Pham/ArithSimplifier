@@ -9,25 +9,25 @@ import scala.collection.mutable.ListBuffer
 
 abstract sealed class ArithExpr {
   // Addition operator
-  def +(that: ArithExpr) : ArithExpr = simplifier.SimplifySum(this, that)
+  def +(that: ArithExpr) : ArithExpr = SimplifySum(this, that)
 
   // Subtraction operator (x-y = x+(-1)*y)
-  def -(that : ArithExpr) : ArithExpr = simplifier.SimplifySum(this, Cst(-1)*that)
+  def -(that : ArithExpr) : ArithExpr = SimplifySum(this, Cst(-1)*that)
 
   // Multiply operator
-  def *(that: ArithExpr) : ArithExpr = simplifier.SimplifyProd(this, that)
+  def *(that: ArithExpr) : ArithExpr = SimplifyProd(this, that)
 
   // Ordinal division operator (x/y = x*(y pow -1))
-  def /^(that: ArithExpr) : ArithExpr = simplifier.SimplifyProd(this, that pow -1)
+  def /^(that: ArithExpr) : ArithExpr = SimplifyProd(this, that pow -1)
 
   // Integer division
-  def /(that: ArithExpr) : ArithExpr = simplifier.SimplifyIntDiv(this, that)
+  def /(that: ArithExpr) : ArithExpr = SimplifyIntDiv(this, that)
 
   // Exponentiation operator
-  def pow(that: Int) : ArithExpr = simplifier.SimplifyPow(this, that)
+  def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
 
   // Modulo operator
-  def %(that: ArithExpr) : ArithExpr = simplifier.SimplifyMod(this, that)
+  def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
 
   // Differential operator
   def diff(v:Var) : ArithExpr = Differentiate(this,v)
@@ -48,7 +48,7 @@ abstract sealed class ArithExpr {
   // Convert expression to sum if possible
   lazy val toSum : Option[Sum] = this match {
     case x:Sum => Some(x)
-    case x:Prod => x.asExpandedSum
+    case x:Prod => x.asSum
     case x:Pow => x.asSum
     case _ => None
   }
@@ -294,7 +294,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     Some(Sum(terms.toList))
   }
 
-  lazy val asExpandedSum : Option[Sum] = {
+  lazy val asSum : Option[Sum] = {
     if (factors.length <= 1) None
     else {
       var expanded = false
@@ -356,6 +356,43 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   override def toString: String = factors.mkString(" * ")
 }
 
+object Prod {
+//  def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
+//    case aexpr: ArithExpr => aexpr match {
+//      // Concrete Pow that can be represented as Prod
+//      case p: Pow if p.specialProds.isDefined => p.specialProds
+//
+//      // An ArithExpr that can be represented as Pow that can be represented as Prod
+//      /**  (a * b * c)^e  :  a^e * b^e * c^e  **/
+//      case Pow(Prod(factors), e) => Some(factors.map(SimplifyPow(_, e)))
+//
+////      // (x*a + x*b + x*c)  :  x*(a + b + c)
+////      case s: Sum => s.asProd match {
+////        case Some(productWithCommonFactor) => Some(productWithCommonFactor.factors)
+////        case None => None
+////      }
+//      case p: Prod => Some(p.factors)
+//      case _ => None
+//    }
+//    case _ => None
+//  }
+
+
+  def removeFactors(from: List[ArithExpr], toRemove: List[ArithExpr]): List[ArithExpr] =
+    from.diff(toRemove) match {
+      // If we took all the elements out, return neutral (1 for product)
+      case Nil => List(Cst(1))
+      case x => x
+    }
+
+  def partitionFactorsOnCst(factors: List[ArithExpr], simplified: Boolean): (Cst, List[ArithExpr]) = {
+    factors.partition(_.isInstanceOf[Cst]) match {
+      case (Nil, nonCstFactors) => (Cst(1), nonCstFactors)
+      case (cstFactor, nonCstFactors) => (Cst(cstFactor.foldLeft[Int](1)(_ * _.asInstanceOf[Cst].value)), nonCstFactors)
+    }
+  }
+}
+
 // Class for powers, integer exponents
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   override def getSumProdSimplify: List[ArithExpr] = List[ArithExpr](this)
@@ -373,6 +410,12 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     }
     Some(Sum(combined.getSumProdSimplify))
     //combined.toSum
+  }
+
+  lazy val specialProds: Option[List[ArithExpr]] = (b, e) match {
+    /** (a * b * c)^e  :  a^e * b^e * c^e  **/
+    case (Prod(factors), _) => Some(factors.map(SimplifyPow(_, e)))
+    case _ => None
   }
 
   // Representation as a product (a^n = a*a...*a (n times))

@@ -18,7 +18,7 @@ class TestPowProdSimplification {
 
   @Test
   def expandPowTest(): Unit = {
-    val e1 = (a*b) pow 2
+    val e1 = (a pow 2) * (b pow 2)
     assertEquals(e1 * a, (a pow 3) * (b pow 2))
     assertEquals(e1 /^ a, a * (b pow 2))
     assertEquals(e1 /^ (a*b), a*b)

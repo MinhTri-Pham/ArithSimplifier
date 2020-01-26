@@ -24,9 +24,6 @@ class TestSumSimplification {
 
   @Test
   def varFold() : Unit = {
-    assertEquals(b+b, Cst(2)*b)
-    assertEquals(b+a+b, a+Cst(2)*b)
-    assertEquals(Cst(2)*b+a+b, a+Cst(3)*b)
     assertEquals(Cst(2)*b+Cst(2)*a+b, Cst(2)*a+Cst(3)*b)
   }
 

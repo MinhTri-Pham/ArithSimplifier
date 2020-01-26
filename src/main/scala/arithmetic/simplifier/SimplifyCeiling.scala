@@ -1,6 +1,8 @@
 package arithmetic
 package simplifier
 
+import scala.collection.mutable.ListBuffer
+
 object SimplifyCeiling {
   def apply(ae: ArithExpr): ArithExpr = {
     if (ae.isInt) return ae
@@ -8,11 +10,34 @@ object SimplifyCeiling {
       case c: Cst => c
       case _:Var => CeilingFunction(ae)
       // Get integer terms/factors out of sum/product
-      case Sum(terms) if terms.exists(_.isInt) =>
-        val intTerms = terms.filter(_.isInt)
-        val nonIntTerms = terms.filter(!_.isInt)
-        val nonCstTerm = nonIntTerms.reduce(_+_)
-        intTerms.reduce(_+_) + ceil(nonCstTerm)
+      case Sum(terms) =>
+        var intTermsNum = 0
+        var intTerms = ListBuffer[ArithExpr]()
+        var ceilEvalNum = 0
+        var ceilEvalTerms = ListBuffer[ArithExpr]()
+        var nonEvalNum = 0
+        var nonEvalTerms = ListBuffer[ArithExpr]()
+        for (t <- terms) {
+          if (t.isInt) {
+            intTermsNum += 1
+            intTerms += t
+          }
+          else if (floor(t).isInstanceOf[Cst]) {
+            ceilEvalNum += 1
+            ceilEvalTerms += ceil(t)
+          }
+          else {
+            nonEvalNum += 1
+            nonEvalTerms += t
+          }
+        }
+        val intTerm = if (intTermsNum == 0) Cst(0) else intTerms.reduce(_ + _)
+        val floorEvalTerm = if (ceilEvalNum == 0) Cst(0) else ceilEvalTerms.reduce(_ + _)
+        val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else CeilingFunction(nonEvalTerms.reduce(_ + _))
+        intTerm + floorEvalTerm + nonEvalTerm
+      // Product - expand out and apply floor to sum
+      case p:Prod if p.asSum.isDefined =>
+        ceil(p.asSum.get)
       case _ =>
         try {
           // Try to directly evaluate ceiling using Scala
