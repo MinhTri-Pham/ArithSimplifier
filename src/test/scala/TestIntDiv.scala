@@ -9,12 +9,12 @@ class TestIntDiv {
     val a = Var("a", isInt = true)
     assertEquals(Cst(6)*a / Cst(3), Cst(2)*a)
     assertEquals((Cst(6)*a) / (Cst(3)*a), Cst(2))
-    assertEquals((Cst(6)*a + Cst(2)) / Cst(3), Cst(2)*a)
-//    assertEquals((Cst(6)*a + Cst(4)) / Cst(3), Cst(2)*a + Cst(1))
-//    val b = Var("b")
-//    val c = Var("c")
-//    assertEquals((Cst(6)*a + b) / a, Cst(6) + b/a)
-//    assertEquals((Cst(4)*a*c + Cst(6)*b*c) / (Cst(2)*c), Cst(2)*a+Cst(3)*b)
+    assertEquals((Cst(9)*a + Cst(2)) / Cst(3), Cst(3)*a)
+    assertEquals((Cst(9)*a + Cst(4)) / Cst(3), Cst(3)*a + Cst(1))
+    val b = Var("b")
+    val c = Var("c")
+    assertEquals((Cst(6)*a + b) / a, Cst(6) + b/a)
+    assertEquals((Cst(4)*a*c + Cst(6)*b*c) / (Cst(2)*c), Cst(2)*a+Cst(3)*b)
   }
 
   @Test

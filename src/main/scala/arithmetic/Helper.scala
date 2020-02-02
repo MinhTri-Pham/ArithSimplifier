@@ -45,4 +45,8 @@ object Helper {
   def powerSet[A](xs: List[A]): List[List[A]] =
     xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct.reverse
 
+  def removeAt[T](i: Int, from: List[T]): List[T] = from.take(i) ++ from.drop(i + 1)
+  def replaceAt[T](i: Int, replacement: T, from: List[T]): List[T] = from.zipWithIndex.map(element =>
+    if (element._2 == i) replacement else element._1)
+
 }

@@ -24,11 +24,14 @@ object ComputeGCD {
       case (x, Pow(ob, _)) if ob == x => x // pow 1 (implicit)
 
       // GCD of products: find GCD in factor pairs
-      case (Prod(fs1), Prod(fs2)) if fs1.intersect(fs2).isEmpty => (for {f1 <- fs1; f2 <- fs2} yield ComputeGCD(f1, f2)).reduce(_ * _)
-      case (Prod(fs1), Prod(fs2)) =>
-        val common = fs1.intersect(fs2).reduce(_*_)
-        val gcdNonCommon = ComputeGCD(a /^ common, b /^ common)
-        common * gcdNonCommon
+//      case (Prod(fs1), Prod(fs2)) if fs1.intersect(fs2).isEmpty => (for {f1 <- fs1; f2 <- fs2} yield ComputeGCD(f1, f2)).reduce(_ * _)
+//      case (Prod(fs1), Prod(fs2)) =>
+//        val common = fs1.intersect(fs2).reduce(_*_)
+//        val gcdNonCommon = ComputeGCD(a /^ common, b /^ common)
+//        common * gcdNonCommon
+
+      case (Prod(fs1), Prod(fs2)) => (for {f1 <- fs1; f2 <- fs2} yield ComputeGCD(f1, f2)).reduce(_ * _)
+
       case (_:Prod, _: Cst) => ComputeGCD(b, a)
       case (c: Cst, Prod(f)) => f.find(_.isInstanceOf[Cst]) match {
         case Some(x) => ComputeGCD(c, x)

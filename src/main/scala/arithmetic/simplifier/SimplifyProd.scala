@@ -100,31 +100,31 @@ object SimplifyProd {
         val pProd = p.asProdPows
         if (pProd.isDefined) lhsFactors = pProd.get.factors.sortWith(ArithExpr.isCanonicallySorted)
         else lhsFactors = List[ArithExpr](p)
-        rhsFactors = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, p: Pow) =>
         val pProd = p.asProdPows
         if (pProd.isDefined) rhsFactors = pProd.get.factors.sortWith(ArithExpr.isCanonicallySorted)
         else rhsFactors = List[ArithExpr](p)
-        lhsFactors = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       case (s: Sum, _) =>
         val sProd = s.asProd
         if (sProd.isDefined) lhsFactors = sProd.get.factors.sortWith(ArithExpr.isCanonicallySorted)
         else lhsFactors = List[ArithExpr](s)
-        rhsFactors = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, s: Sum) =>
         val sProd = s.asProd
         if (sProd.isDefined) rhsFactors = sProd.get.factors.sortWith(ArithExpr.isCanonicallySorted)
         else rhsFactors = List[ArithExpr](s)
-        lhsFactors = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       // Neither side is a sum or power, decompose into smaller terms and merge
       case _ =>
         // Extract and sort factors of both sides and merge
-        lhsFactors = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
-        rhsFactors = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        lhsFactors = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        rhsFactors = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
         if (lhsFactors.head == ? || rhsFactors.head == ?) return ?
         if (lhsFactors.head == Cst(0) || rhsFactors.head == Cst(0)) return Cst(0)
     }
@@ -209,12 +209,44 @@ object SimplifyProd {
   // I.e. Prod(1,Var(a),Var(b)) -> Prod(Var(a),Var(b)) but Prod(1, Var(a)) -> Var(a)
   def convert(factors: List[ArithExpr]): ArithExpr = {
     val nonOne = factors.filter(_ != Cst(1))
-    if (nonOne.isEmpty) Cst(1) // Eliminated everything, so result is 1
-    else if (nonOne.length == 1) nonOne.head // Result is a Var or Cst
-    else Prod(nonOne) // Have a product of expressions
+    val len = nonOne.length
+    if (len == 0) Cst(1) // Eliminated everything, so result is 1
+    else if (len == 1) nonOne.head // Result is a Var or Cst
+    else flattenCst(nonOne) // Have a product of expressions
+  }
+
+  def flattenCst(factors: List[ArithExpr]) : ArithExpr = {
+    val cstPowCst = ListBuffer[ArithExpr]()
+    for (f<-factors) {
+      f match {
+        case _:Cst => cstPowCst += f
+        case p:Pow => if (p.b.isInstanceOf[Cst]) cstPowCst += p
+        case _ =>
+      }
+    }
+    if (cstPowCst.length < 2) Prod(factors)
+    else {
+      if (cstPowCst.head.isInstanceOf[Cst]) {
+        var i = 1
+        while (i < cstPowCst.length) {
+          val combined = combineFactors(cstPowCst.head, cstPowCst(i))
+          if (combined.isDefined) {
+            val removePow = cstPowCst.take(i) ++ cstPowCst.drop(i + 1)
+            val flattened = removePow.zipWithIndex.map(element => if (element._2 == 0) combined.get else element._1)
+            val nonCstPow = factors.diff(cstPowCst)
+            val allFactors = flattened ++ nonCstPow
+            if (allFactors.length == 1) return allFactors.head
+            else return Prod(allFactors.toList)
+          }
+          i+=1
+        }
+      }
+      Prod(factors)
+    }
   }
 
   def main(args: Array[String]): Unit = {
-    print(Cst(6)*(Cst(3) pow -1))
+    println(2*3*(Cst(3) pow -1))
+    println((Cst(3) pow -1)*Cst(2)*Cst(3))
   }
 }

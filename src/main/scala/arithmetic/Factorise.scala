@@ -16,7 +16,7 @@ object Factorise {
   def factoriseSum(s: Sum) : Option[ArithExpr] = {
     if (s.terms.length < 2) return None
     val factorisation = factoriseTerms(s.terms)
-    if (factorisation.isDefined) Some(factorisation.get.getSumProdFactorise.reduce(_*_))
+    if (factorisation.isDefined) Some(factorisation.get.getFactors.reduce(_*_))
     else None
   }
 
@@ -72,20 +72,16 @@ object Factorise {
               case (None,None) =>
                 val fTerm = currFactor*fDivision
                 if (rest.isEmpty) return Some(fTerm)
-                else {
-                  val restTerm = rest.reduce(_ + _)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
-                  if (combinedFactorisation.isDefined) return combinedFactorisation
-                }
+                val restTerm = rest.reduce(_ + _)
+                val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                if (combinedFactorisation.isDefined) return combinedFactorisation
 
               case (Some(_), None) =>
                 val fTerm = currFactor * factorisedDivision.get
                 if (rest.isEmpty) return Some(fTerm)
-                else {
-                  val restTerm = rest.reduce(_ + _)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
-                  if (combinedFactorisation.isDefined) return combinedFactorisation
-                }
+                val restTerm = rest.reduce(_ + _)
+                val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                if (combinedFactorisation.isDefined) return combinedFactorisation
 
               case (None, Some(_)) =>
                 val fTerm = currFactor * fDivision
@@ -276,11 +272,11 @@ object Factorise {
   }
 
   def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val c = Var("c")
-    val expr = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*(a pow 2)*c + Cst(3)*a*(b pow 2) + Cst(6)*a*b*c +
-      Cst(3)*a*(c pow 2) + (b pow 3) + Cst(3)*(b pow 2)*c + Cst(3)*b*(c pow 2) + (c pow 3)
-    println(Factorise(expr))
+    val a: Var = Var("a")
+    val b: Var = Var("b")
+    val c: Var = Var("c")
+    val d: Var = Var("d")
+    val s6 = ((a*b) pow 3) + 3*((a*b) pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
+    println(Factorise(s6))
   }
 }

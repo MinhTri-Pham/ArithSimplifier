@@ -100,31 +100,31 @@ object SimplifySum {
         val pSum = p.asSum
         if (pSum.isDefined) lhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
         else lhsTerms = List[ArithExpr](p)
-        rhsTerms = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       case (p: Pow, _) =>
         val pSum = p.asSum
         if (pSum.isDefined) lhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
         else lhsTerms = List[ArithExpr](p)
-        rhsTerms = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, p: Prod) =>
         val pSum = p.asSum
         if (pSum.isDefined) rhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
         else rhsTerms = List[ArithExpr](p)
-        lhsTerms = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       case (_, p: Pow) =>
         val pSum = p.asSum
         if (pSum.isDefined) rhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
         else rhsTerms = List[ArithExpr](p)
-        lhsTerms = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
 
       // Neither side is a product/power, decompose into smaller terms and merge
       case _ =>
         // Extract and sort terms of both sides and merge
-        lhsTerms = lhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
-        rhsTerms = rhs.getSumProdSimplify.sortWith(ArithExpr.isCanonicallySorted)
+        lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
+        rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
         if (lhsTerms.head == ? || rhsTerms.head == ?) return ?
 
     }
@@ -195,17 +195,18 @@ object SimplifySum {
     if (nonZero.isEmpty) Cst(0) // Eliminated everything, so result is 0
     else if (nonZero.length == 1) nonZero.head // Simplifies to a primitive expression
     else
-    {
-      val gcd = ComputeGCD.commonTermList(nonZero)
-      if (gcd.getSumProdSimplify.collect({case Pow(x,-1) => x}).isEmpty) {
-        Sum(nonZero)
-      }
-      else {
-        val denom = gcd.getSumProdSimplify.collect({case Pow(x,-1) => x}).head
-        val simplified = nonZero.map(x => x /^ gcd).reduce(_+_)
-        if (ComputeGCD(simplified,denom) != Cst(1)) simplified * gcd
-        else Sum(nonZero)
-      }
-    }
+//    {
+//      val gcd = ComputeGCD.commonTermList(nonZero)
+//      if (gcd.getTermsFactors.collect({case Pow(x,-1) => x}).isEmpty) {
+//        Sum(nonZero)
+//      }
+//      else {
+//        val denom = gcd.getTermsFactors.collect({case Pow(x,-1) => x}).head
+//        val simplified = nonZero.map(x => x /^ gcd).reduce(_+_)
+//        if (ComputeGCD(simplified,denom) != Cst(1)) simplified * gcd
+//        else Sum(nonZero)
+//      }
+//    }
+      Sum(nonZero)
   }
 }

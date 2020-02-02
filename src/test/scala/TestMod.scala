@@ -10,8 +10,8 @@ class TestMod {
     assertEquals(Cst(7) % Cst(3), Cst(1))
     val a = Var("a")
     val b = Var("b")
-    assertEquals((Cst(6)*a + Cst(2)) % Cst(3), Cst(2))
-    assertEquals((Cst(6)*a + Cst(4)) % Cst(3), Cst(1))
+    assertEquals((Cst(9)*a + Cst(2)) % Cst(3), Cst(2))
+    assertEquals((Cst(9)*a + Cst(4)) % Cst(3), Cst(1))
     assertEquals((Cst(6)*a + b) % a, b%a)
     assertEquals(((Cst(6)*a + b) % a) % a, b%a) // Nested
     val c = Var("c")

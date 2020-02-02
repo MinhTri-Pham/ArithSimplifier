@@ -65,9 +65,4 @@ object SimplifyFloor {
     }
   }
 
-  def main(args: Array[String]): Unit = {
-    val a = Var("a", isInt = true)
-    val expr = (Cst(9)*a + Cst(2)) /^ Cst(3)
-    println(floor(expr))
-  }
 }
