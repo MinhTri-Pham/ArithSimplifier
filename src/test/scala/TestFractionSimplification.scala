@@ -11,17 +11,17 @@ class TestFractionSimplification {
 
   @Test
   def simplificationTest(): Unit = {
-    assertEquals(a /^ Cst(2048), a * Cst(128) * Cst(1) /^ Cst(262144))
-    assertEquals(a /^ Cst(2), a * (a*Cst(1)/^Cst(2)) /^ a)
+    assertEquals(a /^ 2048, a * 128 * Cst(1) /^ 262144)
+    assertEquals(a /^ 2, a * (a*Cst(1) /^ Cst(2)) /^ a)
     assertEquals(b,(b/^(a+b))*(a pow -1)*(a+b)*a)
     assertEquals(Cst(1), (a*b /^b) /^b * (b /^ a))
   }
 
   @Test
   def multiVarBasic() : Unit = {
-    val numer1 = Cst(2)*a + Cst(2)*b
+    val numer1 = 2*a + 2*b
     val numer2 = a*a + a*b
-    val numer3 = a*a + Cst(2)*a*b + b*b
+    val numer3 = a*a + 2*a*b + b*b
     val denom1 = a+b
     val denom2 = a*c + b*c + a*d + b*d
 
@@ -43,17 +43,17 @@ class TestFractionSimplification {
   @Test
   def uniVarCst(): Unit = {
     val e1 = a*a + a
-    val e2 = a*a + Cst(3)*a + Cst(2)
-    val e3 = (a pow 3) + Cst(6)*a*a+Cst(11)*a+Cst(6)
-    val e4 = (a pow 3) + Cst(5)*a*a+Cst(8)*a+Cst(4)
-    assertEquals(a /^ (a+Cst(2)),e1 /^ e2)
-    assertEquals(a+Cst(3),e3 /^ e2)
-    assertEquals((a+Cst(3)) /^ (a+Cst(2)),e3 /^ e4)
+    val e2 = a*a + 3*a + 2
+    val e3 = (a pow 3) + 6*a*a + 11*a + 6
+    val e4 = (a pow 3) + 5*a*a + 8*a + 4
+    assertEquals(a /^ (a + 2),e1 /^ e2)
+    assertEquals(a + 3,e3 /^ e2)
+    assertEquals((a + 3) /^ (a + 2),e3 /^ e4)
   }
 
   @Test
   def multiVarSimplification(): Unit = {
-    assertEquals(Cst(2)*a*(a+b),(Cst(4)*a*c+Cst(4)*a*d+Cst(4)*b*c+Cst(4)*b*d) * a * (a /^ Cst(2)) * (Cst(1) /^(a*(c+d))))
+    assertEquals(2*a*(a+b),(4*a*c + 4*a*d + 4*b*c + 4*b*d) * a * (a /^ 2) * (Cst(1) /^(a*(c+d))))
   }
 
 //  @Test

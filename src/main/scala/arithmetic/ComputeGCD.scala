@@ -10,25 +10,17 @@ object ComputeGCD {
       case (x, y) if x == y => x
 
       // GCD of powers, go through bases and find a match, return smaller exp in absolute value
-      case (x, Pow(ob, _)) if ob == x => x // pow 1 (implicit)
       case (Pow(b1, e1), Pow(b2, e2)) if b1 == b2 && e1 > 0 && e2 > 0 =>
         if (e1 <= e2) a
         else b
       case (Pow(b1, e1), Pow(b2, e2)) if b1 == b2 && e1 < 0 && e2 < 0 =>
         if (e1 <= e2) b
         else a
-      case (Pow(b1, _), Pow(b2, e2)) if b1 == b2 => b1 pow e2
+      case (Pow(b1, _), Pow(b2, _)) if b1 == b2 => Cst(1)
+      case (Pow(ob, e), x) if ob == x && e > 1 => x // pow 1 (implicit)
+      case (x, Pow(ob, e)) if ob == x  && e > 1 => x // pow 1 (implicit)
       case (Pow(ob, _), Prod(factors)) if factors.contains(ob) => ob // pow 1 (implicit)
       case (Prod(factors), Pow(ob, _)) if factors.contains(ob) => ob // pow 1 (implicit)
-      case (Pow(ob, _), x) if ob == x => x // pow 1 (implicit)
-      case (x, Pow(ob, _)) if ob == x => x // pow 1 (implicit)
-
-      // GCD of products: find GCD in factor pairs
-//      case (Prod(fs1), Prod(fs2)) if fs1.intersect(fs2).isEmpty => (for {f1 <- fs1; f2 <- fs2} yield ComputeGCD(f1, f2)).reduce(_ * _)
-//      case (Prod(fs1), Prod(fs2)) =>
-//        val common = fs1.intersect(fs2).reduce(_*_)
-//        val gcdNonCommon = ComputeGCD(a /^ common, b /^ common)
-//        common * gcdNonCommon
 
       case (Prod(fs1), Prod(fs2)) => (for {f1 <- fs1; f2 <- fs2} yield ComputeGCD(f1, f2)).reduce(_ * _)
 

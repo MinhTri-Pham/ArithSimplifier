@@ -244,9 +244,4 @@ object SimplifyProd {
       Prod(factors)
     }
   }
-
-  def main(args: Array[String]): Unit = {
-    println(2*3*(Cst(3) pow -1))
-    println((Cst(3) pow -1)*Cst(2)*Cst(3))
-  }
 }

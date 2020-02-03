@@ -24,7 +24,13 @@ abstract sealed class ArithExpr {
   def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
 
   // Integer division
-  def /(that: ArithExpr) : ArithExpr = SimplifyIntDiv(this, that)
+  def /(that: ArithExpr) : ArithExpr = SimplifyFloor(this * (that pow -1))
+//    (this.sign, that.sign) match
+//    {
+//    case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
+//    case (Sign.Positive, Sign.Negative) | (Sign.Positive, Sign.Negative) => SimplifyCeiling(this * (that pow -1))
+//    case _ => ?
+//    }
 
   // Modulo operator
   def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
@@ -164,6 +170,18 @@ abstract sealed class ArithExpr {
     case _ => List(this)
   }
 
+  lazy val asSumFraction : Option[(Sum, ArithExpr)] = {
+    if (getFactors.length != 2) None
+    else (getFactors.head, getFactors(1)) match {
+      case (s:Sum, p:Pow) =>
+        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
+        else Some(s, SimplifyPow(p.b,-p.e))
+      case (p:Pow, s:Sum) =>
+        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
+        else Some(s,SimplifyPow(p.b,-p.e))
+      case _ => None
+    }
+  }
 }
 
 // Class for (int) constants
@@ -916,16 +934,6 @@ object ArithExpr {
   private def computeIntervalProd(factors: List[ArithExpr]) : Interval = {
     val minMax = factors.map(x => Interval(x.min, x.max))
     minMax.reduce((x,y) => x*y)
-  }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val expr = Cst(4)*a*a*b
-    val that = Cst(2)*a
-    println(expr)
-    println(that)
-    println(isMultipleOf(expr,that))
   }
 }
 

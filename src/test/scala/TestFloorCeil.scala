@@ -19,30 +19,10 @@ class TestFloorCeil {
   @Test
   def cstTest(): Unit = {
     val a = Var("a", isInt = true)
-    assertEquals(Cst(2)*a, floor((Cst(6)*a) /^ Cst(3)))
-    assertEquals(Cst(2), ceil((Cst(6)*a) /^ (Cst(3)*a)))
-    assertEquals(Cst(2)*a, floor((Cst(6)*a + Cst(2)) /^ Cst(3)))
-    assertEquals(Cst(3)*a + Cst(1), ceil((Cst(9)*a + Cst(2)) /^ Cst(3)))
-  }
-
-  @Test
-  // Based on min and max
-  def intervalTest(): Unit = {
-    val x = Var("x", Interval(Cst(6), Cst(7)))
-    val y = Var("y", Interval(Cst(8), Cst(10)))
-    val z = Var("z", isInt = true)
-    val expr = z + x /^ y
-    assertEquals(z, floor(expr))
-    assertEquals(Cst(1),ceil(expr) - floor(expr))
-  }
-
-  @Test
-  def nested(): Unit = {
-    val x = Var("x", Interval(Cst(6), Cst(7)))
-    val y = Var("y", Interval(Cst(8), Cst(10)))
-    // Should be the innermost function
-    assertEquals(ceil(ceil(floor(ceil(floor(x))))),floor(x))
-    assertEquals(ceil(ceil(floor(ceil(floor(y /^ x))))),Cst(1))
+    assertEquals(2*a, floor((6*a) /^ Cst(3)))
+    assertEquals(Cst(2), ceil((6*a) /^ (3*a)))
+    assertEquals(2*a, floor((6*a + 2) /^ 3))
+    assertEquals(2*a + 1, ceil((6*a + 2) /^ 3))
   }
 
   @Test
@@ -68,15 +48,52 @@ class TestFloorCeil {
   }
 
   @Test
+  def constFactorisation(): Unit = {
+    val c = Cst(2)
+    val x = Var("x")
+    val y = Var("y", isInt = true)
+    val m = Var("m")
+    assertEquals(c+y + floor(x /^ (c+m)),floor((4 + x + c*m + c*y + m*y) /^ (c+m)))
+  }
+
+  @Test
   def sumProd(): Unit = {
     val a = Var("a")
     val b = Var("b")
     val c = Var("c", isInt = true)
     val d = Var("d", isInt = true)
     val e = Var("e")
-//    assertEquals(Cst(1) + c + CeilingFunction(b /^ a), ceil((a+a*c+b) /^ a))
-//    assertEquals(c+FloorFunction((a+b) pow -1), floor((a*c+b*c+Cst(1)) /^ (a+b)))
-//    assertEquals(c+CeilingFunction(d * ((a+b) pow -1)), ceil((a*c+b*c+d) /^ (a+b)))
-//    assertEquals(c+FloorFunction(d * ((a+b) pow -1) + e * ((a+b) pow -1)), floor((a*c+b*c+d+e) /^ (a+b)))
+    assertEquals(Cst(1) + c + CeilingFunction(b /^ a), ceil((a+a*c+b) /^ a))
+    assertEquals(c+FloorFunction((a+b) pow -1), floor((a*c+b*c+Cst(1)) /^ (a+b)))
+    assertEquals(c+CeilingFunction(d * ((a+b) pow -1)), ceil((a*c+b*c+d) /^ (a+b)))
+    assertEquals(c+FloorFunction((d+e)*((a+b) pow -1)), floor((a*c+b*c+d+e) /^ (a+b)))
+  }
+
+  @Test
+  def partitionConstantMultiple(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c", isInt = true)
+    val d = Var("d", isInt = true)
+    // Partition as floor((a+b) /^ (a+b)) + floor((a+c) /^ (a+b))
+    assertEquals(1 + floor((a+c) /^ (a+b)), floor((2*a+b+c) /^ (a+b)))
+    // Partition as ceil((2a+4b) /^ (a+2b)) + ceil((a+b) /^ (a+2b))
+    assertEquals(2 + ceil((a+b)/^(a+2*b)),ceil((3*a + 5*b) /^ (a + 2*b)))
+    // Partition as floor((ac+bc+ad+bd) /^ (a+b)) + floor(bc / (a+b))
+    assertEquals(c+d+floor((b*c) /^(a+b)) ,floor((a*c+2*b*c+a*d+b*d) /^ (a+b)))
+  }
+
+  @Test
+  def partitionConstant(): Unit = {
+    val a = Var("a")
+    val b = Var("b", isInt = true)
+    // Partition as floor((2+a) /^ (2+a)) + floor(1 / (2+a))
+    assertEquals(1 + floor(Cst(1) /^ (2+a)), floor((3+a) /^ (2+a)))
+    // Partition as ceil((2+a) /^ (2+a)) + ceil((2+b) / (2+a))
+    assertEquals(1 + ceil((2+b) /^ (2+a)), ceil((4+a+b) /^ (2+a)))
+    // Partition as floor((4+2a) /^ (2+a)) + floor(b / (2+a))
+    assertEquals(2 + floor(b /^(2+a)),floor((4+2*a+b) /^ (2+a)))
+    // Partition as ceil((ab+a+2b+2) /^ (2+a)) + ceil((2+b) /^ (2+a))
+    assertEquals(1 + b + ceil((2+b) /^ (2+a)),ceil((4+a+3*b+a*b) /^ (2+a)))
   }
 }

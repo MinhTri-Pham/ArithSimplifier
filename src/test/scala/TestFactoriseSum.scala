@@ -14,7 +14,7 @@ class TestFactoriseSum {
   @Test
   def commonTerm(): Unit = {
     val s1 = a*b+a
-    assertEquals(Factorise(s1),Some(a*(b+Cst(1))))
+    assertEquals(Factorise(s1),Some(a*(b + 1)))
 
     val s2 = a*b*c*d + a*b*e
     assertEquals(Factorise(s2),Some(a*b*(c*d+e)))
@@ -26,7 +26,7 @@ class TestFactoriseSum {
     assertEquals(Factorise(s4),Some((a pow -2)*c*((a pow -1)*b+d)))
 
     val s5 = Cst(6)*(a pow -3)*b*c*(e pow 6) + Cst(9)*(a pow -2)*c*d*(e pow 4)
-    assertEquals(Factorise(s5),Some(Cst(3)*(a pow -2)*(e pow 4)*c*(Cst(2)*(a pow -1)*b*(e pow 2)+Cst(3)*d)))
+    assertEquals(Factorise(s5),Some(Cst(3)*(a pow -2)*(e pow 4)*c*(Cst(2)*(a pow -1)*b*(e pow 2) + 3*d)))
   }
 
   // Factorisation without common term
@@ -88,22 +88,22 @@ class TestFactoriseSum {
 
   @Test
   def pows() : Unit = {
-    val s1 = (a pow 2) + Cst(2)*a*b + (b pow 2)
+    val s1 = (a pow 2) + 2*a*b + (b pow 2)
     assertEquals(Factorise(s1), Some((a+b) pow 2))
 
-    val s2 = (a pow 3) + Cst(3)*(a pow 2)*b + Cst(3)*a*(b pow 2) + (b pow 3)
+    val s2 = (a pow 3) + 3*(a pow 2)*b + 3*a*(b pow 2) + (b pow 3)
     assertEquals(Factorise(s2), Some((a+b) pow 3))
 
-    val s3 = (a pow 2) + Cst(2)*a*b + (b pow 2) + a*c + b*c
+    val s3 = (a pow 2) + 2*a*b + (b pow 2) + a*c + b*c
     assertEquals(Factorise(s3), Some((a+b+c)*(a+b)))
 
-    val s4 = (a pow 2) + Cst(2)*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
+    val s4 = (a pow 2) + 2*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
     assertEquals(Factorise(s4), Some((a+b+c) pow 2))
 
-    val s5 = (a*b pow 2) + Cst(2)*a*b*c + (c pow 2)
+    val s5 = (a*b pow 2) + 2*a*b*c + (c pow 2)
     assertEquals(Factorise(s5), Some((a*b+c) pow 2))
 
-    val s6 = ((a*b) pow 3) + Cst(3)*((a*b) pow 2)*c + Cst(3)*a*b*(c pow 2) + (c pow 3)
+    val s6 = ((a*b) pow 3) + 3*((a*b) pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
     assertEquals(Factorise(s6), Some((a*b+c) pow 3))
 
     //    // Takes long
