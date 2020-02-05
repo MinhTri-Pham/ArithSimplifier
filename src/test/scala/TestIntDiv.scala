@@ -87,7 +87,7 @@ class TestIntDiv {
     val d = Var("d", isInt = true)
     assertEquals(1 + floor((a+c) /^ (a+b)), (2*a+b+c) / (a+b))
     assertEquals(2 + floor((a+b)/^(a+2*b)),(3*a + 5*b) / (a + 2*b))
-    assertEquals(c+d+floor((b*c) /^(a+b)) ,(a*c+2*b*c+a*d+b*d) / (a+b))
+    assertEquals(c+d+floor((a*c) /^(a+b)) ,(2*a*c+b*c+a*d+b*d) / (a+b))
   }
 
   @Test

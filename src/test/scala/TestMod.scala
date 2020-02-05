@@ -6,36 +6,39 @@ class TestMod {
 
   @Test
   def basicTests(): Unit = {
-    assertEquals(Cst(6) % Cst(3), Cst(0))
-    assertEquals(Cst(7) % Cst(3), Cst(1))
-    val a = Var("a")
+    val a = Var("a", isInt = true)
     val b = Var("b")
-    assertEquals((Cst(9)*a + Cst(2)) % Cst(3), Cst(2))
-    assertEquals((Cst(9)*a + Cst(4)) % Cst(3), Cst(1))
-    assertEquals((Cst(6)*a + b) % a, b%a)
-    assertEquals(((Cst(6)*a + b) % a) % a, b%a) // Nested
+    assertEquals(Cst(2),(6*a + 2) % 3)
+    assertEquals(Cst(1), (6*a + 4) % 3)
+    assertEquals(b % a, (6*a + b) % a)
+  }
+
+  @Test
+  def varTest(): Unit = {
+    val a = Var("a", isInt = true)
+    val b = Var("b", isInt = true)
     val c = Var("c")
-    assertEquals((Cst(4)*a*c + Cst(6)*b*c) % (Cst(2)*c),Cst(0))
+    assertEquals(Cst(0),(4*a*c + 6*b*c) % (2*c))
   }
 
   @Test
   def sumDivisor(): Unit = {
-    val a = Cst(2)
-    val b = Var("b")
-    val c = Var("c")
-    val d = Var("d")
+    val a = Var("a", isInt = true)
+    val b = Var("b", isInt = true)
+    val c = Var("c", isInt = true)
+    val d = Var("d", isInt = true)
     val e = Var("e")
     // Trivial cases
-    assertEquals((a*b) % a, Cst(0))
-    assertEquals((a+b) % a, b % a)
+    assertEquals(Cst(0),(a*b) % a)
+    assertEquals(b % a, (a+b) % a)
     // Direct factorisation
-    assertEquals((a*c+b*c) % (a+b), Cst(0))
-    assertEquals((a*c+b*c+a*d+b*d) % (a+b), Cst(0))
+    assertEquals(Cst(0), (a*c+b*c) % (a+b))
+    assertEquals(Cst(0),(a*c+b*c+a*d+b*d) % (a+b))
     // Find a good partition of dividend
-    assertEquals((a+b+c) % (a+b), c % (a+b))
-    assertEquals((a*c+b*c+d) % (a+b), d % (a+b))
-    assertEquals((a*c+b*c+d+e) % (a+b), (d+e) % (a+b))
-    assertEquals((a*c+b*c+a*d+b*d+e) % (a+b), e % (a+b))
+    assertEquals(c % (a+b), (a+b+c) % (a+b))
+    assertEquals(d % (a+b), (a*c+b*c+d) % (a+b))
+    assertEquals((d+e) % (a+b), (a*c+b*c+d+e) % (a+b))
+    assertEquals(e % (a+b), (a*c+b*c+a*d+b*d+e) % (a+b))
   }
 
   @Test
@@ -46,7 +49,7 @@ class TestMod {
     val c = Cst(3) // Note c and n are coprime
     assertEquals(a, a / n * n + a % n)
     assertEquals(a*c, a*c / n * n + a*c % n)
-    assertEquals((a+b)*c, (a+b)*c / n * n + (a+b)*c % n)
+    assertEquals(a*c+b*c, (a+b)*c / n * n + (a+b)*c % n)
   }
 
   @Test
@@ -55,8 +58,9 @@ class TestMod {
     val b = Var("b")
     val n = Cst(8)
     val c = Cst(4) // Note c and n aren't coprime
+    assertEquals(a, a / n * n + a % n)
     assertEquals(a*c, a*c / n * n + a*c % n)
-    assertEquals((a+b)*c, (a+b)*c / n * n + (a+b)*c % n)
+    assertEquals(a*c+b*c, (a+b)*c / n * n + (a+b)*c % n)
   }
 
   @Test
@@ -64,8 +68,8 @@ class TestMod {
     val a = Var("a")
     val b = Var("b")
     val x = Cst(8)
-    val expr_1 = x * Cst(4) * (a+b)
-    val expr_2 = x * Cst(4) * (a + b) / Cst(16) * Cst(16) + x * Cst(4) * (a + b) % Cst(16)
+    val expr_1 = x * 4 * (a+b)
+    val expr_2 = x * 4 * (a+b) / 16 * 16 + x * 4 * (a + b) % Cst(16)
     assertEquals(expr_1, expr_2.toProd.get)
   }
 
@@ -73,25 +77,17 @@ class TestMod {
   def sumDivModSimplification(): Unit = {
     val a = Var("a")
     val b = Var("b")
-    assertNotEquals(a % Cst(8), (((b * Cst(4)) + a) % Cst(8)) * Cst(1))
-    assertEquals(b * Cst(4) + a, Cst(0) + ((((b * Cst(4)) + a) / Cst(8)) * Cst(8) * Cst(1)) +
-      (((b * Cst(4)) + a) % Cst(8)) * Cst(1))
-  }
-
-  @Test
-  def intDivFloorTest(): Unit = {
-    val expr = Cst(4) * Var("a", Interval(Cst(0), Cst(31)))
-    val startDiv = (Cst(899) + expr) / Cst(128)
-    val startMod = (Cst(899) + expr) % Cst(128)
-    assertEquals(startDiv, Cst(7))
-    assertEquals(startMod, Cst(3) + expr)
+    assertNotEquals(a % 8, ((4*b + a) % 8) * 1)
+    assertEquals(4*b + a, (4*b + a) % 8 + ((4*b + a) / 8) * 8)
+    assertEquals(4*b + a, 0 + (((4*b + a) / 8) * Cst(8) * Cst(1)) +
+      (((4*b + a) % Cst(8)) * Cst(1)))
   }
 
   @Test
   def sumWithMod(): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val c = Var("c")
+    val a = Var("a", isInt = true)
+    val b = Var("b", isInt = true)
+    val c = Var("c", isInt = true)
     val expr_1 = b+c
     val expr_2 = b*c
     val n = Var("n")
@@ -100,32 +96,34 @@ class TestMod {
   }
 
   @Test
+  def intDivFloorTest(): Unit = {
+    val expr = 4 * Var("a", Interval(Cst(0), Cst(31)))
+    val startDiv = (899 + expr) / 128
+    val startMod = (899 + expr) % 128
+    assertEquals(startDiv, Cst(7))
+    assertEquals(startMod, Cst(3) + expr)
+  }
+
+  @Test
   def partitionConstantMultiple(): Unit = {
-    val a = Var("a", Interval(Cst(2), Cst(3)))
-    val b = Var("b", Interval(Cst(6), Cst(8)))
-    val c = Cst(2)
-    val d = Var("d")
-    // Using int div
-    assertEquals(a+c, (Cst(2)*a+b+c) % (a+b))
-    assertEquals(a+b,(Cst(3)*a + Cst(5)*b) % (a + Cst(2)*b))
-    // Partition dividend
-    assertEquals(a*c,(Cst(2)*a*c+b*c+a*d+b*d) % (a+b))
-    val e = Var("e")
-    assertEquals(a*e % (a+b),(Cst(2)*a*e+b*e+a*d+b*d) % (a+b))
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c", isInt = true)
+    val d = Var("d", isInt = true)
+    assertEquals(a % (a+b), (2*a+b) % (a+b))
+    assertEquals((a+b) % (a+2*b),(3*a + 5*b) % (a + 2*b))
+    assertEquals(a*c % (a+b),(2*a*c+b*c+a*d+b*d) % (a+b))
   }
 
   @Test
   def partitionConstant(): Unit = {
     val a = Var("a")
-    val b = Var("b")
-    // Partition as (2+a) % (2+a) + (2+b) % (2+a) = (2+b) % (2+a)
-    assertEquals((Cst(2)+b) % (Cst(2)+a),(Cst(4)+a+b) % (Cst(2)+a))
-    // Partition as (4+2a) % (2+a) + (1+b) % (2+a) = (1+b) % (2+a)
-    assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(5)+Cst(2)*a+b) % (Cst(2)+a))
-    // Partition as (ab+a+2b+2) % (2+a) + (1+b) % (2+a)
-    assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(3)+a+Cst(3)*b+a*b) % (Cst(2)+a))
-    val c = Var("c")
-    // Partition as (2+a+2c+ac) % (2+a) + (1+b) % (2+a)
-    assertEquals((Cst(1)+b) % (Cst(2)+a),(Cst(3)+a+b+Cst(2)*c+c*a) % (Cst(2)+a))
+    val b = Var("b", isInt = true)
+    assertEquals(1 % (2+a),(3+a) % (2+a))
+    assertEquals((2+b) % (2+a),(4+a+b) % (2+a))
+    assertEquals(b % (2+a),(4+2*a+b) % (2+a))
+    assertEquals((2+b) % (2+a),(4+a+3*b+a*b) % (2+a))
+    val c = Var("c", isInt = true)
+    assertEquals((1+b) % (2+a),(3+a+b+2*c+c*a) % (2+a))
   }
 }

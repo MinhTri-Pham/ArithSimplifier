@@ -84,4 +84,14 @@ object SimplifyFloor {
     }
   }
 
+  def main(args: Array[String]): Unit = {
+    val a = Var("a", isInt = true)
+    val b = Var("b", isInt = true)
+    val c = Var("c", isInt = true)
+    val fl = floor(c /^(a+b))
+    val prod = (-1)*(a+b)*fl
+    println(prod.toSum)
+    println(c % (a+b))
+  }
+
 }

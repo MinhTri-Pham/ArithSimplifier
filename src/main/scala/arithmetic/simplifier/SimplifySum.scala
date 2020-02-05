@@ -176,9 +176,7 @@ object SimplifySum {
     case (Cst(0), _) => Some(rhs)
     case (_, Cst(0)) => Some(lhs)
     case (x, y) if x == y => Some(Cst(2) * x)
-    // Modulo Identity: a = a / b * b + a % b
-    case (Prod(factors), Mod(a, b)) if factors.reduce(_*_) == (a / b) * b => Some(a)
-    case (Mod(a, b), Prod(factors)) if factors.reduce(_*_) == (a / b) * b => Some(a)
+
     // Products
     case (p1:Prod, p2:Prod) if p1.nonCstFactor == p2.nonCstFactor =>
       Some(Cst(p1.cstFactor + p2.cstFactor) * p1.nonCstFactor)

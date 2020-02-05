@@ -33,7 +33,8 @@ abstract sealed class ArithExpr {
 //    }
 
   // Modulo operator
-  def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
+//  def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
+  def %(that: ArithExpr) : ArithExpr = this - SimplifyFloor(this * (that pow -1)) * that
 
   // Differential operator
   def diff(v:Var) : ArithExpr = Differentiate(this,v)
@@ -329,7 +330,11 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             if (p.e > 0) accum = accum * p
             else accum /^= p.b
           }
-        case _ => accum *= f
+        case _ =>
+          if (accum.isInstanceOf[Sum]) {
+            accum = ArithExpr.expand(accum, f).get
+          }
+          else accum *= f
       }
       if (expanded) accum.getTermsFactors.reduce((x, y)=>x+y).toSum
       else None
