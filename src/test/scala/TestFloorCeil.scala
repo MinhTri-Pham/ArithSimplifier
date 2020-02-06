@@ -66,7 +66,7 @@ class TestFloorCeil {
     assertEquals(Cst(1) + c + CeilingFunction(b /^ a), ceil((a+a*c+b) /^ a))
     assertEquals(c+FloorFunction((a+b) pow -1), floor((a*c+b*c+Cst(1)) /^ (a+b)))
     assertEquals(c+CeilingFunction(d * ((a+b) pow -1)), ceil((a*c+b*c+d) /^ (a+b)))
-    assertEquals(c+FloorFunction((d+e)*((a+b) pow -1)), floor((a*c+b*c+d+e) /^ (a+b)))
+    assertEquals(c+FloorFunction(d*((a+b) pow -1)+e*((a+b) pow -1)), floor((a*c+b*c+d+e) /^ (a+b)))
   }
 
   @Test

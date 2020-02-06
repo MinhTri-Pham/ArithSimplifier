@@ -49,7 +49,7 @@ abstract sealed class ArithExpr {
   // Convert expression to sum if possible
   lazy val toSum : Option[Sum] = this match {
     case x:Sum => Some(x)
-    case x:Prod => x.asSum
+    case x:Prod => x.distributed
     case x:Pow => x.asSum
     case _ => None
   }
@@ -125,20 +125,6 @@ abstract sealed class ArithExpr {
           else (b.min pow e, b.max pow e)
         }
       }
-    case IntDiv(numer, denom) => this.sign match {
-      case Sign.Positive => (numer.min / denom.max, numer.max / denom.min)
-      case Sign.Negative => (numer.max / denom.min, numer.min / denom.max)
-      case Sign.Unknown => (?,?)
-    }
-
-    case Mod(dividend, divisor) =>
-      (dividend.sign, divisor.sign) match {
-        case (Sign.Positive, Sign.Positive) => (Cst(0), divisor.max - Cst(1))
-        case (Sign.Positive, Sign.Negative) => (Cst(0), (Cst(0) - divisor.max) - Cst(1))
-        case (Sign.Negative, Sign.Positive) => (Cst(0) - (divisor.max - Cst(1)), Cst(0))
-        case (Sign.Negative, Sign.Negative) => (Cst(0) - ((Cst(0) - divisor).max - Cst(1)), Cst(0))
-        case _ => (?, ?) // impossible to determine the min and max
-      }
 
     case _ => (?,?)
   }
@@ -152,8 +138,8 @@ abstract sealed class ArithExpr {
   lazy val isInt : Boolean = this match {
     case _: Cst => true
     case v: Var => v.isInteger
-    case Sum(terms) => terms.forall(_.isInt)
-    case Prod(factors) => factors.forall(_.isInt)
+    case s:Sum => s.terms.forall(_.isInt)
+    case p:Prod => p.factors.forall(_.isInt)
     case Pow(b, e) => b.isInt && e >= 0
     case FloorFunction(_) => true
     case CeilingFunction(_) => true
@@ -162,6 +148,11 @@ abstract sealed class ArithExpr {
 
   lazy val getTermsFactors : List[ArithExpr] = this match {
     case p:Prod => p.factors
+    case s:Sum => s.terms
+    case _ => List(this)
+  }
+
+  lazy val getTerms : List[ArithExpr] = this match {
     case s:Sum => s.terms
     case _ => List(this)
   }
@@ -276,6 +267,23 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
   override def toString: String = s"(${terms.mkString(" + ")})"
 }
 
+object Sum {
+  // This is an empty extractor to support SimplifySum that tries to be safe when we represent
+  // other classes as sums
+  def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
+    case aexpr: ArithExpr => aexpr match {
+      case s: Sum => Some(s.terms)
+      case pw : Pow => if (pw.asSum.isDefined) Some(pw.asSum.get.terms) else None
+      case p:Prod =>
+        if (p.partialCancelled.isDefined) Some(p.partialCancelled.get.getTermsFactors )
+        else if (p.distributed.isDefined) Some(p.distributed.get.terms)
+        else None
+      case _ => None
+    }
+    case _ => None
+  }
+}
+
 // Class for products
 case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
@@ -301,7 +309,8 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     Some(Sum(terms.toList))
   }
 
-  lazy val asSum : Option[Sum] = {
+  // Expands product out
+  lazy val distributed : Option[Sum] = {
     if (factors.length <= 1) None
     else {
       var expanded = false
@@ -341,6 +350,36 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     }
   }
 
+  // Works for case when we have product of sum and negative power expression
+  // Tries to find subset of sum that can be cancelled out with the power
+  lazy val partialCancelled : Option[ArithExpr] = {
+    if (this.asSumFraction.isDefined) {
+      val numer = this.asSumFraction.get._1
+      val denom = this.asSumFraction.get._2
+      val termsExpanded = Helper.expandTermsCst(numer.terms)
+      val termSubsets = Helper.powerSet(termsExpanded).filter(_.nonEmpty)
+      if (termSubsets.nonEmpty) {
+        var partialCancel : Option[ArithExpr] = None
+        var i = 0
+        while (i < termSubsets.length) {
+          val subset = termSubsets(i)
+          val restTerms = termsExpanded.diff(subset)
+          val sum = subset.reduce(_ + _)
+          val rest = if (restTerms.isEmpty) Cst(0) else restTerms.reduce(_ + _)
+          val gcd = ComputeGCD(sum, denom)
+          if (gcd != Cst(1)) {
+            partialCancel = Some(sum /^ denom + rest /^ denom)
+            i = termSubsets.length
+          }
+          i += 1
+        }
+        partialCancel
+      }
+      else None
+    }
+    else None
+  }
+
   lazy val primitiveProd : Prod = {
     var primitiveFactors = ListBuffer[ArithExpr]()
     for (f <- factors) f match {
@@ -370,19 +409,12 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 object Prod {
 //  def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
 //    case aexpr: ArithExpr => aexpr match {
-//      // Concrete Pow that can be represented as Prod
-//      case p: Pow if p.specialProds.isDefined => p.specialProds
-//
-//      // An ArithExpr that can be represented as Pow that can be represented as Prod
-//      /**  (a * b * c)^e  :  a^e * b^e * c^e  **/
-//      case Pow(Prod(factors), e) => Some(factors.map(SimplifyPow(_, e)))
-//
-////      // (x*a + x*b + x*c)  :  x*(a + b + c)
-////      case s: Sum => s.asProd match {
-////        case Some(productWithCommonFactor) => Some(productWithCommonFactor.factors)
-////        case None => None
-////      }
 //      case p: Prod => Some(p.factors)
+//      // Concrete Pow that can be represented as Prod
+//      case p: Pow if p.asProdPows.isDefined => Some(p.asProdPows.get.factors)
+//
+//      // Factorisation
+//      case s: Sum if s.asProd.isDefined => Some(s.asProd.get.factors)
 //      case _ => None
 //    }
 //    case _ => None
@@ -420,11 +452,6 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     //combined.toSum
   }
 
-  lazy val specialProds: Option[List[ArithExpr]] = (b, e) match {
-    /** (a * b * c)^e  :  a^e * b^e * c^e  **/
-    case (Prod(factors), _) => Some(factors.map(SimplifyPow(_, e)))
-    case _ => None
-  }
 
   // Representation as a product (a^n = a*a...*a (n times))
   lazy val asProd : Option[Prod] = {
@@ -437,11 +464,11 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   }
 
   lazy val asProdPows : Option[Prod]= b match {
-    case Prod(_) =>
+    case _:Prod =>
       val bfacts = b.getTermsFactors
       val pfacts = bfacts.map(x => x pow e)
       Some(Prod(pfacts))
-    case Sum(_) =>
+    case _:Sum =>
       if (b.toProd.isDefined) {
         val bfacts = b.toProd.get.factors
         val pfacts = bfacts.map(x => x pow e)
@@ -460,17 +487,6 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     if (e == -1 && b.isInstanceOf[Cst]) s"1/${b.toString}"
     else s"pow(${b.toString},$e)"
   }
-}
-
-case class IntDiv(numer:ArithExpr, denom:ArithExpr) extends ArithExpr {
-  if (denom == Cst(0)) throw new ArithmeticException()
-
-  override def toString: String = s"(($numer) / ($denom))"
-}
-
-case class Mod(dividend:ArithExpr, divisor:ArithExpr) extends ArithExpr {
-
-  override def toString: String = s"(($dividend) % ($divisor))"
 }
 
 object abs {
@@ -602,8 +618,7 @@ object ArithExpr {
     case _ => false
   }
 
-  // Evaluates an expression given substitutions for variables
-  // So far maps variables to constants
+  // Evaluates an expression given constant substitutions for variables
   def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Int = expr match {
     case Cst(c) => c
     case v: Var => findSubstitute(v, subs)
@@ -657,8 +672,6 @@ object ArithExpr {
     // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
-    // Look for common denominator in fractions
-    case (IntDiv(n1, d1), IntDiv(n2, d2)) => isMultipleOf(d2, d1) && isMultipleOf(n1, n2)
 
     case (Pow(b1, _), Pow(b2, _)) => isMultipleOf(b1, b2)
     case (p:Prod, _) => p.factors.contains(ae2) ||
@@ -907,11 +920,6 @@ object ArithExpr {
     case Prod(terms) =>
       terms.foreach(t => if (visitUntil(t, f)) return true)
       false
-    case IntDiv(n, d) =>
-      visitUntil(n, f) || visitUntil(d, f)
-    case Mod(dividend, divisor) =>
-      visitUntil(dividend, f) || visitUntil(divisor, f)
-
     case FloorFunction(expr) => visitUntil(expr, f)
     case CeilingFunction(expr) => visitUntil(expr, f)
     case _:Var | Cst(_) => false
@@ -928,10 +936,6 @@ object ArithExpr {
 
     case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
     case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
-
-    case IntDiv(n, d) => scala.math.floor(evalDouble(n) / evalDouble(d))
-
-    case Mod(dividend, divisor) => dividend.evalDouble % divisor.evalDouble
 
     case `?` | _:Var => throw NotEvaluable
   }

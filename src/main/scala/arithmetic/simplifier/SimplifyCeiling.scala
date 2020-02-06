@@ -9,7 +9,7 @@ object SimplifyCeiling {
     ae match {
       case c: Cst => c
       case _:Var => CeilingFunction(ae)
-      // Get integer terms/factors out of sum/product
+      // Work with sum representation if possible
       case Sum(terms) =>
         var intTermsNum = 0
         var intTerms = ListBuffer[ArithExpr]()
@@ -35,28 +35,6 @@ object SimplifyCeiling {
         val floorEvalTerm = if (ceilEvalNum == 0) Cst(0) else ceilEvalTerms.reduce(_ + _)
         val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else CeilingFunction(nonEvalTerms.reduce(_ + _))
         intTerm + floorEvalTerm + nonEvalTerm
-      // Fraction with sum numerator - try subset idea
-      // Maybe too complicated, modify addition instead?
-      case x if x.asSumFraction.isDefined =>
-        val numer = x.asSumFraction.get._1
-        val denom = x.asSumFraction.get._2
-        val termsExpanded = Helper.expandTermsCst(numer.terms)
-        val termSubsets = Helper.powerSet(termsExpanded).filter(_.nonEmpty)
-        if (termSubsets.nonEmpty) {
-          for (subset <- termSubsets) {
-            val restTerms = termsExpanded.diff(subset)
-            val sum = subset.reduce(_ + _)
-            val rest = if (restTerms.isEmpty) Cst(0) else restTerms.reduce(_ + _)
-            val gcd = ComputeGCD(sum, denom)
-            if (gcd != Cst(1)) {
-              return ceil(sum /^ denom) + ceil(rest/^denom)
-            }
-          }
-        }
-        CeilingFunction(x)
-      // Product - expand out and apply floor to sum
-      case p:Prod if p.asSum.isDefined =>
-        ceil(p.asSum.get)
       case _ =>
         try {
           // Try to directly evaluate ceiling using Scala
@@ -64,20 +42,7 @@ object SimplifyCeiling {
           assert(d.isValidInt)
           Cst(d.toInt)
         } catch {
-          case NotEvaluableException() =>
-            // ok let's try to evaluate ceiling of min and max
-            try {
-              val min = CeilingFunction(ae.min).evalDouble
-              val max = CeilingFunction(ae.max).evalDouble
-              if (min == max) {
-                assert(min.isValidInt)
-                return Cst(min.toInt)
-              }
-            } catch {
-              case NotEvaluableException() => CeilingFunction(ae)
-              case e: Throwable => throw e
-            }
-              CeilingFunction(ae)
+          case NotEvaluableException() => CeilingFunction(ae)
           case e: Throwable => throw e
         }
     }

@@ -26,7 +26,7 @@ object Factorise {
     // Look for common factor
     if (gcd != Cst(1)) {
       val simplified = terms.map(x => x /^ gcd).reduce(_ + _)
-      val simplifiedFactorisation = factoriseTerms(simplified.toSum.get.terms)
+      val simplifiedFactorisation = factoriseTerms(simplified.getTerms)
       // Try to factorise the simplified expression
       if (simplifiedFactorisation.isDefined) return Some(gcd * simplifiedFactorisation.get)
       Some(gcd*simplified)
@@ -59,8 +59,8 @@ object Factorise {
             val rest = termsExpanded.diff(subset)
             // Take out factor from examined subset
             // Factorise recursively
-            val fDivision = subset.map(x => x /^ currFactor).reduce(_ + _).toSum.get
-            val factorisedDivision = factoriseTerms(fDivision.terms)
+            val fDivision = subset.map(x => x /^ currFactor).reduce(_ + _)
+            val factorisedDivision = factoriseTerms(fDivision.getTerms)
             // Try to factorise the rest
             var restDivision : Option[ArithExpr] = None
             if (rest.distinct.length > 1) {

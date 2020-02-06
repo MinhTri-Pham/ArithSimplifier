@@ -109,7 +109,7 @@ object RandomGenerator {
     for (d <- 2 to depth) {
       val p = genProdSums(d)
       println(s"Generated product:$p")
-      val pSum = p.asSum.get
+      val pSum = p.distributed.get
       println(s"Expanded product: $pSum")
       val start = System.nanoTime()
       val sumFactorisation = Factorise(pSum)

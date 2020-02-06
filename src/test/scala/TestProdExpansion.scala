@@ -6,6 +6,7 @@ class TestProdExpansion {
 
   val a: Var = Var("a")
   val b: Var = Var("b")
+  val c: Var = Var("c")
 
 @Test
   def basicTests(): Unit = {
@@ -25,7 +26,7 @@ class TestProdExpansion {
   }
 
   @Test
-  def expandProdTests() : Unit = {
+  def expandTests() : Unit = {
     val e1 = 2*(a + 2) - 4
     val e2 = (a + 2)*2 - 2*a
     assertEquals(e1, 2*a)
@@ -53,5 +54,14 @@ class TestProdExpansion {
 
     val e10 = ((a+2) pow 2) - ((a+1) pow 2)
     assertEquals(e10, 3 + 2*a)
+  }
+
+  @Test
+  def partialCancelTests(): Unit = {
+    val e1 = (a*b+c) /^ a - b
+    assertEquals(e1, c /^ a)
+
+    val e2 = (a+b+c) /^ (a+b) - 1
+    assertEquals(e2, c /^ (a+b))
   }
 }

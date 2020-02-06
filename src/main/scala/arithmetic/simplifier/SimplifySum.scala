@@ -11,122 +11,19 @@ object SimplifySum {
     var lhsTerms, rhsTerms: List[ArithExpr] = List[ArithExpr]()
     (lhs,rhs) match {
 
-      // If either side is a product/power, try to convert to a sum and work with sums instead
-      case (p1:Prod,p2: Prod) =>
-        val lhsSum = p1.asSum
-        val rhsSum = p2.asSum
-        (lhsSum, rhsSum) match {
-          case (Some(_), Some(_)) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (Some(_), None) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = List[ArithExpr](p2)
-
-          case (None, Some(_)) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (None, None) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = List[ArithExpr](p2)
-        }
-
-      case (p1:Prod, p2:Pow) =>
-        val lhsSum = p1.asSum
-        val rhsSum = p2.asSum
-        (lhsSum, rhsSum) match {
-          case (Some(_), Some(_)) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (Some(_), None) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = List[ArithExpr](p2)
-
-          case (None, Some(_)) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (None, None) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = List[ArithExpr](p2)
-        }
-
-      case (p1:Pow,p2:Prod) =>
-        val lhsSum = p1.asSum
-        val rhsSum = p2.asSum
-        (lhsSum, rhsSum) match {
-          case (Some(_), Some(_)) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (Some(_), None) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = List[ArithExpr](p2)
-
-          case (None, Some(_)) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (None, None) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = List[ArithExpr](p2)
-        }
-
-      case (p1:Pow,p2:Pow) =>
-        val lhsSum = p1.asSum
-        val rhsSum = p2.asSum
-        (lhsSum, rhsSum) match {
-          case (Some(_), Some(_)) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (Some(_), None) =>
-            lhsTerms = lhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-            rhsTerms = List[ArithExpr](p2)
-
-          case (None, Some(_)) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = rhsSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-
-          case (None, None) =>
-            lhsTerms = List[ArithExpr](p1)
-            rhsTerms = List[ArithExpr](p2)
-        }
-
-      case (p: Prod, _) =>
-        val pSum = p.asSum
-        if (pSum.isDefined) lhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-        else lhsTerms = List[ArithExpr](p)
-        rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-
-      case (p: Pow, _) =>
-        val pSum = p.asSum
-        if (pSum.isDefined) lhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-        else lhsTerms = List[ArithExpr](p)
-        rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-
-      case (_, p: Prod) =>
-        val pSum = p.asSum
-        if (pSum.isDefined) rhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-        else rhsTerms = List[ArithExpr](p)
-        lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-
-      case (_, p: Pow) =>
-        val pSum = p.asSum
-        if (pSum.isDefined) rhsTerms = pSum.get.terms.sortWith(ArithExpr.isCanonicallySorted)
-        else rhsTerms = List[ArithExpr](p)
-        lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-
-      // Neither side is a product/power, decompose into smaller terms and merge
+      // Work with sum representation if possible
+      case (Sum(lhsTs), Sum(rhsTs)) =>
+        lhsTerms = lhsTs.sortWith(ArithExpr.isCanonicallySorted)
+        rhsTerms = rhsTs.sortWith(ArithExpr.isCanonicallySorted)
+      case (Sum(lhsTs), _) =>
+        lhsTerms = lhsTs.sortWith(ArithExpr.isCanonicallySorted)
+        rhsTerms = List[ArithExpr](rhs)
+      case (_, Sum(rhsTs)) =>
+        lhsTerms = List[ArithExpr](lhs)
+        rhsTerms = rhsTs.sortWith(ArithExpr.isCanonicallySorted)
       case _ =>
-        // Extract and sort terms of both sides and merge
-        lhsTerms = lhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-        rhsTerms = rhs.getTermsFactors.sortWith(ArithExpr.isCanonicallySorted)
-        if (lhsTerms.head == ? || rhsTerms.head == ?) return ?
-
+        lhsTerms = List[ArithExpr](lhs)
+        rhsTerms = List[ArithExpr](rhs)
     }
     mergeTerms(lhsTerms, rhsTerms)
   }
@@ -192,19 +89,6 @@ object SimplifySum {
     val nonZero = terms.filter(_ != Cst(0))
     if (nonZero.isEmpty) Cst(0) // Eliminated everything, so result is 0
     else if (nonZero.length == 1) nonZero.head // Simplifies to a primitive expression
-    else
-//    {
-//      val gcd = ComputeGCD.commonTermList(nonZero)
-//      if (gcd.getTermsFactors.collect({case Pow(x,-1) => x}).isEmpty) {
-//        Sum(nonZero)
-//      }
-//      else {
-//        val denom = gcd.getTermsFactors.collect({case Pow(x,-1) => x}).head
-//        val simplified = nonZero.map(x => x /^ gcd).reduce(_+_)
-//        if (ComputeGCD(simplified,denom) != Cst(1)) simplified * gcd
-//        else Sum(nonZero)
-//      }
-//    }
-      Sum(nonZero)
+    else Sum(nonZero)
   }
 }

@@ -69,7 +69,7 @@ class TestMod {
     val b = Var("b")
     val x = Cst(8)
     val expr_1 = x * 4 * (a+b)
-    val expr_2 = x * 4 * (a+b) / 16 * 16 + x * 4 * (a + b) % Cst(16)
+    val expr_2 = x * 4 * (a+b) / 16 * 16 + x * 4 * (a + b) % 16
     assertEquals(expr_1, expr_2.toProd.get)
   }
 
@@ -93,15 +93,6 @@ class TestMod {
     val n = Var("n")
     assertEquals(a % n, (a % n + expr_1 * n) % n)
     assertEquals(a % n, (a % n + expr_1 * n + expr_2 * n) % n)
-  }
-
-  @Test
-  def intDivFloorTest(): Unit = {
-    val expr = 4 * Var("a", Interval(Cst(0), Cst(31)))
-    val startDiv = (899 + expr) / 128
-    val startMod = (899 + expr) % 128
-    assertEquals(startDiv, Cst(7))
-    assertEquals(startMod, Cst(3) + expr)
   }
 
   @Test
