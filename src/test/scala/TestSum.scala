@@ -1,10 +1,11 @@
 import arithmetic._
 import org.junit.Test
 import org.junit.Assert._
-class TestSumSimplification {
+class TestSum {
 
   val a: Var = Var("a")
   val b: Var = Var("b")
+  val c: Var = Var("c")
 
   @Test
   def addZero(): Unit = {
@@ -32,5 +33,10 @@ class TestSumSimplification {
     val e1 = 2 + a - b
     val e2 = b - 2
     assertEquals(a, e1+e2)
+  }
+
+  @Test
+  def genTest(): Unit = {
+    assertEquals(a pow -1, (a pow -1) + b + c - b - c)
   }
 }

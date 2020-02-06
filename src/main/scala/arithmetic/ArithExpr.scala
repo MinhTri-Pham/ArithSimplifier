@@ -174,10 +174,20 @@ abstract sealed class ArithExpr {
       case _ => None
     }
   }
+
+  def digest(): Int
+
+  override def hashCode: Int = digest()
+
+  def HashSeed(): Int
 }
 
 // Class for (int) constants
 case class Cst(value : Int) extends ArithExpr {
+
+  override val HashSeed: Int = java.lang.Long.hashCode(value)
+
+  override lazy val digest: Int = java.lang.Long.hashCode(value)
 
   // Prime decomposition
   lazy val asProd : Prod = Factorise(this).get.toProd.get
@@ -194,6 +204,12 @@ case class Cst(value : Int) extends ArithExpr {
 
 // Class for variables
 case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None, isInteger:Boolean = false) extends ArithExpr {
+
+  override lazy val hashCode: Int = 8 * 79 + id.hashCode
+
+  override val HashSeed = 0x54e9bd5e
+
+  override lazy val digest: Int = HashSeed ^ name.hashCode ^ id.hashCode
 
   val id: Long = {
     if (fixedId.isDefined)
@@ -235,6 +251,10 @@ object Var {
 
 // Class for sums
 case class Sum(terms: List[ArithExpr]) extends ArithExpr {
+
+  override val HashSeed = 0x8e535130
+
+  override lazy val digest: Int = terms.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
 
   // Returns list of terms converted into products when possible for factorisation
   // The one exception are prime numbers
@@ -286,6 +306,10 @@ object Sum {
 
 // Class for products
 case class Prod(factors: List[ArithExpr]) extends ArithExpr {
+
+  override val HashSeed = 0x286be17e
+
+  override lazy val digest: Int = factors.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
 
   lazy val cstFactor : Int = factors.head match {
     case Cst(c) => c
@@ -439,6 +463,10 @@ object Prod {
 // Class for powers, integer exponents
 case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
 
+  override val HashSeed = 0x63fcd7c2
+
+  override lazy val digest: Int = HashSeed ^ b.digest() ^ e
+
   // Expansion into sum
   lazy val asSum : Option[Sum] = if (e < 0 || !b.isInstanceOf[Sum]) None else {
     var combined : ArithExpr = Cst(0)
@@ -495,10 +523,18 @@ object abs {
 
 case class AbsFunction(ae: ArithExpr) extends ArithExpr {
 
+  override val HashSeed = 0x3570a2ce
+
+  override lazy val digest: Int = HashSeed ^ ae.digest()
+
   override def toString: String = "Abs(" + ae + ")"
 }
 
 case class FloorFunction(ae: ArithExpr) extends ArithExpr {
+
+  override val HashSeed = 0x558052ce
+
+  override lazy val digest: Int = HashSeed ^ ae.digest()
 
   override def toString: String = "Floor(" + ae + ")"
 }
@@ -509,6 +545,10 @@ object floor {
 
 case class CeilingFunction(ae: ArithExpr) extends ArithExpr {
 
+  override val HashSeed = 0xa45d23d0
+
+  override lazy val digest: Int = HashSeed ^ ae.digest()
+
   override def toString: String = "Ceiling(" + ae + ")"
 }
 
@@ -516,106 +556,20 @@ object ceil {
   def apply(ae: ArithExpr): ArithExpr = simplifier.SimplifyCeiling(ae)
 }
 
+
 object ArithExpr {
 
   implicit def intToCst(i: Int): ArithExpr = Cst(i)
 
-  // Used for sorting terms of arithmetic.Sum or factors of arithmetic.Prod
-  // For ease of simplification
   val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
     case (Cst(a), Cst(b)) => a < b
     case (_: Cst, _) => true // constants first
     case (_, _: Cst) => false
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
-
-    // Want na (where n is a constant) < b (assuming a < b) for sum simplification
-    case (p: Prod, x: Var) =>
-      val nonCst = p.nonCstFactor
-      if (nonCst.isInstanceOf[Var]) {
-        if (nonCst == x) false
-        else isCanonicallySorted(nonCst, x)
-      }
-      else false
-    case (x: Var, p: Prod) =>
-      val nonCst = p.nonCstFactor
-      if (nonCst.isInstanceOf[Var]) {
-        if (nonCst == x) true
-        else isCanonicallySorted(x, nonCst)
-      }
-      else true
-
-    // Want a^n (where n is a constant) < b (assuming a < b) for product simplification
-    case (p: Pow, x: Var) =>
-      val base = p.b
-      if (base == x) false
-      else isCanonicallySorted(base,x)
-
-    case (x: Var, p: Pow) =>
-      val base = p.b
-      if (base == x) true
-      else isCanonicallySorted(x,base)
-
-    case (_: Var, _) => true
+    case (_: Var, _) => true // variables always after constants second
     case (_, _: Var) => false
-
-    case (p: Prod, x: Pow) =>
-      val nonCst = p.nonCstFactor
-      if (nonCst == x) true
-      else if (nonCst.isInstanceOf[Pow]) isCanonicallySorted(nonCst,x)
-      else true
-
-    // Don't care about constant factor of product
-    case (x: Pow, p: Prod) =>
-      val nonCst = p.nonCstFactor
-      if (nonCst == x) false
-      else if (nonCst.isInstanceOf[Pow]) isCanonicallySorted(x,nonCst)
-      else false
-
-    case (_, p: Pow) => isCanonicallySorted(x,p.b)
-    case (p: Pow, _) => isCanonicallySorted(p.b,x)
-
-    case (p1:Prod, p2:Prod) =>
-      val p1nonCst = p1.nonCstList
-      val p2nonCst = p2.nonCstList
-      if (p1nonCst.length == p2nonCst.length) {
-        val numFactors = p1nonCst.length
-        var i = 0
-        var result = p1.cstFactor < p2.cstFactor
-        while (i < numFactors) {
-          if (p1nonCst(i) != p2nonCst(i)) {
-            result = isCanonicallySorted(p1nonCst(i), p2nonCst(i))
-            i = numFactors - 1
-          }
-          i += 1
-        }
-        result
-      }
-      // Shorter products first
-      else {
-        p1nonCst.length < p2nonCst.length
-      }
-
-    case (Sum(t1), Sum(t2)) =>
-      // Sorting based on terms
-      if (t1.length == t2.length) {
-        val numTerms = t1.length
-        var result = false
-        var i = 0
-        while (i < numTerms) {
-          if (t1(i) != t2(i)) {
-            result = isCanonicallySorted(t1(i), t2(i))
-            i = numTerms - 1
-          }
-          i += 1
-        }
-        result
-      }
-      // Shorter sums first
-      else {
-        t1.length < t2.length
-      }
-
-    case _ => false
+    case (Prod(factors1), Prod(factors2)) => factors1.zip(factors2).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+    case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
   }
 
   // Evaluates an expression given constant substitutions for variables
@@ -946,4 +900,8 @@ object ArithExpr {
   }
 }
 
-case object ? extends ArithExpr {}
+case object ? extends ArithExpr {
+  override val HashSeed = 0x3fac31
+
+  override val digest: Int = HashSeed
+}

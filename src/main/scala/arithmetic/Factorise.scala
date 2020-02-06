@@ -270,13 +270,4 @@ object Factorise {
     }
     prods.toList
   }
-
-  def main(args: Array[String]): Unit = {
-    val a: Var = Var("a")
-    val b: Var = Var("b")
-    val c: Var = Var("c")
-    val d: Var = Var("d")
-    val s6 = ((a*b) pow 3) + 3*((a*b) pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
-    println(Factorise(s6))
-  }
 }
