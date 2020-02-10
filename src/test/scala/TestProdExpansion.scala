@@ -61,7 +61,10 @@ class TestProdExpansion {
     val e1 = (a*b+c) /^ a - b
     assertEquals(e1, c /^ a)
 
-    val e2 = (a+b+c) /^ (a+b) - 1
-    assertEquals(e2, c /^ (a+b))
+    val e2 = (a*b + a*c + 1) /^ a - b - c
+    assertEquals(e2, a pow -1)
+
+    val e3 = (a+b+c) /^ (a+b) - 1
+    assertEquals(e3, c /^ (a+b))
   }
 }

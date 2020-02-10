@@ -2,12 +2,20 @@ import arithmetic._
 import org.junit.Test
 import org.junit.Assert._
 
-class TestFractionSimplification {
+class TestFraction {
 
   val a: Var = Var("a")
   val b: Var = Var("b")
   val c: Var = Var("c")
   val d: Var = Var("d")
+
+  @Test
+  def divisionNormalForm(): Unit = {
+    assertEquals(a*c /^ b, a /^ (b /^ c))
+    assertEquals((a*c) /^ (b*d), a /^ (b /^ (c /^ d)))
+    assertEquals(a /^ b, (a /^ (b /^ c)) /^ c)
+    assertEquals(a, (a /^ (b /^ c)) /^ (c /^ b))
+  }
 
   @Test
   def simplificationTest(): Unit = {

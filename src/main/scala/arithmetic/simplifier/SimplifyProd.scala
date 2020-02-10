@@ -144,44 +144,6 @@ object SimplifyProd {
         mergeFactors(lhsFactors,rhsFactors)
   }
 
-  // Merges factors of expressions to be multiplied
-  // Assumes both factor lists are canonically sorted
-//  def mergeFactors(lhsFactors:List[ArithExpr], rhsFactors:List[ArithExpr]) : ArithExpr = {
-//    val merged = ListBuffer[ArithExpr]()
-//    val lhsSize = lhsFactors.length
-//    val rhsSize = rhsFactors.length
-//    var i,j = 0
-//    while (i < lhsSize && j < rhsSize) {
-//      val lhsTerm = lhsFactors(i)
-//      val rhsTerm = rhsFactors(j)
-//      val combinedTerm = combineFactors(lhsTerm, rhsTerm)
-//      if (combinedTerm.isDefined) {
-//        merged += combinedTerm.get
-//        i+=1
-//        j+=1
-//      }
-//      else {
-//        if (ArithExpr.isCanonicallySorted(lhsTerm, rhsTerm)) {
-//          merged += lhsTerm
-//          i+=1
-//        }
-//        else {
-//          merged += rhsTerm
-//          j+=1
-//        }
-//      }
-//    }
-//    while (i < lhsSize) {
-//      merged += lhsFactors(i)
-//      i+=1
-//    }
-//    while (j < rhsSize) {
-//      merged += rhsFactors(j)
-//      j+=1
-//    }
-//    convert(merged.toList)
-//  }
-
   // More robust then previous method
   // Sorting prevents a lot of unnecessary work
   def mergeFactors(lhsFactors : List[ArithExpr], rhsFactors : List[ArithExpr]) : ArithExpr = {

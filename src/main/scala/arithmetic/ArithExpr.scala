@@ -24,17 +24,19 @@ abstract sealed class ArithExpr {
   def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
 
   // Integer division
-  def /(that: ArithExpr) : ArithExpr = SimplifyFloor(this * (that pow -1))
-//    (this.sign, that.sign) match
-//    {
-//    case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
-//    case (Sign.Positive, Sign.Negative) | (Sign.Positive, Sign.Negative) => SimplifyCeiling(this * (that pow -1))
-//    case _ => ?
-//    }
+  def /(that: ArithExpr) : ArithExpr =
+//    SimplifyFloor(this * (that pow -1))
+    (this.sign, that.sign) match
+    {
+    case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
+    case (Sign.Positive, Sign.Negative) | (Sign.Negative, Sign.Positive) => SimplifyCeiling(this * (that pow -1))
+    // Temporary
+    case _ => SimplifyFloor(this * (that pow -1))
+    }
 
   // Modulo operator
 //  def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
-  def %(that: ArithExpr) : ArithExpr = this - SimplifyFloor(this * (that pow -1)) * that
+  def %(that: ArithExpr) : ArithExpr = this - ((this / that) * that)
 
   // Differential operator
   def diff(v:Var) : ArithExpr = Differentiate(this,v)
@@ -242,11 +244,14 @@ object Var {
       _id
   }
 
-  def apply(name: String): Var = new Var(name)
+  def apply(name: String): Var = new Var(name, Interval())
 
-  //def apply(name: String, fixedId: Option[Long]): Var = new Var(name, Interval(), fixedId)
+  def apply(name: String, isInt: Boolean): Var = new Var(name, Interval(),None,isInt)
+}
 
-  def apply(name: String, isInt: Boolean): Var = new Var(name,Interval(),None,isInt)
+// Negative variables
+object NegVar{
+  def apply(name: String): Var = new Var(name, Interval(?, Cst(-1)))
 }
 
 // Class for sums
@@ -295,7 +300,7 @@ object Sum {
       case s: Sum => Some(s.terms)
       case pw : Pow => if (pw.asSum.isDefined) Some(pw.asSum.get.terms) else None
       case p:Prod =>
-        if (p.partialCancelled.isDefined) Some(p.partialCancelled.get.getTermsFactors )
+        if (p.partialCancelledSum.isDefined) Some(p.partialCancelledSum.get.getTermsFactors )
         else if (p.distributed.isDefined) Some(p.distributed.get.terms)
         else None
       case _ => None
@@ -376,7 +381,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   // Works for case when we have product of sum and negative power expression
   // Tries to find subset of sum that can be cancelled out with the power
-  lazy val partialCancelled : Option[ArithExpr] = {
+  lazy val partialCancelledSum : Option[ArithExpr] = {
     if (this.asSumFraction.isDefined) {
       val numer = this.asSumFraction.get._1
       val denom = this.asSumFraction.get._2

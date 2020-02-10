@@ -28,5 +28,6 @@ class Interval(min: ArithExpr, max: ArithExpr) {
 object Interval {
   def apply(min: ArithExpr, max: ArithExpr): Interval = new Interval(min, max)
 
-  def apply() : Interval = new Interval(?,?)
+  // For now assume everything by default positive
+  def apply() : Interval = new Interval(Cst(0),?)
 }

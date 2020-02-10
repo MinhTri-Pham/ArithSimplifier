@@ -28,46 +28,7 @@ object SimplifySum {
     mergeTerms(lhsTerms, rhsTerms)
   }
 
-//  // Merges terms of expressions to be added
-//  // Assumes both term lists are canonically sorted
-//  def mergeTerms(lhsTerms : List[ArithExpr], rhsTerms : List[ArithExpr]) : ArithExpr = {
-//    val merged = ListBuffer[ArithExpr]()
-//    val lhsSize = lhsTerms.length
-//    val rhsSize = rhsTerms.length
-//    var i,j = 0
-//    while (i < lhsSize && j < rhsSize) {
-//      val lhsTerm = lhsTerms(i)
-//      val rhsTerm = rhsTerms(j)
-//      val combinedTerm = combineTerms(lhsTerm, rhsTerm)
-//      if (combinedTerm.isDefined) {
-//        merged += combinedTerm.get
-//        i+=1
-//        j+=1
-//      }
-//      else {
-//        if (ArithExpr.isCanonicallySorted(lhsTerm, rhsTerm)) {
-//          merged += lhsTerm
-//          i+=1
-//        }
-//        else {
-//          merged += rhsTerm
-//          j+=1
-//        }
-//      }
-//    }
-//    while (i < lhsSize) {
-//      merged += lhsTerms(i)
-//      i+=1
-//    }
-//    while (j < rhsSize) {
-//      merged += rhsTerms(j)
-//      j+=1
-//    }
-//    // Make adjustment for possible Cst(0) terms in the result
-//    convert(merged.toList)
-//  }
-
-  // More robust then previous method
+  // Determine result of addition given the terms of expressions to be added
   // Sorting prevents a lot of unnecessary work
   def mergeTerms(lhsTerms : List[ArithExpr], rhsTerms : List[ArithExpr]) : ArithExpr = {
     var merged = ListBuffer[ArithExpr]()

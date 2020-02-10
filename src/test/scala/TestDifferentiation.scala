@@ -36,8 +36,6 @@ class TestDifferentiation {
     assertEquals(xy,yx)
   }
 
-
-  // Generally can cause problems
   @Test
   def powerProdTest(): Unit = {
     val expr = ((x+y)*x) pow 2

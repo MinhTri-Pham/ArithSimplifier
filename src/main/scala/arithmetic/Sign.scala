@@ -9,11 +9,19 @@ object Sign extends Enumeration {
     ae match {
       case Cst(c)=> if (c >= 0) Sign.Positive else Sign.Negative
       case Var(_,range,_,_) => signVar(range)
-      case Prod(factors) => signProd(factors)
-      case Sum(terms) => signSum(terms)
+      case p:Prod => signProd(p.factors)
+      case s:Sum => signSum(s.terms)
       case Pow(b,e) =>
         if (e % 2 == 0) Sign.Positive
         else b.sign
+      case AbsFunction(_) => Sign.Positive
+      case FloorFunction(e) => e.sign
+      case CeilingFunction(e) =>
+        ArithExpr.isSmaller(Cst(-1), e) match {
+          case Some(true) => Sign.Positive
+          case Some(false) => Sign.Negative
+          case _ => Sign.Unknown
+        }
       case _ => Sign.Unknown
     }
   }
@@ -45,13 +53,33 @@ object Sign extends Enumeration {
   }
 
   private def signSum(terms: List[ArithExpr]) : Sign.Value = {
-    val mins = terms.map(term => term.min)
-    val maxs = terms.map(term => term.max)
-    val sumMins = mins.reduce(_ + _)
-    if (sumMins.sign.equals(Sign.Positive)) return Sign.Positive
-    val sumMaxs = maxs.reduce(_ + _)
-    if (sumMaxs.sign.equals(Sign.Negative)) return Sign.Negative
-    Sign.Unknown
+    val unknownSignTerms = terms.filter(_.sign == Sign.Unknown)
+    if (unknownSignTerms.nonEmpty)
+      Sign.Unknown
+    else {
+      val posTerms = terms.filter(_.sign == Sign.Positive)
+      val negTerms = terms.filter(_.sign == Sign.Negative)
+      if (posTerms.isEmpty) {
+        assert(negTerms.nonEmpty)
+        Sign.Negative
+      }
+      else if (negTerms.isEmpty) {
+        assert(posTerms.nonEmpty)
+        Sign.Positive
+      }
+      else {
+        val absSumNegTerms = abs(negTerms.fold(Cst(0))(_ + _))
+        val sumPosTerms = posTerms.fold(Cst(0))(_ + _)
+        val lhsSmaller = ArithExpr.isSmaller(absSumNegTerms, sumPosTerms)
+        val rhsSmaller = ArithExpr.isSmaller(sumPosTerms, absSumNegTerms)
+        if (lhsSmaller.isEmpty || rhsSmaller.isEmpty)
+          Sign.Unknown
+        else if (lhsSmaller.get && !rhsSmaller.get)
+          Sign.Positive
+        else if (!lhsSmaller.get && rhsSmaller.get)
+          Sign.Negative
+        else Sign.Unknown
+      }
+    }
   }
-
 }

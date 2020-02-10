@@ -90,7 +90,7 @@ class TestMod {
     val c = Var("c", isInt = true)
     val expr_1 = b+c
     val expr_2 = b*c
-    val n = Var("n")
+    val n = Cst(2)
     assertEquals(a % n, (a % n + expr_1 * n) % n)
     assertEquals(a % n, (a % n + expr_1 * n + expr_2 * n) % n)
   }

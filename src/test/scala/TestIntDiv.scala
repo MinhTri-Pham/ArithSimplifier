@@ -17,18 +17,6 @@ class TestIntDiv {
     assertEquals(2*a + floor(3*b), (4*a*c + 6*b*c) / (2*c))
   }
 
-//  @Test
-//  def intervalTest(): Unit = {
-//    val a = Var("a",Interval(Cst(1), Cst(2)))
-//    val b = Var("b", Interval(Cst(2), Cst(3)))
-//    val c = Var("c",Interval(Cst(7), Cst(8)))
-//    val d = Var("d", Interval(Cst(10), Cst(11)))
-//    assertEquals(a / c, Cst(0))
-//    assertEquals((a+b) / c, Cst(0))
-//    assertEquals(d / c, Cst(1))
-//    assertEquals(Cst(2)*c / (a+d), Cst(1))
-//  }
-
   @Test
   def sumDenom(): Unit = {
     val a = Cst(2)

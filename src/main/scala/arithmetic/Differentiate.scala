@@ -44,9 +44,4 @@ object Differentiate {
     }
     derivative
   }
-
-  def main(args: Array[String]): Unit = {
-    val x = Var("x")
-    println(x+Cst(2)*Cst(3)+Cst(2)*x+Cst(1))
-  }
 }
