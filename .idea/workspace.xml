@@ -3,36 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="89ef1f17-11b5-4f42-ace4-53df80d87ab4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ArithExpr.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/ComputeGCD.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/ComputeGCD.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyProd.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifyProd.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/arithmetic/simplifier/SimplifySum.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/$qmark$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/AbsFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ArithExpr.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/CeilingFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ComputeGCD$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Cst.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/FloorFunction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/NegVar$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/NegVar$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Pow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Prod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Sum.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/Var.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/abs$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/abs$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ceil$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/ceil$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/floor$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/floor$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyProd$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifyProd$.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifySum$.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/scala-2.13/classes/arithmetic/simplifier/SimplifySum$.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,9 +129,9 @@
     <list>
       <item itemvalue="Application.SimplifyCeiling" />
       <item itemvalue="JUnit.All in ArithSimplifier" />
-      <item itemvalue="JUnit.TestMod" />
       <item itemvalue="JUnit.TestIntDivModWithNegative" />
       <item itemvalue="JUnit.TestIntDivModWithNegative.cstIntDiv" />
+      <item itemvalue="JUnit.TestMod" />
     </list>
     <recent_temporary>
       <list>
