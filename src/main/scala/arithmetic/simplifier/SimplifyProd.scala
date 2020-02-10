@@ -11,141 +11,24 @@ object SimplifyProd {
   def multExprs(lhs: ArithExpr, rhs: ArithExpr): ArithExpr = {
     var lhsFactors, rhsFactors: List[ArithExpr] = List[ArithExpr]()
     (lhs, rhs) match {
-            // If there's a power with product as base, expand it into a product of powers
-            case (p1: Pow, p2:Pow) =>
-              val lhsProd = p1.asProdPows
-              val rhsProd = p2.asProdPows
-              (lhsProd,rhsProd) match {
-                case (Some(_), Some(_)) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = rhsProd.get.factors
-
-                case (Some(_), None) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = List[ArithExpr](p2)
-
-                case (None, Some(_)) =>
-                  lhsFactors = List[ArithExpr](p1)
-                  rhsFactors = rhsProd.get.factors
-
-                case (None, None) =>
-                  lhsFactors = List[ArithExpr](p1)
-                  rhsFactors = List[ArithExpr](p2)
-              }
-
-            case (p: Pow, s:Sum) =>
-              val lhsProd = p.asProdPows
-              val rhsProd = s.asProd
-              (lhsProd,rhsProd) match {
-                case (Some(_), Some(_)) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = rhsProd.get.factors
-
-                case (Some(_), None) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = List[ArithExpr](s)
-
-                case (None, Some(_)) =>
-                  lhsFactors = List[ArithExpr](p)
-                  rhsFactors = rhsProd.get.factors
-
-                case (None, None) =>
-                  lhsFactors = List[ArithExpr](p)
-                  rhsFactors = List[ArithExpr](s)
-              }
-
-            case (s:Sum, p:Pow) =>
-              val lhsProd = s.asProd
-              val rhsProd = p.asProdPows
-              (lhsProd,rhsProd) match {
-                case (Some(_), Some(_)) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = rhsProd.get.factors
-
-                case (Some(_), None) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = List[ArithExpr](p)
-
-                case (None, Some(_)) =>
-                  lhsFactors = List[ArithExpr](s)
-                  rhsFactors = rhsProd.get.factors
-
-                case (None, None) =>
-                  lhsFactors = List[ArithExpr](s)
-                  rhsFactors = List[ArithExpr](p)
-              }
-
-            case (s1: Sum, s2: Sum) =>
-              val lhsProd = s1.asProd
-              val rhsProd = s2.asProd
-              (lhsProd,rhsProd) match {
-                case (Some(_), Some(_)) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = rhsProd.get.factors
-                case (Some(_), None) =>
-                  lhsFactors = lhsProd.get.factors
-                  rhsFactors = List[ArithExpr](s2)
-
-                case (None, Some(_)) =>
-                  lhsFactors = List[ArithExpr](s1)
-                  rhsFactors = rhsProd.get.factors
-
-                case (None, None) =>
-                  lhsFactors = List[ArithExpr](s1)
-                  rhsFactors = List[ArithExpr](s2)
-              }
-
-            case (p: Pow, _) =>
-              val pProd = p.asProdPows
-              if (pProd.isDefined) lhsFactors = pProd.get.factors
-              else lhsFactors = List[ArithExpr](p)
-              rhsFactors = rhs.getTermsFactors
-
-            case (_, p: Pow) =>
-              val pProd = p.asProdPows
-              if (pProd.isDefined) rhsFactors = pProd.get.factors
-              else rhsFactors = List[ArithExpr](p)
-              lhsFactors = lhs.getTermsFactors
-
-            case (s: Sum, _) =>
-              val sProd = s.asProd
-              if (sProd.isDefined) lhsFactors = sProd.get.factors
-              else lhsFactors = List[ArithExpr](s)
-              rhsFactors = rhs.getTermsFactors
-
-            case (_, s: Sum) =>
-              val sProd = s.asProd
-              if (sProd.isDefined) rhsFactors = sProd.get.factors
-              else rhsFactors = List[ArithExpr](s)
-              lhsFactors = lhs.getTermsFactors
-
-            // Neither side is a sum or power, decompose into smaller terms and merge
-            case _ =>
-              // Extract and sort factors of both sides and merge
-              lhsFactors = lhs.getTermsFactors
-              rhsFactors = rhs.getTermsFactors
-          }
-
-//      // Work with product representation if possible
-//      case (Prod(lhsFs), Prod(rhsFs)) =>
-//        lhsFactors = lhsFs.sortWith(ArithExpr.isCanonicallySorted)
-//        rhsFactors = rhsFs.sortWith(ArithExpr.isCanonicallySorted)
-//      case (Prod(lhsFs), _) =>
-//        lhsFactors = lhsFs.sortWith(ArithExpr.isCanonicallySorted)
-//        rhsFactors = List[ArithExpr](rhs)
-//      case (_, Prod(rhsFs)) =>
-//        lhsFactors = List[ArithExpr](lhs)
-//        rhsFactors = rhsFs.sortWith(ArithExpr.isCanonicallySorted)
-//      case _ =>
-//        lhsFactors = List[ArithExpr](lhs)
-//        rhsFactors = List[ArithExpr](rhs)
-//    }
-//    mergeFactors(lhsFactors,rhsFactors)
+      // Work with product representation if possible
+      case (Prod(lhsFs), Prod(rhsFs)) =>
+        lhsFactors = lhsFs
+        rhsFactors = rhsFs
+      case (Prod(lhsFs), _) =>
+        lhsFactors = lhsFs
+        rhsFactors = List[ArithExpr](rhs)
+      case (_, Prod(rhsFs)) =>
+        lhsFactors = List[ArithExpr](lhs)
+        rhsFactors = rhsFs
+      case _ =>
+        lhsFactors = List[ArithExpr](lhs)
+        rhsFactors = List[ArithExpr](rhs)
+    }
         mergeFactors(lhsFactors,rhsFactors)
   }
 
-  // More robust then previous method
-  // Sorting prevents a lot of unnecessary work
+  // Determine result of multiplication given the terms of multiplication to be added
   def mergeFactors(lhsFactors : List[ArithExpr], rhsFactors : List[ArithExpr]) : ArithExpr = {
     var merged = ListBuffer[ArithExpr]()
     merged = merged.addAll(lhsFactors)
@@ -204,8 +87,8 @@ object SimplifyProd {
     case _ => None
   }
 
-  // Given list of factors, determine resulting expression
-  // By design, it doesn't contain any ones
+  // Given list of factors of simplified result, determine resulting expression
+  // If result is a product, sort factors in canonical order
   def convert(factors: List[ArithExpr]): ArithExpr = {
     if (factors.isEmpty) Cst(1) // Everything simplified with each other
     else if (factors.length == 1) factors.head // Simplified expression is primitive

@@ -73,10 +73,17 @@ abstract sealed class ArithExpr {
   private def _minmax(): (ArithExpr, ArithExpr) = this match {
     case c:Cst => (c,c)
     case v:Var => (v.range.intervalMin, v.range.intervalMax)
-    case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
-    case Prod(factors) =>
-      val prodInterval = ArithExpr.computeIntervalProd(factors)
+
+    case s:Sum => (s.terms.map(_.min).reduce[ArithExpr](_ + _), s.terms.map(_.max).reduce[ArithExpr](_ + _))
+    case p:Prod =>
+      val prodInterval = ArithExpr.computeIntervalProd(p.factors)
       (prodInterval.intervalMin, prodInterval.intervalMax)
+
+
+//    case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
+//    case Prod(factors) =>
+//      val prodInterval = ArithExpr.computeIntervalProd(factors)
+//      (prodInterval.intervalMin, prodInterval.intervalMax)
 
     case Pow(b,e) =>
       if (e == 0) (Cst(1), Cst(1))
@@ -261,23 +268,6 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   override lazy val digest: Int = terms.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
 
-  // Returns list of terms converted into products when possible for factorisation
-  // The one exception are prime numbers
-//  lazy val asProds : List[ArithExpr] = {
-//    var prods = ListBuffer[ArithExpr]()
-//    for (t <- terms) t match {
-//      case p:Prod =>
-//        prods += p.primitiveProd
-//
-//      case pow:Pow =>
-//        if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
-//        else prods += pow.asProd.get
-//
-//      case _ => prods += t
-//    }
-//    prods.toList
-//  }
-
   lazy val asProd : Option[Prod] = {
     val factorisation = Factorise(this)
     if (factorisation.isDefined) factorisation.get.toProd
@@ -436,32 +426,17 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 }
 
 object Prod {
-//  def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
-//    case aexpr: ArithExpr => aexpr match {
-//      case p: Prod => Some(p.factors)
-//      // Concrete Pow that can be represented as Prod
-//      case p: Pow if p.asProdPows.isDefined => Some(p.asProdPows.get.factors)
-//
-//      // Factorisation
-//      case s: Sum if s.asProd.isDefined => Some(s.asProd.get.factors)
-//      case _ => None
-//    }
-//    case _ => None
-//  }
+  def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
+    case aexpr: ArithExpr => aexpr match {
+      case p: Prod => Some(p.factors)
+      // Concrete Pow that can be represented as Prod
+      case p: Pow if p.asProdPows.isDefined => Some(p.asProdPows.get.factors)
 
-
-  def removeFactors(from: List[ArithExpr], toRemove: List[ArithExpr]): List[ArithExpr] =
-    from.diff(toRemove) match {
-      // If we took all the elements out, return neutral (1 for product)
-      case Nil => List(Cst(1))
-      case x => x
+      // Factorisation
+      case s: Sum if s.asProd.isDefined => Some(s.asProd.get.factors)
+      case _ => None
     }
-
-  def partitionFactorsOnCst(factors: List[ArithExpr], simplified: Boolean): (Cst, List[ArithExpr]) = {
-    factors.partition(_.isInstanceOf[Cst]) match {
-      case (Nil, nonCstFactors) => (Cst(1), nonCstFactors)
-      case (cstFactor, nonCstFactors) => (Cst(cstFactor.foldLeft[Int](1)(_ * _.asInstanceOf[Cst].value)), nonCstFactors)
-    }
+    case _ => None
   }
 }
 
@@ -573,7 +548,7 @@ object ArithExpr {
     case (x: Var, y: Var) => x.id < y.id // order variables based on id
     case (_: Var, _) => true // variables always after constants second
     case (_, _: Var) => false
-    case (Prod(factors1), Prod(factors2)) => factors1.zip(factors2).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+    case (p1:Prod, p2:Prod) => p1.factors.zip(p2.factors).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
     case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
   }
 
@@ -581,8 +556,8 @@ object ArithExpr {
   def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Int = expr match {
     case Cst(c) => c
     case v: Var => findSubstitute(v, subs)
-    case Sum(terms) => terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
-    case Prod(factors) => factors.foldLeft(1) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
+    case s:Sum => s.terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
+    case p:Prod => p.factors.foldLeft(1) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
     case Pow(b,e) => scala.math.pow(evaluate(b,subs),e).toInt
   }
 
@@ -890,8 +865,8 @@ object ArithExpr {
 
     case Pow(base, exp) => scala.math.pow(evalDouble(base),exp)
 
-    case Sum(terms) => terms.foldLeft(0.0)((result, expr) => result + evalDouble(expr))
-    case Prod(terms) => terms.foldLeft(1.0)((result, expr) => result * evalDouble(expr))
+    case s:Sum => s.terms.foldLeft(0.0)((result, expr) => result + evalDouble(expr))
+    case p:Prod => p.factors.foldLeft(1.0)((result, expr) => result * evalDouble(expr))
 
     case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
     case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))

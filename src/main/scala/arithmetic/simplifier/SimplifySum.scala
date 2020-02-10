@@ -29,7 +29,6 @@ object SimplifySum {
   }
 
   // Determine result of addition given the terms of expressions to be added
-  // Sorting prevents a lot of unnecessary work
   def mergeTerms(lhsTerms : List[ArithExpr], rhsTerms : List[ArithExpr]) : ArithExpr = {
     var merged = ListBuffer[ArithExpr]()
     merged = merged.addAll(lhsTerms)
@@ -69,8 +68,8 @@ object SimplifySum {
     case _ => None
   }
 
-  // Given list of terms, determine resulting expression
-  // By design, it doesn't contain any zeros
+  // Given list of terms of simplified result, determine resulting expression
+  // If result is a sum, sort terms in canonical order
   def convert(terms: List[ArithExpr]): ArithExpr = {
     if (terms.isEmpty) Cst(0) // Eliminated everything, so result is 0
     else if (terms.length == 1) terms.head // Simplifies to a primitive expression

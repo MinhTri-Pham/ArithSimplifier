@@ -2,6 +2,7 @@ package arithmetic
 
 object ComputeGCD {
 
+  // GCD of two expressions
   def apply(a: ArithExpr, b: ArithExpr): ArithExpr = (a, b) match {
       // GCD of constants
       case (Cst(x), Cst(y)) => Cst(gcdInt(x, y))
@@ -9,30 +10,37 @@ object ComputeGCD {
       // GCD of two identical things is itself
       case (x, y) if x == y => x
 
-      // GCD of powers, go through bases and find a match, return smaller exp in absolute value
+      // GCD of powers
+      // If bases same and exponents have same sign, GCD is b^(min(abs(e1),abs(e2))
       case (Pow(b1, e1), Pow(b2, e2)) if b1 == b2 && e1 > 0 && e2 > 0 =>
         if (e1 <= e2) a
         else b
       case (Pow(b1, e1), Pow(b2, e2)) if b1 == b2 && e1 < 0 && e2 < 0 =>
         if (e1 <= e2) b
         else a
+      // If bases same but exponents have mixed sign, GCD is 1
       case (Pow(b1, _), Pow(b2, _)) if b1 == b2 => Cst(1)
+
+      // Implicit pow 1
       case (Pow(ob, e), x) if ob == x && e > 1 => x // pow 1 (implicit)
       case (x, Pow(ob, e)) if ob == x  && e > 1 => x // pow 1 (implicit)
-      case (Pow(ob, _), Prod(factors)) if factors.contains(ob) => ob // pow 1 (implicit)
-      case (Prod(factors), Pow(ob, _)) if factors.contains(ob) => ob // pow 1 (implicit)
+      case (Pow(ob, _), p:Prod) if p.factors.contains(ob) => ob // pow 1 (implicit)
+      case (p:Prod, Pow(ob, _)) if p.factors.contains(ob) => ob // pow 1 (implicit)
 
-      case (Prod(fs1), Prod(fs2)) => (for {f1 <- fs1; f2 <- fs2} yield ComputeGCD(f1, f2)).reduce(_ * _)
+      // GCD of two products:
+      case (p1:Prod, p2:Prod) => (for {f1 <- p1.factors; f2 <- p2.factors} yield ComputeGCD(f1, f2)).reduce(_ * _)
 
-      case (_:Prod, _: Cst) => ComputeGCD(b, a)
-      case (c: Cst, Prod(f)) => f.find(_.isInstanceOf[Cst]) match {
+      // GCD of constant and product: Look at constant factor of product
+      case (c: Cst, p:Prod) => p.factors.find(_.isInstanceOf[Cst]) match {
         case Some(x) => ComputeGCD(c, x)
         case _ => Cst(1)
       }
-      case (Prod(f), x) if f.contains(x)  => x
-      case (x, Prod(f)) if f.contains(x)  => x
+      case (_:Prod, _: Cst) => ComputeGCD(b, a)
 
-      // GCD of sums: try to factorise
+      case (p:Prod, x) if p.factors.contains(x)  => x
+      case (x, p:Prod) if p.factors.contains(x)  => x
+
+      // GCD of involving sums: try to factorise
       case (s1: Sum, s2: Sum) =>
         val fac1 = s1.asProd
         val fac2 = s2.asProd
@@ -49,7 +57,6 @@ object ComputeGCD {
           Cst(1)
         }
 
-      case (_, _: Sum) => ComputeGCD(b, a)
       case (s: Sum, x) =>
         // Factorise s
         val factorAttempt = s.asProd
@@ -62,12 +69,13 @@ object ComputeGCD {
         // Can't factorise so gcd must be 1
         else Cst(1)
 
+      case (_, _: Sum) => ComputeGCD(b, a)
 
       case _ => Cst(1)
     }
 
-
-  def gcdLong(terms: List[Int]): Int = {
+  // GCD of list of ints
+  def gcdIntList(terms: List[Int]): Int = {
     terms.length match {
       case 0 => throw new IllegalArgumentException
       case 1 => terms.head
@@ -75,11 +83,13 @@ object ComputeGCD {
     }
   }
 
+  // GCD of two ints
   @scala.annotation.tailrec
   def gcdInt(x: Int, y: Int): Int = {
     if (y == 0) scala.math.abs(x) else gcdInt(scala.math.abs(y), scala.math.abs(x) % y)
   }
 
+  // GCD of list of expressions
   def commonTermList(terms: List[ArithExpr]) : ArithExpr = {
     terms.foldLeft(terms.head)((x,y) => ComputeGCD(x,y))
   }
