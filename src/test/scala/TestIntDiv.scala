@@ -51,22 +51,6 @@ class TestIntDiv {
     assertEquals(c + y + floor(x /^ (c+m)), (4 + x + c*m + c*y + m*y) / (c+m))
   }
 
-//  @Test
-//  def factoriseDenom(): Unit = {
-//    val a = Var("a")
-//    val b = Var("b")
-//    val m = Var("m")
-//    val n = Var("n")
-//    val c = Cst(2)
-//    val x = Var("x")
-//    val y = Var("y")
-//    // Important that these two don't involve a or b
-//    val expr_1 = x+Cst(2)*y
-//    val expr_2 = x*x*y
-//    assertEquals(a/n + b/(c*n+m*n),(b + c*a + m*a) / (c*n+m*n))
-//    assertEquals(expr_1/n + expr_2/(c*n+m*n),(expr_2 + c*expr_1 + m*expr_1) / (c*n+m*n))
-//  }
-
   @Test
   def partitionConstantMultiple(): Unit = {
     val a = Var("a")

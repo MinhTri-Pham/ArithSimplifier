@@ -19,24 +19,14 @@ class TestSum {
   }
 
   @Test
-  def constFold(): Unit = {
-    assertEquals(a + 4, 1 + a + 3)
-  }
-
-  @Test
-  def varFold() : Unit = {
-    assertEquals(2*b+2*a+b, 2*a+3*b)
-  }
-
-  @Test
   def constVarFold() : Unit = {
-    val e1 = 2 + a - b
+    val e1 = 3 + a - 2*b
     val e2 = b - 2
-    assertEquals(a, e1+e2)
+    assertEquals(1+a-b, e1+e2)
   }
 
   @Test
   def genTest(): Unit = {
-    assertEquals(a pow -1, (a pow -1) + b + c - b - c)
+    assertEquals(b + c + (a pow -1), 2*(a pow -1) + b + 2 * c - (a pow -1) - c)
   }
 }

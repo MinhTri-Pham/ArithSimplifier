@@ -50,7 +50,6 @@ class TestProd {
     assertEquals(c, (a*b*c) /^ (a*b))
     assertEquals((a*b*b*c) /^ ((b pow 2)*a), c)
 
-    // Make this pass
     assertEquals(((a*b*c) pow 2) /^ ((b*c) pow 2), a pow 2)
   }
 

@@ -94,17 +94,14 @@ class TestFactoriseSum {
     val s2 = (a pow 3) + 3*(a pow 2)*b + 3*a*(b pow 2) + (b pow 3)
     assertEquals(Factorise(s2), Some((a+b) pow 3))
 
-    val s3 = (a pow 2) + 2*a*b + (b pow 2) + a*c + b*c
-    assertEquals(Factorise(s3), Some((a+b+c)*(a+b)))
+    val s3 = (a pow 2) + 2*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
+    assertEquals(Factorise(s3), Some((a+b+c) pow 2))
 
-    val s4 = (a pow 2) + 2*a*b + Cst(2)*a*c + (b pow 2) + Cst(2)*b*c + (c pow 2)
-    assertEquals(Factorise(s4), Some((a+b+c) pow 2))
+    val s4 = (a*b pow 2) + 2*a*b*c + (c pow 2)
+    assertEquals(Factorise(s4), Some((a*b+c) pow 2))
 
-    val s5 = (a*b pow 2) + 2*a*b*c + (c pow 2)
-    assertEquals(Factorise(s5), Some((a*b+c) pow 2))
-
-    val s6 = ((a*b) pow 3) + 3*((a*b) pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
-    assertEquals(Factorise(s6), Some((a*b+c) pow 3))
+    val s5 = ((a*b) pow 3) + 3*((a*b) pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
+    assertEquals(Factorise(s5), Some((a*b+c) pow 3))
   }
 
   @Test
@@ -130,13 +127,10 @@ class TestFactoriseSum {
     val s7 = (a pow -3) + Cst(3)*b*c/^(a pow 2) + Cst(3)*(b*c pow 2)/^a + (b*c pow 3)
     assertEquals(Factorise(s7), Some((Cst(1)/^a + b*c) pow 3))
 
-    val s8 = (a*b pow -2) + Cst(2)*c * (a*b pow -1) + (c pow 2)
-    assertEquals(Factorise(s8), Some(((a pow -1)*(b pow -1) + c) pow 2))
+    val s8 = (a pow -4) + Cst(2)*b*c/^(a pow 2) + b*b*c*c
+    assertEquals(Factorise(s8), Some(((a pow -2) + b*c) pow 2))
 
-    val s9 = (a pow -4) + Cst(2)*b*c/^(a pow 2) + b*b*c*c
-    assertEquals(Factorise(s9), Some(((a pow -2) + b*c) pow 2))
-
-    val s10 = a*b + a*(b pow -1) + (a pow -1)*b + (a*b pow -1)
-    assertEquals(Factorise(s10), Some((Cst(1)/^a + a)*(Cst(1)/^b + b)))
+    val s9 = a*b + a*(b pow -1) + (a pow -1)*b + (a*b pow -1)
+    assertEquals(Factorise(s9), Some((Cst(1)/^a + a)*(Cst(1)/^b + b)))
   }
 }

@@ -26,8 +26,16 @@ class TestAssocAndComm {
   }
 
   @Test
+  def testDiv(): Unit = {
+    assertNotEquals(a /^ b, b /^ a)
+    assertNotEquals(a /^ b /^ c, c /^ b /^ a)
+
+    assertNotEquals(a /^ (b /^ c), (a /^ b) /^ c)
+  }
+
+  @Test
   def testIntDiv(): Unit = {
-    assertNotEquals(a / b, b /^ a)
+    assertNotEquals(a / b, b / a)
     assertNotEquals(a / b / c, c / b / a)
 
     assertNotEquals(a / (b / c), (a / b) / c)
@@ -39,10 +47,5 @@ class TestAssocAndComm {
     assertNotEquals(a % b % c, c % b % a)
 
     assertNotEquals(a % (b % c), (a % b) % c)
-  }
-
-  @Test
-  def EquivalentExpr(): Unit = {
-    assertEquals(a + a + b + c + a + b, 2 * a + a + 2 * b + c)
   }
 }

@@ -25,7 +25,6 @@ abstract sealed class ArithExpr {
 
   // Integer division
   def /(that: ArithExpr) : ArithExpr =
-//    SimplifyFloor(this * (that pow -1))
     (this.sign, that.sign) match
     {
     case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
@@ -35,7 +34,6 @@ abstract sealed class ArithExpr {
     }
 
   // Modulo operator
-//  def %(that: ArithExpr) : ArithExpr = SimplifyMod(this, that)
   def %(that: ArithExpr) : ArithExpr = this - ((this / that) * that)
 
   // Differential operator
@@ -78,13 +76,8 @@ abstract sealed class ArithExpr {
     case p:Prod =>
       val prodInterval = ArithExpr.computeIntervalProd(p.factors)
       (prodInterval.intervalMin, prodInterval.intervalMax)
-
-
-//    case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
-//    case Prod(factors) =>
-//      val prodInterval = ArithExpr.computeIntervalProd(factors)
-//      (prodInterval.intervalMin, prodInterval.intervalMax)
-
+    case c: CeilingFunction => (ceil(c.ae.min), ceil(c.ae.max))
+    case f: FloorFunction => (floor(f.ae.min), floor(f.ae.max))
     case Pow(b,e) =>
       if (e == 0) (Cst(1), Cst(1))
       // Odd exponent - easy
@@ -468,7 +461,6 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     else if (e < 1) Some(Prod(List.fill(scala.math.abs(e))(Pow(b,-1))))
     // Exponent is 1 or -1
     else None
-//    else Some(Prod(List(this)))
   }
 
   lazy val asProdPows : Option[Prod]= b match {

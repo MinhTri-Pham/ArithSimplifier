@@ -63,26 +63,4 @@ class TestFraction {
   def multiVarSimplification(): Unit = {
     assertEquals(2*a*(a+b),(4*a*c + 4*a*d + 4*b*c + 4*b*d) * a * (a /^ 2) * (Cst(1) /^(a*(c+d))))
   }
-
-//  @Test
-//  def sumProd(): Unit = {
-//
-//    val expr15_1 = Cst(1)/^(a + b) * a.pow(2) + Cst(1)/^(a + b) * Cst(2)*a*b
-//    val expr15_2 = Cst(1)/^(a + b) * b.pow(2)
-//
-//    val expr15 = expr15_1 + expr15_2
-//    assertEquals(expr15, a+b)
-//
-//    val expr_16_1 = Cst(1)/^(a + b) * c * a.pow(2) + Cst(1)/^(a + b) * c * Cst(2)*a*b
-//    val expr_16_2 = Cst(1)/^(a + b)* c * b.pow(2)
-//
-//    val expr_16 = expr_16_1 + expr_16_2
-//    assertEquals(expr_16, c*(a+b))
-//
-//    val expr_18_1 = Cst(1)/^(a + b) * Cst(3) * a.pow(2) + Cst(1)/^(a + b) * Cst(3) * Cst(2)*a*b
-//    val expr_18_2 = Cst(1)/^(a + b) * Cst(3) * b.pow(2)
-//
-//    val expr_18 = expr_18_1 + expr_18_2
-//    assertEquals(expr_18, Cst(3) * (a + b))
-//  }
 }

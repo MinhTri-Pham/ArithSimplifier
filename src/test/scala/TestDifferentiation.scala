@@ -9,6 +9,15 @@ class TestDifferentiation {
   val z: Var = Var("z")
 
   @Test
+  def polyTest(): Unit = {
+    assertEquals(Cst(0), Differentiate(Cst(2),x)) // Constant
+    assertEquals(Cst(1), Differentiate(x + 5,x)) // Linear
+    assertEquals(2*x+1, Differentiate((x pow 2) + x + 5,x)) // Quadratic
+    assertEquals(1 - (x pow -2) , Differentiate(x + (x pow -1) + 5,x)) // Negative power
+  }
+
+  // Mixing ordering of variable for mixed partial derivatives shouldn't change anything
+  @Test
   def orderingMixedTest(): Unit = {
     val expr = (y+z)*(x+Cst(2)*y)*(x pow 2)
     val xyz = Differentiate(Differentiate(Differentiate(expr,x),y),z)

@@ -22,6 +22,13 @@ class TestMod {
   }
 
   @Test
+  def nested(): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    assertEquals(b % a, (b % a) % a)
+  }
+
+  @Test
   def sumDivisor(): Unit = {
     val a = Var("a", isInt = true)
     val b = Var("b", isInt = true)
