@@ -28,12 +28,14 @@ class TestFloorCeil {
   @Test
   def sumTest(): Unit = {
     val a = Var("a", isInt = true)
-    val b = Var("b")
-    val c = Var("c", isInt = true)
-    assertEquals(Cst(2) + (c pow 2) + FloorFunction(a*b),
-      floor(Cst(1) + a*b + Cst(4)*(Cst(3) pow -1) + (c pow 2)))
-    assertEquals(Cst(3) + (c pow 2) + CeilingFunction(a*b),
-      ceil(a*b + Cst(8)*(Cst(3) pow -1) + (c pow 2)))
+    assertEquals(1 + a, floor(a + 1 + Cst(2) /^ Cst(3)))
+    val b = Var("b", isInt = false)
+    assertEquals(1 + floor(b + Cst(2) /^ Cst(3)), floor(b + 1 + Cst(2) /^ Cst(3)))
+    assertEquals(1 + a + floor(b + Cst(2) /^ Cst(3)), floor(1 + a + b + Cst(2) /^ Cst(3)))
+
+    assertEquals(2 + a, ceil(a + 1 + Cst(2) /^ Cst(3)))
+    assertEquals(1 + ceil(b + Cst(2) /^ Cst(3)), ceil(b + 1 + Cst(2) /^ Cst(3)))
+    assertEquals(1 + a + ceil(b + Cst(2) /^ Cst(3)), ceil(1 + a + b + Cst(2) /^ Cst(3)))
   }
 
   @Test

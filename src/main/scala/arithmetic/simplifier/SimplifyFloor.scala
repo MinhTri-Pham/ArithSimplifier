@@ -13,8 +13,8 @@ object SimplifyFloor {
       case Sum(terms) =>
         var intTermsNum = 0
         var intTerms = ListBuffer[ArithExpr]()
-        var floorEvalNum = 0
-        var floorEvalTerms = ListBuffer[ArithExpr]()
+        var evalNum = 0
+        var evalTerms = ListBuffer[ArithExpr]()
         var nonEvalNum = 0
         var nonEvalTerms = ListBuffer[ArithExpr]()
         for (t <- terms) {
@@ -22,9 +22,9 @@ object SimplifyFloor {
             intTermsNum += 1
             intTerms += t
           }
-          else if (floor(t).isInstanceOf[Cst]) {
-            floorEvalNum += 1
-            floorEvalTerms += floor(t)
+          else if (t.isEvaluable) {
+            evalNum += 1
+            evalTerms += t
           }
           else {
             nonEvalNum += 1
@@ -32,9 +32,16 @@ object SimplifyFloor {
           }
         }
         val intTerm = if (intTermsNum == 0) Cst(0) else intTerms.reduce(_ + _)
-        val floorEvalTerm = if (floorEvalNum == 0) Cst(0) else floorEvalTerms.reduce(_ + _)
-        val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else FloorFunction(nonEvalTerms.reduce(_ + _))
-        intTerm + floorEvalTerm + nonEvalTerm
+        val evalTerm = if (evalNum == 0) Cst(0) else evalTerms.reduce(_ + _)
+        val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else nonEvalTerms.reduce(_ + _)
+        if (nonEvalNum == 0) {
+          val floorTerm = floor(evalTerm)
+          intTerm + floorTerm
+        }
+        else {
+          val nonIntTerm = evalTerm + nonEvalTerm
+          intTerm + FloorFunction(nonIntTerm)
+        }
       case _ =>
         try {
           // Try to directly evaluate floor using Scala
