@@ -146,6 +146,7 @@ abstract sealed class ArithExpr {
     case FloorFunction(_) => true
     case CeilingFunction(_) => true
     case AbsFunction(ae) => ae.isInt
+    case _ => false
   }
 
   lazy val getTermsFactors : List[ArithExpr] = this match {
@@ -551,6 +552,10 @@ object ArithExpr {
     case s:Sum => s.terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
     case p:Prod => p.factors.foldLeft(1) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
     case Pow(b,e) => scala.math.pow(evaluate(b,subs),e).toInt
+    case FloorFunction(ae) => scala.math.floor(evaluate(ae,subs)).toInt
+    case CeilingFunction(ae) => scala.math.ceil(evaluate(ae,subs)).toInt
+    case AbsFunction(ae) => scala.math.abs(evaluate(ae,subs))
+    case _ => throw NotEvaluable
   }
 
   private def findSubstitute(variable: Var, replacements : scala.collection.Map[Var, Cst]) : Int = {

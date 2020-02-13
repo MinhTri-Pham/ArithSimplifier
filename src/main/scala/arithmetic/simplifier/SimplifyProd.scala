@@ -25,7 +25,8 @@ object SimplifyProd {
         lhsFactors = List[ArithExpr](lhs)
         rhsFactors = List[ArithExpr](rhs)
     }
-        mergeFactors(lhsFactors,rhsFactors)
+    if (lhsFactors.contains(?) || rhsFactors.contains(?)) return ?
+    mergeFactors(lhsFactors,rhsFactors)
   }
 
   // Determine result of multiplication given the terms of multiplication to be added

@@ -25,6 +25,7 @@ object SimplifySum {
         lhsTerms = List[ArithExpr](lhs)
         rhsTerms = List[ArithExpr](rhs)
     }
+    if (lhsTerms.contains(?) || rhsTerms.contains(?)) return ?
     mergeTerms(lhsTerms, rhsTerms)
   }
 

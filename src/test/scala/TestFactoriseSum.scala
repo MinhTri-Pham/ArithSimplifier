@@ -100,7 +100,7 @@ class TestFactoriseSum {
     val s4 = (a*b pow 2) + 2*a*b*c + (c pow 2)
     assertEquals(Factorise(s4), Some((a*b+c) pow 2))
 
-    val s5 = ((a*b) pow 3) + 3*((a*b) pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
+    val s5 = (a pow 3 )*(b pow 3) + 3*(a pow 2)* (b pow 2)*c + 3*a*b*(c pow 2) + (c pow 3)
     assertEquals(Factorise(s5), Some((a*b+c) pow 3))
   }
 
