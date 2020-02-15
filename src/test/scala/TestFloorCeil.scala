@@ -28,8 +28,9 @@ class TestFloorCeil {
   @Test
   def sumTest(): Unit = {
     val a = Var("a", isInt = true)
-    assertEquals(1 + a, floor(a + 1 + Cst(2) /^ Cst(3)))
     val b = Var("b", isInt = false)
+
+    assertEquals(1 + a, floor(a + 1 + Cst(2) /^ Cst(3)))
     assertEquals(1 + floor(b + Cst(2) /^ Cst(3)), floor(b + 1 + Cst(2) /^ Cst(3)))
     assertEquals(1 + a + floor(b + Cst(2) /^ Cst(3)), floor(1 + a + b + Cst(2) /^ Cst(3)))
 

@@ -186,14 +186,14 @@ abstract sealed class ArithExpr {
 }
 
 // Class for (int) constants
-case class Cst(value : Int) extends ArithExpr {
+case class Cst(value : Long) extends ArithExpr {
 
   override val HashSeed: Int = java.lang.Long.hashCode(value)
 
   override lazy val digest: Int = java.lang.Long.hashCode(value)
 
-  // Prime decomposition
-  lazy val asProd : Prod = Factorise(this).get.toProd.get
+//  // Prime decomposition
+//  lazy val asProd : Prod = Factorise(this).get.toProd.get
 
   override def equals(that: Any): Boolean = that match {
     case Cst(n) => n == value
@@ -300,7 +300,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   override lazy val digest: Int = factors.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
 
-  lazy val cstFactor : Int = factors.head match {
+  lazy val cstFactor : Long = factors.head match {
     case Cst(c) => c
     case _ => 1
   }
@@ -316,7 +316,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   lazy val asNonCstFactorsSum : Option[Sum] = if (factors.length < 2 || cstFactor < 2) None else {
     val terms = ListBuffer[ArithExpr]()
-    for (_ <- 0 until cstFactor) {
+    for (_ <- 0L until cstFactor) {
       terms += nonCstFactor
     }
     Some(Sum(terms.toList))
@@ -349,8 +349,9 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             expanded = true
           }
           else {
-            if (p.e > 0) accum = accum * p
-            else accum /^= p.b
+//            if (p.e > 0) accum = accum * p
+//            else accum /^= p.b
+            accum *= p
           }
         case _ =>
           if (accum.isInstanceOf[Sum]) {
@@ -439,7 +440,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
 
   override val HashSeed = 0x63fcd7c2
 
-  override lazy val digest: Int = HashSeed ^ b.digest() ^ e
+  override lazy val digest: Int = e.hashCode() * (HashSeed ^ b.digest())
 
   // Expansion into sum
   lazy val asSum : Option[Sum] = if (e < 0 || !b.isInstanceOf[Sum]) None else {
@@ -546,19 +547,19 @@ object ArithExpr {
   }
 
   // Evaluates an expression given constant substitutions for variables
-  def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Int = expr match {
+  def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Long = expr match {
     case Cst(c) => c
     case v: Var => findSubstitute(v, subs)
-    case s:Sum => s.terms.foldLeft(0) { (accumulated, term) => accumulated + evaluate(term, subs)}
-    case p:Prod => p.factors.foldLeft(1) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
+    case s:Sum => s.terms.foldLeft(0L) { (accumulated, term) => accumulated + evaluate(term, subs)}
+    case p:Prod => p.factors.foldLeft(1L) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
     case Pow(b,e) => scala.math.pow(evaluate(b,subs),e).toInt
-    case FloorFunction(ae) => scala.math.floor(evaluate(ae,subs)).toInt
-    case CeilingFunction(ae) => scala.math.ceil(evaluate(ae,subs)).toInt
+    case FloorFunction(ae) => scala.math.floor(evaluate(ae,subs)).toLong
+    case CeilingFunction(ae) => scala.math.ceil(evaluate(ae,subs)).toLong
     case AbsFunction(ae) => scala.math.abs(evaluate(ae,subs))
     case _ => throw NotEvaluable
   }
 
-  private def findSubstitute(variable: Var, replacements : scala.collection.Map[Var, Cst]) : Int = {
+  private def findSubstitute(variable: Var, replacements : scala.collection.Map[Var, Cst]) : Long = {
     for ((varSub, Cst(n)) <- replacements) {
       if (variable == varSub) return n
     }
@@ -679,6 +680,7 @@ object ArithExpr {
             case (Sign.Negative, Sign.Negative, Sign.Negative) =>
               lhsNonCommon = ae1NonCommon
               rhsNonCommon = ae2NonCommon
+            case _ =>
           }
         }
       // Keep going
@@ -768,12 +770,10 @@ object ArithExpr {
             case (Sign.Negative, Sign.Negative, Sign.Negative) =>
               lhsNonCommon = ae1NonCommon
               rhsNonCommon = ae2NonCommon
+            case _ =>
           }
         }
       // Keep going
-      case _ =>
-
-      // Can't determine yet
       case _ =>
     }
 
@@ -867,6 +867,7 @@ object ArithExpr {
 
     case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
     case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
+    case AbsFunction(expr) => scala.math.abs(evalDouble(expr))
 
     case `?` | _:Var => throw NotEvaluable
   }

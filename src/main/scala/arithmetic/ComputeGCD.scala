@@ -5,7 +5,7 @@ object ComputeGCD {
   // GCD of two expressions
   def apply(a: ArithExpr, b: ArithExpr): ArithExpr = (a, b) match {
       // GCD of constants
-      case (Cst(x), Cst(y)) => Cst(gcdInt(x, y))
+      case (Cst(x), Cst(y)) => Cst(gcdLong(x, y))
 
       // GCD of two identical things is itself
       case (x, y) if x == y => x
@@ -74,19 +74,19 @@ object ComputeGCD {
       case _ => Cst(1)
     }
 
-  // GCD of list of ints
-  def gcdIntList(terms: List[Int]): Int = {
+  // GCD of list of longs
+  def gcdLongList(terms: List[Long]): Long = {
     terms.length match {
       case 0 => throw new IllegalArgumentException
       case 1 => terms.head
-      case _ => terms.foldLeft(terms.head)((x,y) => gcdInt(x,y))
+      case _ => terms.foldLeft(terms.head)((x,y) => gcdLong(x,y))
     }
   }
 
   // GCD of two ints
   @scala.annotation.tailrec
-  def gcdInt(x: Int, y: Int): Int = {
-    if (y == 0) scala.math.abs(x) else gcdInt(scala.math.abs(y), scala.math.abs(x) % y)
+  def gcdLong(x: Long, y: Long): Long = {
+    if (y == 0) scala.math.abs(x) else gcdLong(scala.math.abs(y), scala.math.abs(x) % y)
   }
 
   // GCD of list of expressions

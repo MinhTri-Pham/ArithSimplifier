@@ -27,8 +27,8 @@ object Helper {
     for (term <- terms) term match {
       case Cst(c) =>
         if (c == 1 || c == -1) expanded += term
-        else if (c>1) expanded ++= List.fill(c)(Cst(1))
-        else expanded ++= List.fill(scala.math.abs(c))(Cst(-1))
+        else if (c>1) expanded ++= List.fill(c.toInt)(Cst(1))
+        else expanded ++= List.fill(scala.math.abs(c.toInt))(Cst(-1))
       case p:Prod =>
         val expandCst = p.asNonCstFactorsSum
         if (expandCst.isDefined) {
