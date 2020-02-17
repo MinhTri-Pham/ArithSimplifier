@@ -12,9 +12,9 @@ import simplifier._
 
 // Object to perform evaluation of simplification using evaluator
 object Evaluator {
-  val maxSizeSumProd = 4 // Max number of terms/factors in sum/product
-  val maxNestingDepth = 2 // Maximum depth of arithmetic expression tree
-  val maxPowExp = 2 // Max exponent of a power
+  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
+  val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
+  val maxPowExp = 3 // Max exponent of a power
   val minCst: Int = -10 // Bounds for constants
   val maxCst = 10
 
@@ -46,15 +46,10 @@ object Evaluator {
   }
 
   // Generate random terminal node (leaf) of arithmetic expression tree
-  // Constant, variable of power of variable
-  // TO DO: Remove power and enable more general bases of powers
+  // Constant or variable
   def genLeaf() : ArithExpr = {
-    val chooseOpt = rGen.nextInt(3)
-    chooseOpt match {
-      case 0 => genCst()
-      case 1 => genVar()
-      case 2 => genPow()
-    }
+    val isVar = rGen.nextBoolean()
+    if (isVar) genVar() else genCst()
   }
 
   // Generate sum at a certain level of the expression tree
@@ -67,9 +62,12 @@ object Evaluator {
     else {
       val terms = new ListBuffer[ArithExpr]()
       for (_ <- 1 to numTerms) {
-        val nestWithProd = rGen.nextBoolean()
-        if (nestWithProd) terms += ExprSimplifier(genProd(level + 1))
-        else terms += genLeaf()
+        val chooseOpt = rGen.nextInt(3)
+        chooseOpt match {
+          case 0 => terms += genLeaf()
+          case 1 => terms += ExprSimplifier(genProd(level + 1))
+          case 2 => terms += genPow(level + 1)
+        }
       }
       Sum(terms.toList)
     }
@@ -93,13 +91,28 @@ object Evaluator {
     }
   }
 
-  // Generate power of a variable
-  // TO DO: Enable more general base, this becomes non-terminal (must have a level parameter)
-  def genPow() : ArithExpr = {
-    val base = genVar()
-//    val exp = 0 + rGen.nextInt(maxPowExp) // Positive
-    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
-    SimplifyPow(base, exp)
+  // Generate power at a certain level of the expression tree
+  def genPow(level: Int) : ArithExpr = {
+    val exp = 0 + rGen.nextInt(maxPowExp) // Positive
+//    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
+
+    if (level >= maxNestingDepth) {
+      val base = genLeaf()
+      SimplifyPow(base, exp)
+    }
+    else {
+      val nestFurther = rGen.nextBoolean()
+      var base : ArithExpr = null
+      if (nestFurther) {
+        val chooseOpt = rGen.nextInt(2)
+        chooseOpt match {
+          case 0 => base = ExprSimplifier(genSum(level + 1))
+          case 1 => base = ExprSimplifier(genProd(level + 1))
+        }
+      }
+      else base = genLeaf()
+      SimplifyPow(base, exp)
+    }
   }
 
   // Function to run a block with a time out limit
@@ -149,7 +162,7 @@ object Evaluator {
     println(valMap)
     println()
 
-    for (_ <- 1 to 1000) {
+    for (_ <- 1 to 5000) {
       // Try some evaluations (just for now)
       try {
         runWithTimeout(5000)(evalSumTest(valMap))
@@ -161,7 +174,5 @@ object Evaluator {
         case _: Throwable => println("Other problem \n")
       }
     }
-
   }
-
 }
