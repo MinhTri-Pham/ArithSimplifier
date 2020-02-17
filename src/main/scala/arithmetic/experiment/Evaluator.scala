@@ -93,8 +93,8 @@ object Evaluator {
 
   // Generate power at a certain level of the expression tree
   def genPow(level: Int) : ArithExpr = {
-    val exp = 0 + rGen.nextInt(maxPowExp) // Positive
-//    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
+//    val exp = 0 + rGen.nextInt(maxPowExp) // Positive
+    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
 
     if (level >= maxNestingDepth) {
       val base = genLeaf()
@@ -115,21 +115,28 @@ object Evaluator {
     }
   }
 
+  def genExpr() : ArithExpr = {
+    val chooseOpt = rGen.nextInt(3)
+    chooseOpt match {
+      case 0 => genSum(1)
+      case 1 => genProd(1)
+      case 2 => genPow(1)
+    }
+  }
+
   // Function to run a block with a time out limit
   def runWithTimeout[T](timeoutMs: Long)(f: => T) : T = {
     Await.result(Future(f), timeoutMs milliseconds)
   }
 
   // Evaluating sum simplification
-  def evalSumTest(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
+  def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
     val randomSum = genSum(1)
     println(s"Generated sum: $randomSum")
     val simplifiedSum = simplifier.ExprSimplifier(randomSum)
     println(s"Simplified sum: $simplifiedSum")
-//    val randomSumEval = ArithExpr.evaluate(randomSum,subs)
     val randomSumEval = ArithExpr.substitute(randomSum,subs)
     println(s"Evaluation of gen. sum: $randomSumEval")
-//    val simplifiedSumEval = ArithExpr.evaluate(simplifiedSum,subs)
     val simplifiedSumEval = ArithExpr.substitute(simplifiedSum,subs)
     println(s"Evaluation of simpl. sum: $simplifiedSumEval")
     if (randomSumEval != simplifiedSumEval) println("Evals don't match!\n")
@@ -138,18 +145,33 @@ object Evaluator {
   }
 
   // Evaluating product simplification
-  def evalProdTest(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
+  def evalProdComp(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
     val randomProd = genProd(1)
     println(s"Generated product: $randomProd")
     val simplifiedProd = ExprSimplifier(randomProd)
     println(s"Simplified product: $simplifiedProd")
-//    val randomProdEval = ArithExpr.evaluate(randomProd,subs)
     val randomProdEval = ArithExpr.substitute(randomProd,subs)
     println(s"Evaluation of gen. product: $randomProdEval")
-//    val simplifiedProdEval = ArithExpr.evaluate(simplifiedProd,subs)
     val simplifiedProdEval = ArithExpr.substitute(simplifiedProd,subs)
     println(s"Evaluation of simpl. product: $simplifiedProdEval \n")
+    if (randomProdEval != simplifiedProdEval) println("Evals don't match!\n")
+    else println()
     randomProdEval == simplifiedProdEval
+  }
+
+  // Evaluating expression simplification
+  def evalExprComparison(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
+    val randomExpr = genExpr()
+    println(s"Generated expr: $randomExpr")
+    val simplifiedExpr = simplifier.ExprSimplifier(randomExpr)
+    println(s"Simplified expr: $simplifiedExpr")
+    val randomExprEval = ArithExpr.substitute(randomExpr,subs)
+    println(s"Evaluation of gen. expr: $randomExprEval")
+    val simplifiedExprEval = ArithExpr.substitute(simplifiedExpr,subs)
+    println(s"Evaluation of simpl. expr: $simplifiedExprEval")
+    if (randomExprEval != simplifiedExprEval) println("Evals don't match!\n")
+    else println()
+    randomExprEval == simplifiedExprEval
   }
 
   def main(args: Array[String]): Unit = {
@@ -162,11 +184,10 @@ object Evaluator {
     println(valMap)
     println()
 
-    for (_ <- 1 to 5000) {
+    for (_ <- 1 to 100) {
       // Try some evaluations (just for now)
       try {
-        runWithTimeout(5000)(evalSumTest(valMap))
-//        runWithTimeout(5000)(evalProdTest(valMap))
+        runWithTimeout(5000)(evalExprComparison(valMap))
       }
       catch {
         case _:TimeoutException => println("Time out problem\n")
@@ -174,5 +195,6 @@ object Evaluator {
         case _: Throwable => println("Other problem \n")
       }
     }
+
   }
 }
