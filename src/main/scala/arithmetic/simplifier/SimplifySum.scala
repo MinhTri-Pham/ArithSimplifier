@@ -76,22 +76,4 @@ object SimplifySum {
     else if (terms.length == 1) terms.head // Simplifies to a primitive expression
     else Sum(terms.sortWith(ArithExpr.isCanonicallySorted)) // Have a sum, sort terms for subsequent use
   }
-
-  def main(args: Array[String]): Unit = {
-    val a: Var = Var("a")
-    val b: Var = Var("b")
-    val c: Var = Var("c")
-    val d: Var = Var("d")
-    val e: Var = Var("e")
-    val f: Var = Var("f")
-    val g: Var = Var("g")
-    val h: Var = Var("h")
-    val i: Var = Var("i")
-    val k: Var = Var("k")
-    val l: Var = Var("l")
-
-    val exprs = Sum(List[ArithExpr](f, Prod(List(g pow -3,c,1+a+g))))
-    println(exprs)
-    println(ExprSimplifier(exprs))
-  }
 }

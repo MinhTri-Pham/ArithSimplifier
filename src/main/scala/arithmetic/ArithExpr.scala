@@ -178,6 +178,8 @@ abstract sealed class ArithExpr {
     }
   }
 
+  def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr
+
   def digest(): Int
 
   override def hashCode: Int = digest()
@@ -191,6 +193,8 @@ case class Cst(value : Long) extends ArithExpr {
   override val HashSeed: Int = java.lang.Long.hashCode(value)
 
   override lazy val digest: Int = java.lang.Long.hashCode(value)
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
 
 //  // Prime decomposition
 //  lazy val asProd : Prod = Factorise(this).get.toProd.get
@@ -228,6 +232,8 @@ case class Var (name : String, range: Interval = Interval(), fixedId: Option[Lon
   }
 
   override def toString: String = name
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
 }
 
 // Companion object for arithmetic.Var class
@@ -274,6 +280,9 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
   }
 
   override def toString: String = s"(${terms.mkString(" + ")})"
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(terms.map(_.visitAndRebuild(f)).reduce(_ + _))
 }
 
 object Sum {
@@ -349,8 +358,6 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
             expanded = true
           }
           else {
-//            if (p.e > 0) accum = accum * p
-//            else accum /^= p.b
             accum *= p
           }
         case _ =>
@@ -359,7 +366,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
           }
           else accum *= f
       }
-      if (expanded) accum.getTermsFactors.reduce((x, y)=>x+y).toSum
+      if (expanded) accum.toSum
       else None
     }
   }
@@ -418,6 +425,9 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   }
 
   override def toString: String = factors.mkString(" * ")
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(factors.map(_.visitAndRebuild(f)).reduce(_ * _))
 }
 
 object Prod {
@@ -440,7 +450,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
 
   override val HashSeed = 0x63fcd7c2
 
-  override lazy val digest: Int = e.hashCode() * (HashSeed ^ b.digest())
+  override lazy val digest: Int = HashSeed ^ b.digest() ^ Cst(e).digest
 
   // Expansion into sum
   lazy val asSum : Option[Sum] = if (e < 0 || !b.isInstanceOf[Sum]) None else {
@@ -489,6 +499,9 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     if (e == -1 && b.isInstanceOf[Cst]) s"1/${b.toString}"
     else s"pow(${b.toString},$e)"
   }
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(b.visitAndRebuild(f).pow(e))
 }
 
 object abs {
@@ -502,6 +515,9 @@ case class AbsFunction(ae: ArithExpr) extends ArithExpr {
   override lazy val digest: Int = HashSeed ^ ae.digest()
 
   override def toString: String = "Abs(" + ae + ")"
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(abs(ae.visitAndRebuild(f)))
 }
 
 case class FloorFunction(ae: ArithExpr) extends ArithExpr {
@@ -511,6 +527,9 @@ case class FloorFunction(ae: ArithExpr) extends ArithExpr {
   override lazy val digest: Int = HashSeed ^ ae.digest()
 
   override def toString: String = "Floor(" + ae + ")"
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(floor(ae.visitAndRebuild(f)))
 }
 
 object floor {
@@ -524,6 +543,9 @@ case class CeilingFunction(ae: ArithExpr) extends ArithExpr {
   override lazy val digest: Int = HashSeed ^ ae.digest()
 
   override def toString: String = "Ceiling(" + ae + ")"
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(ceil(ae.visitAndRebuild(f)))
 }
 
 object ceil {
@@ -535,16 +557,41 @@ object ArithExpr {
 
   implicit def intToCst(i: Int): ArithExpr = Cst(i)
 
-  val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => (x, y) match {
-    case (Cst(a), Cst(b)) => a < b
-    case (_: Cst, _) => true // constants first
-    case (_, _: Cst) => false
-    case (x: Var, y: Var) => x.id < y.id // order variables based on id
-    case (_: Var, _) => true // variables always after constants second
-    case (_, _: Var) => false
-    case (p1:Prod, p2:Prod) => p1.factors.zip(p2.factors).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
-    case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
+  val isCanonicallySorted: (ArithExpr, ArithExpr) => Boolean = (x: ArithExpr, y: ArithExpr) => {
+    (x, y) match {
+      case (Cst(a), Cst(b)) => a < b
+      case (_: Cst, _) => true // constants first
+      case (_, _: Cst) => false
+      case (x: Var, y: Var) => x.id < y.id // order variables based on id
+      case (_: Var, _) => true // variables always after constants second
+      case (_, _: Var) => false
+      case (p1: Prod, p2: Prod) =>
+        if (p1.factors.length < p2.factors.length) true
+        else if (p2.factors.length < p1.factors.length) false
+        else {
+          val n = p1.factors.length
+          var isSorted = false
+          var i = 0
+          while (i < n) {
+            if (p1.factors(i) != p2.factors(i)) {
+              isSorted = isCanonicallySorted(p1.factors(i),p2.factors(i))
+              i = n
+            }
+            i += 1
+          }
+          isSorted
+        }
+      case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
+    }
   }
+
+  def substitute(e: ArithExpr, substitutions: scala.collection.Map[ArithExpr, ArithExpr]): ArithExpr =
+    e.visitAndRebuild(expr =>
+      if (substitutions.isDefinedAt(expr))
+        substitutions(expr)
+      else
+        expr
+    )
 
   // Evaluates an expression given constant substitutions for variables
   def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Long = expr match {
@@ -574,7 +621,8 @@ object ArithExpr {
       var combined: ArithExpr = Cst(0)
       for (lt <- lts) {
         for (rt <- rts) {
-          combined += lt * rt
+          val prod = lt*rt
+          combined += prod
         }
       }
       Some(Sum(combined.getTermsFactors))
@@ -882,4 +930,6 @@ case object ? extends ArithExpr {
   override val HashSeed = 0x3fac31
 
   override val digest: Int = HashSeed
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
 }

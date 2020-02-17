@@ -134,21 +134,4 @@ object SimplifyProd {
       Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
     }
   }
-
-  def main(args: Array[String]): Unit = {
-    val a: Var = Var("a")
-    val b: Var = Var("b")
-    val c: Var = Var("c")
-    val d: Var = Var("d")
-    val e: Var = Var("e")
-    val f: Var = Var("f")
-    val g: Var = Var("g")
-    val h: Var = Var("h")
-    val i: Var = Var("i")
-    val k: Var = Var("k")
-    val l: Var = Var("l")
-
-    val exprs = (i pow -2) - 5 + 28*d
-    println(Factorise(exprs))
-  }
 }
