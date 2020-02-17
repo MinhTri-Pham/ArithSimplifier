@@ -1,18 +1,20 @@
 package arithmetic
-package experiment
 
+import java.io._
 import java.util.concurrent.TimeoutException
+
+import arithmetic.simplifier._
+
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
 
-import simplifier._
-
 // Object to perform evaluation of simplification using evaluator
 object Evaluator {
-  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
+  val maxSizeSumProd = 6 // Max number of terms/factors in sum/product
   val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
   val maxPowExp = 3 // Max exponent of a power
   val minCst: Int = -10 // Bounds for constants
@@ -129,49 +131,45 @@ object Evaluator {
     Await.result(Future(f), timeoutMs milliseconds)
   }
 
-  // Evaluating sum simplification
-  def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
-    val randomSum = genSum(1)
-    println(s"Generated sum: $randomSum")
-    val simplifiedSum = simplifier.ExprSimplifier(randomSum)
-    println(s"Simplified sum: $simplifiedSum")
-    val randomSumEval = ArithExpr.substitute(randomSum,subs)
-    println(s"Evaluation of gen. sum: $randomSumEval")
-    val simplifiedSumEval = ArithExpr.substitute(simplifiedSum,subs)
-    println(s"Evaluation of simpl. sum: $simplifiedSumEval")
-    if (randomSumEval != simplifiedSumEval) println("Evals don't match!\n")
-    else println()
-    randomSumEval == simplifiedSumEval
-  }
-
-  // Evaluating product simplification
-  def evalProdComp(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
-    val randomProd = genProd(1)
-    println(s"Generated product: $randomProd")
-    val simplifiedProd = ExprSimplifier(randomProd)
-    println(s"Simplified product: $simplifiedProd")
-    val randomProdEval = ArithExpr.substitute(randomProd,subs)
-    println(s"Evaluation of gen. product: $randomProdEval")
-    val simplifiedProdEval = ArithExpr.substitute(simplifiedProd,subs)
-    println(s"Evaluation of simpl. product: $simplifiedProdEval \n")
-    if (randomProdEval != simplifiedProdEval) println("Evals don't match!\n")
-    else println()
-    randomProdEval == simplifiedProdEval
-  }
-
   // Evaluating expression simplification
-  def evalExprComparison(subs : scala.collection.Map[ArithExpr, ArithExpr]) : Boolean = {
+  def evalExprComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], pw : PrintWriter) : Boolean = {
     val randomExpr = genExpr()
-    println(s"Generated expr: $randomExpr")
+    pw.write(s"Generated expr: $randomExpr\n")
     val simplifiedExpr = simplifier.ExprSimplifier(randomExpr)
-    println(s"Simplified expr: $simplifiedExpr")
+    pw.write(s"Simplified expr: $simplifiedExpr\n")
     val randomExprEval = ArithExpr.substitute(randomExpr,subs)
-    println(s"Evaluation of gen. expr: $randomExprEval")
+    pw.write(s"Evaluation of gen. expr: $randomExprEval\n")
     val simplifiedExprEval = ArithExpr.substitute(simplifiedExpr,subs)
-    println(s"Evaluation of simpl. expr: $simplifiedExprEval")
-    if (randomExprEval != simplifiedExprEval) println("Evals don't match!\n")
-    else println()
+    pw.write(s"Evaluation of simpl. expr: $simplifiedExprEval\n")
+    if (randomExprEval != simplifiedExprEval) pw.write("Evals don't match!\n")
+    else pw.write(s"\n")
     randomExprEval == simplifiedExprEval
+  }
+
+  def evalExprTest() : Unit = {
+    // File for logging
+    val logFile = new File("eval.txt")
+    val printWriter = new PrintWriter(logFile)
+
+    printWriter.write("Variable mappings\n")
+    printWriter.write(s"$valMap\n\n")
+
+    var numPassed = 0
+    val numTrials = 10
+    for (_ <- 1 to numTrials) {
+      // Try some evaluations (just for now)
+      try {
+        val passed = runWithTimeout(5000)(evalExprComparison(valMap,printWriter))
+        if (passed) numPassed += 1
+      }
+      catch {
+        case _:TimeoutException => printWriter.write("Time out problem\n")
+        case _: Throwable => printWriter.write("Other problem\n")
+      }
+    }
+    printWriter.write(s"Evaluations passed: $numPassed\n")
+    printWriter.write(s"Evaluations failed: ${numTrials - numPassed}")
+    printWriter.close()
   }
 
   def main(args: Array[String]): Unit = {
@@ -179,22 +177,7 @@ object Evaluator {
     for (v <- variables) {
       valMap += v -> genCst()
     }
-
-    println("Variable mappings")
-    println(valMap)
-    println()
-
-    for (_ <- 1 to 100) {
-      // Try some evaluations (just for now)
-      try {
-        runWithTimeout(5000)(evalExprComparison(valMap))
-      }
-      catch {
-        case _:TimeoutException => println("Time out problem\n")
-        case _:IllegalArgumentException => println("Canonical order problem\n")
-        case _: Throwable => println("Other problem \n")
-      }
-    }
+    evalExprTest()
 
   }
 }
