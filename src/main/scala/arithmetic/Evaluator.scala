@@ -12,9 +12,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
 
+import scala.language.postfixOps
+
 // Object to perform evaluation of simplification using evaluator
 object Evaluator {
-  val maxSizeSumProd = 6 // Max number of terms/factors in sum/product
+  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
   val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
   val maxPowExp = 3 // Max exponent of a power
   val minCst: Int = -10 // Bounds for constants
@@ -36,6 +38,10 @@ object Evaluator {
   val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,kv,lv)
   val numVars: Int = variables.length
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
+
+  // Configuration
+  val numTrials = 300
+  var numTimedOut = 0
 
   val rGen = new scala.util.Random // Random generator
 
@@ -134,21 +140,31 @@ object Evaluator {
   // Evaluating expression simplification
   def evalExprComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], pw : PrintWriter) : Boolean = {
     try {
-      val randomExpr = genExpr()
-      pw.write(s"Generated expr: $randomExpr\n")
-      val simplifiedExpr = simplifier.ExprSimplifier(randomExpr)
-      pw.write(s"Simplified expr: $simplifiedExpr\n")
-      val randomExprEval = ArithExpr.substitute(randomExpr,subs)
-      pw.write(s"Evaluation of gen. expr: $randomExprEval\n")
-      val simplifiedExprEval = ArithExpr.substitute(simplifiedExpr,subs)
-      pw.write(s"Evaluation of simpl. expr: $simplifiedExprEval\n")
-      if (randomExprEval != simplifiedExprEval) pw.write("Evals don't match!\n")
-      pw.write(s"\n")
-      randomExprEval == simplifiedExprEval
+      runWithTimeout(3500) {
+        val randomExpr = genExpr()
+        pw.write(s"Generated expr: $randomExpr\n")
+        val simplifiedExpr = ExprSimplifier(randomExpr)
+        pw.write(s"Simplified expr: $simplifiedExpr\n")
+        val randomExprEval = ArithExpr.substitute(randomExpr, subs)
+        pw.write(s"Evaluation of gen. expr: $randomExprEval\n")
+        val simplifiedExprEval = ArithExpr.substitute(simplifiedExpr, subs)
+        pw.write(s"Evaluation of simpl. expr: $simplifiedExprEval\n")
+        val isEq = randomExprEval == simplifiedExprEval ||
+          randomExprEval.toSum == simplifiedExprEval.toSum
+        if (!isEq) pw.write("Evals don't match!\n")
+        pw.write(s"\n")
+        isEq
+      }
     }
     catch {
-      case _:OutOfMemoryError | _:StackOverflowError => pw.write(s"Factorisation too long problem \n\n")
-      false
+      case _:TimeoutException =>
+        pw.write("Time out problem\n\n")
+        numTimedOut += 1
+        false
+      case _:OutOfMemoryError | _:StackOverflowError =>
+        pw.write(s"Factorisation too long problem \n\n")
+        numTimedOut += 1
+        false
     }
   }
 
@@ -164,23 +180,15 @@ object Evaluator {
     printWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
 
     var numPassed = 0
-    val numTrials = 200
-    var timeOut = 0
-    for (_ <- 1 to numTrials) {
-      try {
-        val passed = runWithTimeout(5000)(evalExprComparison(valMap,printWriter))
-        if (passed) numPassed += 1
-      }
-      catch {
-        case _:TimeoutException =>
-          timeOut += 1
-          printWriter.write("Time out problem\n\n")
-        case _: Throwable => printWriter.write("Other problem\n\n")
-      }
+    numTimedOut = 0
+    for (i <- 1 to numTrials) {
+      println(i)
+      val passed = evalExprComparison(valMap,printWriter)
+      if (passed) numPassed += 1
     }
     printWriter.write(s"Evaluations passed: $numPassed\n")
-    printWriter.write(s"Evaluations timed out: $timeOut\n")
-    printWriter.write(s"Evaluations failed: ${numTrials - numPassed - timeOut}")
+    printWriter.write(s"Evaluations timed out: $numTimedOut\n")
+    printWriter.write(s"Evaluations failed: ${numTrials - numPassed - numTimedOut}")
     printWriter.close()
   }
 
