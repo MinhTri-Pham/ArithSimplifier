@@ -26,6 +26,7 @@ object SimplifyProd {
         rhsFactors = List[ArithExpr](rhs)
     }
     if (lhsFactors.contains(?) || rhsFactors.contains(?)) return ?
+    if (lhsFactors.contains(Cst(0)) || rhsFactors.contains(Cst(0))) return Cst(0)
     mergeFactors(lhsFactors,rhsFactors)
   }
 
@@ -59,8 +60,6 @@ object SimplifyProd {
     case (Cst(x), Cst(y)) => Some(Cst(x * y))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)
-    case (Cst(0), _) => Some(lhs)
-    case (_, Cst(0)) => Some(rhs)
 
     // Constant cases
     // Compute powers when all bases and exponents are positive constants

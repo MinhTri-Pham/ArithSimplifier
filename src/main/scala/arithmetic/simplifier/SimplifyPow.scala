@@ -10,6 +10,7 @@ object SimplifyPow {
     case (_,0) => Cst(1)
     case (_,1) => base
     case (Cst(c),_) if c == 0 || c == 1 => base
+    case (Cst(c),_) if c == -1 => if (exp % 2 == 0) Cst(1) else base
     // Constant positive exponent
     case (Cst(b), e) if e > 0 => Cst(scala.math.pow(b,e).toInt)
     // Constant negative exponents: pow(x,-y) = pow(pow(x,y), -1)  (closed form)

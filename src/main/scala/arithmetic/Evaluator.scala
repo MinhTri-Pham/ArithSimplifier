@@ -133,17 +133,23 @@ object Evaluator {
 
   // Evaluating expression simplification
   def evalExprComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], pw : PrintWriter) : Boolean = {
-    val randomExpr = genExpr()
-    pw.write(s"Generated expr: $randomExpr\n")
-    val simplifiedExpr = simplifier.ExprSimplifier(randomExpr)
-    pw.write(s"Simplified expr: $simplifiedExpr\n")
-    val randomExprEval = ArithExpr.substitute(randomExpr,subs)
-    pw.write(s"Evaluation of gen. expr: $randomExprEval\n")
-    val simplifiedExprEval = ArithExpr.substitute(simplifiedExpr,subs)
-    pw.write(s"Evaluation of simpl. expr: $simplifiedExprEval\n")
-    if (randomExprEval != simplifiedExprEval) pw.write("Evals don't match!\n")
-    else pw.write(s"\n")
-    randomExprEval == simplifiedExprEval
+    try {
+      val randomExpr = genExpr()
+      pw.write(s"Generated expr: $randomExpr\n")
+      val simplifiedExpr = simplifier.ExprSimplifier(randomExpr)
+      pw.write(s"Simplified expr: $simplifiedExpr\n")
+      val randomExprEval = ArithExpr.substitute(randomExpr,subs)
+      pw.write(s"Evaluation of gen. expr: $randomExprEval\n")
+      val simplifiedExprEval = ArithExpr.substitute(simplifiedExpr,subs)
+      pw.write(s"Evaluation of simpl. expr: $simplifiedExprEval\n")
+      if (randomExprEval != simplifiedExprEval) pw.write("Evals don't match!\n")
+      pw.write(s"\n")
+      randomExprEval == simplifiedExprEval
+    }
+    catch {
+      case _:OutOfMemoryError | _:StackOverflowError => pw.write(s"Factorisation too long problem \n\n")
+      false
+    }
   }
 
   def evalExprTest() : Unit = {
@@ -154,21 +160,27 @@ object Evaluator {
     printWriter.write("Variable mappings\n")
     printWriter.write(s"$valMap\n\n")
 
+    printWriter.write(s"Max sum and prod length: $maxSizeSumProd\n")
+    printWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
+
     var numPassed = 0
-    val numTrials = 10
+    val numTrials = 200
+    var timeOut = 0
     for (_ <- 1 to numTrials) {
-      // Try some evaluations (just for now)
       try {
         val passed = runWithTimeout(5000)(evalExprComparison(valMap,printWriter))
         if (passed) numPassed += 1
       }
       catch {
-        case _:TimeoutException => printWriter.write("Time out problem\n")
-        case _: Throwable => printWriter.write("Other problem\n")
+        case _:TimeoutException =>
+          timeOut += 1
+          printWriter.write("Time out problem\n\n")
+        case _: Throwable => printWriter.write("Other problem\n\n")
       }
     }
     printWriter.write(s"Evaluations passed: $numPassed\n")
-    printWriter.write(s"Evaluations failed: ${numTrials - numPassed}")
+    printWriter.write(s"Evaluations timed out: $timeOut\n")
+    printWriter.write(s"Evaluations failed: ${numTrials - numPassed - timeOut}")
     printWriter.close()
   }
 
@@ -178,6 +190,5 @@ object Evaluator {
       valMap += v -> genCst()
     }
     evalExprTest()
-
   }
 }
