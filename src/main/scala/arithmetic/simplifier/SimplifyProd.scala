@@ -70,16 +70,17 @@ object SimplifyProd {
       Some(SimplifyPow(Cst((Math.pow(b1, -e1) * Math.pow(b2, -e2)).toInt), -1))
 
     // Normalising some cases
-    case (Cst(x), Pow(Cst(y), e2)) if x < 0 && y < 0 && scala.math.abs(e2) % 2 == 1 =>
-      Some(Cst(-x)*Pow(Cst(-y),e2))
-    case (Pow(Cst(y), e1), Cst(x)) if x < 0 && y < 0 && scala.math.abs(e1) % 2 == 1 =>
-      Some(Cst(-x)*Pow(Cst(-y),e1))
+//    case (Cst(x), Pow(Cst(y), e2)) if x < 0 && y < 0 && scala.math.abs(e2) % 2 == 1 =>
+//      Some(Cst(-x)*Pow(Cst(-y),e2))
+//    case (Pow(Cst(y), e1), Cst(x)) if x < 0 && y < 0 && scala.math.abs(e1) % 2 == 1 =>
+//      Some(Cst(-x)*Pow(Cst(-y),e1))
+//
+//    case (Cst(x), Pow(Cst(y), e2)) if x > 0 && y < 0 && scala.math.abs(e2) % 2 == 1 =>
+//      Some(Cst(-x)*Pow(Cst(-y),e2))
+//    case (Pow(Cst(y), e1), Cst(x)) if x > 0 && y < 0 && scala.math.abs(e1) % 2 == 1 =>
+//      Some(Cst(-x)*Pow(Cst(-y),e1))
 
-    case (Cst(x), Pow(Cst(y), e2)) if x > 0 && y < 0 && scala.math.abs(e2) % 2 == 1 =>
-      Some(Cst(-x)*Pow(Cst(-y),e2))
-    case (Pow(Cst(y), e1), Cst(x)) if x > 0 && y < 0 && scala.math.abs(e1) % 2 == 1 =>
-      Some(Cst(-x)*Pow(Cst(-y),e1))
-
+    // Common factor
     case (Cst(x), Pow(Cst(y), -1)) if ComputeGCD.gcdLong(x,y) != 1 =>
       val gcd = ComputeGCD.gcdLong(x,y)
       Some(Cst(x / gcd) * SimplifyPow(Cst(y / gcd), -1))
@@ -153,4 +154,5 @@ object SimplifyProd {
       Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
     }
   }
+
 }

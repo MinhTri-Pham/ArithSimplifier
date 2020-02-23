@@ -66,7 +66,7 @@ object Factorise {
               // Try to factorise the rest
               var restDivision : Option[ArithExpr] = None
               if (rest.distinct.length > 1) {
-                val restTerm = rest.reduce(_ + _).toSum.get.terms
+                val restTerm = rest.reduce(_ + _).getTerms
                 restDivision = factoriseTerms(restTerm)
               }
               // See if we could factorise the two subexpressions and combine appropriately

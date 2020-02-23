@@ -30,11 +30,12 @@ class TestMod {
 
   @Test
   def sumDivisor(): Unit = {
-    val a = Var("a", isInt = true)
+    val a = Cst(2)
     val b = Var("b", isInt = true)
     val c = Var("c", isInt = true)
     val d = Var("d", isInt = true)
     val e = Var("e")
+    val f = Var("f")
     // Trivial cases
     assertEquals(Cst(0),(a*b) % a)
     assertEquals(b % a, (a+b) % a)
@@ -46,6 +47,7 @@ class TestMod {
     assertEquals(d % (a+b), (a*c+b*c+d) % (a+b))
     assertEquals((d+e) % (a+b), (a*c+b*c+d+e) % (a+b))
     assertEquals(e % (a+b), (a*c+b*c+a*d+b*d+e) % (a+b))
+    assertEquals((e+f) % (a+b), (a*c+b*c+a*d+b*d+e+f) % (a+b))
   }
 
   @Test
