@@ -112,7 +112,7 @@ class TestMod {
     val d = Var("d", isInt = true)
     assertEquals(a % (a+b), (2*a+b) % (a+b))
     assertEquals((a+b) % (a+2*b),(3*a + 5*b) % (a + 2*b))
-    assertEquals(a*c % (a+b),(2*a*c+b*c+a*d+b*d) % (a+b))
+    assertEquals((a*c+1) % (a+b),(2*a*c+b*c+a*d+b*d+1) % (a+b))
   }
 
   @Test
@@ -124,6 +124,6 @@ class TestMod {
     assertEquals(b % (2+a),(4+2*a+b) % (2+a))
     assertEquals((2+b) % (2+a),(4+a+3*b+a*b) % (2+a))
     val c = Var("c", isInt = true)
-    assertEquals((1+b) % (2+a),(3+a+b+2*c+c*a) % (2+a))
+    assertEquals((2+b) % (2+a),(4+a+b+2*c+c*a) % (2+a))
   }
 }

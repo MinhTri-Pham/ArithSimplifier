@@ -48,7 +48,20 @@ class TestIntDiv {
     val x = Var("x")
     val y = Var("y", isInt = true)
     val m = Var("m")
-    assertEquals(c + y + floor(x /^ (c+m)), (4 + x + c*m + c*y + m*y) / (c+m))
+      assertEquals(c + y + floor(x /^ (c+m)), (4 + x + c*m + c*y + m*y) / (c+m))
+  }
+
+  @Test
+  def exprTest(): Unit = {
+    val a = Var("a", isInt = true)
+    val b = Var("b", isInt = true)
+    val m = Var("m", isInt = true)
+    val c = Cst(5)
+    val e1 = a pow 2
+    val e2 = b
+    val e3 = Cst(3)
+    assertEquals(e2 + (e1 / (c+m)), (e1 + c*e2 + m*e2) / (c+m))
+    assertEquals(e2 + ((e1 + e3) / (c+m)), (e1 + e3 + c*e2 + m*e2) / (c+m))
   }
 
   @Test
@@ -57,7 +70,7 @@ class TestIntDiv {
     val b = Var("b")
     val c = Var("c", isInt = true)
     val d = Var("d", isInt = true)
-    assertEquals(1 + floor((a+c) /^ (a+b)), (2*a+b+c) / (a+b))
+    assertEquals(1 + ((a+c) / (a+b)), (2*a+b+c) / (a+b))
     assertEquals(2 + floor((a+b)/^(a+2*b)),(3*a + 5*b) / (a + 2*b))
     assertEquals(c+d+floor((a*c) /^(a+b)) ,(2*a*c+b*c+a*d+b*d) / (a+b))
   }

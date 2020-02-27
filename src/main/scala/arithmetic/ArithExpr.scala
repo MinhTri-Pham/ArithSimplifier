@@ -178,6 +178,11 @@ abstract sealed class ArithExpr {
     }
   }
 
+  lazy val isPowOfSum: Boolean = this match {
+    case p:Pow if p.b.isInstanceOf[Sum] => true
+    case _ => false
+  }
+
   def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr
 
   def digest(): Int

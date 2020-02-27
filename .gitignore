@@ -2,3 +2,4 @@ target
 null
 .idea
 *.txt
+*.csv

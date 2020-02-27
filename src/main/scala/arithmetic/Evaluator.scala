@@ -1,26 +1,24 @@
 package arithmetic
 
+import arithmetic.simplifier._
+
 import java.io._
 import java.util.concurrent.TimeoutException
 
-import arithmetic.simplifier._
-
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
-
 import scala.language.postfixOps
 
-// Object to perform evaluation of simplification using evaluator
+// Object to perform evaluation of simplification
 object Evaluator {
-  val maxSizeSumProd = 6 // Max number of terms/factors in sum/product
+  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
   val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
   val maxPowExp = 3 // Max exponent of a power
-  val minCst: Int = -15 // Bounds for constants
-  val maxCst = 15
+  val minCst: Int = -12 // Bounds for constants
+  val maxCst = 12
 
   // Possible variables
   val av: Var = Var("a")
@@ -39,15 +37,20 @@ object Evaluator {
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
 
   // Configuration
-  val numTrials = 100
+  val numTrials = 10
   var numTimedOut = 0
 
   // Keeping track of useful information about tree
-//  var depth = 0 // Depth of tree
   var numTermsFactors = 0 // How many terms/factors at top level for sum/product
-  var numTermsFactorsSumProd = 0 // How many terms/factors at top level for sum/product are prod/sum
-  var numTermsFactorsSumPow = 0 // How many terms are powers with a sum base in a sum
-  var maxNumSumsInTerm = 0 // Maximum number of sums multiplied together in a single sum factor
+
+  // Sum
+  var numProdWithSum = 0 // How many product terms at top level for sum must be expanded
+  var numSumPows = 0 // How many terms are powers with a sum base in a sum
+  var numTotalTerms = 0 // How many terns in expanded form
+  var numExpandedTerms = 0 // Number of terms resulting from expansion of sums
+
+  // Product
+  var numSumFactors = 0 // How many factors at top level for product are sum
   var maxSumFactorLen = 0 // Max length of sum factor in a product
 
   val rGen = new scala.util.Random // Random generator
@@ -82,21 +85,29 @@ object Evaluator {
         chooseOpt match {
           case 0 =>
             terms += genLeaf()
+            if (level == 1) numTotalTerms += 1
           case 1 =>
 //            depth = level + 1
             val nextTerm = ExprSimplifier(genProd(level + 1))
             if (level == 1) {
               nextTerm match {
                 case p:Prod =>
-                  numTermsFactorsSumProd += 1
-                  maxNumSumsInTerm = scala.math.max(maxNumSumsInTerm,
-                    p.factors.count(_.isInstanceOf[Sum]))
+                  val sumFacts = p.factors.filter(x => x.isInstanceOf[Sum] || x.isPowOfSum)
+                  if (sumFacts.nonEmpty) {
+                    numProdWithSum += 1
+                    val numExtraTerms = getNumTerms(nextTerm)
+                    numExpandedTerms += numExtraTerms
+                    numTotalTerms += numExtraTerms
+                  }
+                  else numTotalTerms += 1
                 case p:Pow =>
                   if (p.b.isInstanceOf[Sum]) {
-                    numTermsFactorsSumPow += 1
-                    maxNumSumsInTerm = scala.math.max(maxNumSumsInTerm, p.e)
+                    numSumPows += 1
+                    numExpandedTerms += p.b.getTerms.length * p.e
+                    numTotalTerms += p.b.getTerms.length * p.e
                   }
-                case _ =>
+                  else numTotalTerms += 1
+                case _ => numTotalTerms += 1
               }
             }
             terms += nextTerm
@@ -107,15 +118,22 @@ object Evaluator {
             if (level == 1) {
               nextTerm match {
                 case p:Prod =>
-                  numTermsFactorsSumProd += 1
-                  maxNumSumsInTerm = scala.math.max(maxNumSumsInTerm,
-                    p.factors.count(_.isInstanceOf[Sum]))
+                  val sumFacts = p.factors.filter(x => x.isInstanceOf[Sum] || x.isInstanceOf[Pow])
+                  if (sumFacts.nonEmpty) {
+                    numProdWithSum += 1
+                    val numExtraTerms = getNumTerms(nextTerm)
+                    numExpandedTerms += numExtraTerms
+                    numTotalTerms += numExtraTerms
+                  }
+                  else numTotalTerms += 1
                 case p:Pow =>
                   if (p.b.isInstanceOf[Sum]) {
-                    numTermsFactorsSumPow += 1
-                    maxNumSumsInTerm = scala.math.max(maxNumSumsInTerm, p.e)
+                    numSumPows += 1
+                    numExpandedTerms += p.b.getTerms.length * p.e
+                    numTotalTerms += p.b.getTerms.length * p.e
                   }
-                case _ =>
+                  else numTotalTerms += 1
+                case _ => numTotalTerms += 1
               }
             }
             terms += nextTerm
@@ -144,7 +162,7 @@ object Evaluator {
 //            depth = level + 1
             val nextFactor = ExprSimplifier(genSum(level + 1))
             if (level == 1 && nextFactor.isInstanceOf[Sum]) {
-              numTermsFactorsSumProd += 1
+              numSumFactors += 1
               maxSumFactorLen = scala.math.max(maxSumFactorLen, nextFactor.getTerms.length)
             }
             factors += nextFactor
@@ -152,7 +170,7 @@ object Evaluator {
 //            depth = level + 1
             val nextFactor = ExprSimplifier(genPow(level + 1))
             if (level == 1 && nextFactor.isInstanceOf[Sum]) {
-              numTermsFactorsSumProd += 1
+              numSumFactors += 1
               maxSumFactorLen = scala.math.max(maxSumFactorLen, nextFactor.getTerms.length)
             }
             factors += nextFactor
@@ -162,9 +180,9 @@ object Evaluator {
     }
   }
 
-  // Generate power at a certain level of the expression tree
+  // Generate power at a certain level of he expression tree
   def genPow(level: Int) : ArithExpr = {
-    val exp = 0 + rGen.nextInt(maxPowExp) // Positive
+    val exp = 0 + rGen.nextInt(maxPowExp + 1) // Positive
 //    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
     if (level == maxNestingDepth) {
       val base = genLeaf()
@@ -205,105 +223,114 @@ object Evaluator {
 
 
   // Evaluating sum simplification
-  def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], pw : PrintWriter) : Boolean = {
+  def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
+                        csvw: PrintWriter) : Boolean = {
     try {
       runWithTimeout(3500) {
         numTermsFactors = 0
-        numTermsFactorsSumProd = 0
-        maxNumSumsInTerm = 0
+        numProdWithSum = 0
+        numSumPows = 0
+        numExpandedTerms = 0
+        numTotalTerms = 0
         val randomSum = genSum(level=1)
-        pw.write(s"Generated sum: $randomSum\n")
-        pw.write(s"Number of first level terms: $numTermsFactors\n")
-        pw.write(s"Number of first level product terms: $numTermsFactorsSumProd\n")
-        pw.write(s"Maximum number of sums multiplied together in first level term: $maxNumSumsInTerm\n")
+        txtw.write(s"Generated sum: $randomSum\n")
+        val numFirstExpanded = numProdWithSum + numSumPows
         val t1 = System.nanoTime
         val simplifiedSum = ExprSimplifier(randomSum)
         val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
-        pw.write(s"Simplified sum: $simplifiedSum\n")
-        pw.write(s"Runtime of simplification: $duration ms\n")
+        val durRounded = f"$duration%.3f"
+        txtw.write(s"Simplified sum: $simplifiedSum\n")
         val randomSumEval = ArithExpr.substitute(randomSum, subs)
-        pw.write(s"Evaluation of gen. sum: $randomSumEval\n")
+        txtw.write(s"Evaluation of gen. sum: $randomSumEval\n")
         val simplifiedSumEval = ArithExpr.substitute(simplifiedSum, subs)
-        pw.write(s"Evaluation of simpl. sum: $simplifiedSumEval\n")
-        val isEq = randomSumEval == simplifiedSumEval ||
-          randomSumEval.toSum == simplifiedSumEval.toSum
-        if (!isEq) pw.write("Evals don't match, inspect manually!\n")
-        pw.write(s"\n")
+        txtw.write(s"Evaluation of simpl. sum: $simplifiedSumEval\n")
+        val isEq = randomSumEval == simplifiedSumEval
+        if (isEq) csvw.write(s"$numTermsFactors,$numFirstExpanded,$numExpandedTerms,$numTotalTerms,$durRounded\n")
+        else txtw.write("Evals don't match, inspect manually!\n")
+        txtw.write(s"\n")
         isEq
       }
     }
     catch {
       case _:TimeoutException =>
-        pw.write("Time out problem\n\n")
+        txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
       case _:OutOfMemoryError | _:StackOverflowError =>
-        pw.write(s"Factorisation too long problem \n\n")
+        txtw.write(s"Factorisation too long problem \n\n")
         numTimedOut += 1
         false
     }
   }
 
   def evalSumTest(id:Int) : Unit = {
-    // File for logging
-    val logFile = new File(s"evalSum$id.txt")
-    val printWriter = new PrintWriter(logFile)
+    // Files for logging
+    val evalExprFile = new File(s"evalSum$id.txt")
+    val evalRuntimeFile = new File(s"evalSum$id.csv")
+    val txtWriter = new PrintWriter(evalExprFile)
+    val csvWriter = new PrintWriter(evalRuntimeFile)
+    val header = "Num first level terms,Num first level terms expanded," +
+    "Num additional terms due to expansion,Num total terms with expansion,Runtime\n"
+    csvWriter.write(header)
 
-    printWriter.write("Variable mappings\n")
-    printWriter.write(s"$valMap\n\n")
+    txtWriter.write("Variable mappings\n")
+    txtWriter.write(s"$valMap\n\n")
 
-    printWriter.write(s"Max sum and prod length: $maxSizeSumProd\n")
-    printWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
+    txtWriter.write(s"Max sum and prod length: $maxSizeSumProd\n")
+    txtWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
 
     var numPassed = 0
     numTimedOut = 0
     for (i <- 1 to numTrials) {
       println(i)
-      val passed = evalSumComparison(valMap,printWriter)
+      val passed = evalSumComparison(valMap,txtWriter, csvWriter)
       if (passed) numPassed += 1
     }
-    printWriter.write(s"Evaluations passed: $numPassed\n")
-    printWriter.write(s"Evaluations timed out: $numTimedOut\n")
-    printWriter.write(s"Evaluations possibly not equal: ${numTrials - numPassed - numTimedOut}")
-    printWriter.close()
+    txtWriter.write(s"Evaluations passed: $numPassed\n")
+    txtWriter.write(s"Evaluations timed out: $numTimedOut\n")
+    txtWriter.write(s"Evaluations possibly not equal: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.close()
+    csvWriter.close()
   }
 
   // Evaluating product simplification
-  def evalProdComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], pw : PrintWriter) : Boolean = {
+  def evalProdComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
+                         csvw: PrintWriter) : Boolean = {
     try {
-      runWithTimeout(3500) {
+      runWithTimeout(5000) {
         numTermsFactors = 0
-        numTermsFactorsSumProd = 0
+        numSumFactors = 0
         maxSumFactorLen = 0
         val randomProd = genProd(level=1)
-        pw.write(s"Generated prod: $randomProd\n")
-        pw.write(s"Number of first level factors: $numTermsFactors\n")
-        pw.write(s"Number of first level sum factors: $numTermsFactorsSumProd\n")
-        pw.write(s"Maximum first level sum factor length: $maxSumFactorLen\n")
-//        pw.write(s"Depth of gen. sum. tree: $depth\n")
+        txtw.write(s"Generated prod: $randomProd\n")
         val t1 = System.nanoTime
         val simplifiedProd = ExprSimplifier(randomProd)
         val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
-        pw.write(s"Simplified prod: $simplifiedProd\n")
-        pw.write(s"Runtime of simplification: $duration ms\n")
+        val durRounded = f"$duration%.3f"
+        txtw.write(s"Simplified prod: $simplifiedProd\n")
         val randomProdEval = ArithExpr.substitute(randomProd, subs)
-        pw.write(s"Evaluation of gen. prod: $randomProdEval\n")
+        txtw.write(s"Evaluation of gen. prod: $randomProdEval\n")
         val simplifiedProdEval = ArithExpr.substitute(simplifiedProd, subs)
-        pw.write(s"Evaluation of simpl. prod: $simplifiedProdEval\n")
-        val isEq = randomProdEval == simplifiedProdEval ||
-          randomProdEval.toSum == simplifiedProdEval.toSum
-        if (!isEq) pw.write("Evals don't match, inspect manually!\n")
-        pw.write(s"\n")
+        txtw.write(s"Evaluation of simpl. prod: $simplifiedProdEval\n")
+        val isEq = randomProdEval == simplifiedProdEval
+        if (isEq) csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,$durRounded\n")
+        else {
+          csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,EV\n")
+          txtw.write("Evals don't match, inspect manually!\n")
+        }
+        txtw.write(s"\n")
         isEq
       }
     }
     catch {
       case _:TimeoutException =>
-        pw.write("Time out problem\n\n")
+        txtw.write("Time out problem\n\n")
+        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
         numTimedOut += 1
         false
       case _:OutOfMemoryError | _:StackOverflowError =>
-        pw.write(s"Factorisation too long problem \n\n")
+        txtw.write(s"Factorisation too long problem \n\n")
+        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
         numTimedOut += 1
         false
     }
@@ -311,34 +338,52 @@ object Evaluator {
 
   def evalProdTest(id:Int) : Unit = {
     // File for logging
-    val logFile = new File(s"evalProd$id.txt")
-    val printWriter = new PrintWriter(logFile)
+    val evalExprFile = new File(s"evalProd$id.txt")
+    val evalRuntimeFile = new File(s"evalProd$id.csv")
+    val txtWriter = new PrintWriter(evalExprFile)
+    val csvWriter = new PrintWriter(evalRuntimeFile)
 
-    printWriter.write("Variable mappings\n")
-    printWriter.write(s"$valMap\n\n")
+    txtWriter.write("Variable mappings\n")
+    txtWriter.write(s"$valMap\n\n")
 
-    printWriter.write(s"Max sum and prod length: $maxSizeSumProd\n")
-    printWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
+    txtWriter.write(s"Max sum and prod length: $maxSizeSumProd\n")
+    txtWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
+
+    val header = "Num first level factors, Num first level sum factors" +
+      ", Max first level sum factor length, Runtime\n"
+    csvWriter.write(header)
 
     var numPassed = 0
     numTimedOut = 0
     for (i <- 1 to numTrials) {
       println(i)
-      val passed = evalSumComparison(valMap,printWriter)
+      val passed = evalProdComparison(valMap,txtWriter,csvWriter)
       if (passed) numPassed += 1
     }
-    printWriter.write(s"Evaluations passed: $numPassed\n")
-    printWriter.write(s"Evaluations timed out: $numTimedOut\n")
-    printWriter.write(s"Evaluations possibly not equal: ${numTrials - numPassed - numTimedOut}")
-    printWriter.close()
+    txtWriter.write(s"Evaluations passed: $numPassed\n")
+    txtWriter.write(s"Evaluations timed out: $numTimedOut\n")
+    txtWriter.write(s"Evaluations possibly not equal: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.close()
+    csvWriter.close()
   }
 
+
+  private def getNumTerms(ae: ArithExpr): Int = ae match {
+    case _:Cst | _:Var => 1
+    case s:Sum => s.terms.length
+    case p:Pow =>
+      if (p.b.isInstanceOf[Sum]) p.b.getTerms.length * p.e
+      else 1
+
+    case p:Prod => p.factors.map(x => getNumTerms(x)).product
+    case _ => 1
+  }
 
   def main(args: Array[String]): Unit = {
     // Add mappings for variables
     for (v <- variables) {
       valMap += v -> genCst()
     }
-    evalSumTest(1)
+    evalProdTest(0)
   }
 }

@@ -9,6 +9,7 @@ object SimplifyProd {
 
   // Multiplies two expressions
   def multExprs(lhs: ArithExpr, rhs: ArithExpr): ArithExpr = {
+    if (lhs == Cst(0) || rhs == Cst(0)) return Cst(0)
     var lhsFactors, rhsFactors: List[ArithExpr] = List[ArithExpr]()
     (lhs, rhs) match {
       // Work with product representation if possible
@@ -26,7 +27,7 @@ object SimplifyProd {
         rhsFactors = List[ArithExpr](rhs)
     }
     if (lhsFactors.contains(?) || rhsFactors.contains(?)) return ?
-    if (lhsFactors.contains(Cst(0)) || rhsFactors.contains(Cst(0))) return Cst(0)
+//    if (lhsFactors.contains(Cst(0)) || rhsFactors.contains(Cst(0))) return Cst(0)
     mergeFactors(lhsFactors,rhsFactors)
   }
 
