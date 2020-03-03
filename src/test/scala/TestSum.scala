@@ -27,6 +27,6 @@ class TestSum {
 
   @Test
   def genTest(): Unit = {
-    assertEquals(b + c + (a pow -1), 2*(a pow -1) + b + 2 * c - (a pow -1) - c)
+    assertEquals(b + c - (a pow 2), 2*(a pow 2)  - c + b + 0 + 2 * c - 3 * (a pow 2))
   }
 }

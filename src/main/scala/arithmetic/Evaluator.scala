@@ -14,11 +14,16 @@ import scala.language.postfixOps
 
 // Object to perform evaluation of simplification
 object Evaluator {
-  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
+  val maxSizeSumProd = 7 // Max number of terms/factors in sum/product
+  val minSizeSumProd = 2 // Min number of terms/factors in sum/product
+
+
   val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
   val maxPowExp = 3 // Max exponent of a power
-  val minCst: Int = -12 // Bounds for constants
-  val maxCst = 12
+  val minCst: Int = -5 // Bounds for single constant leaf
+  val maxCst = 5
+  val cstNodeMax = 124
+  val cstNodeMin: Int = -124 // Bounds for constant node (result of multiple leafs combined together)
 
   // Possible variables
   val av: Var = Var("a")
@@ -29,25 +34,22 @@ object Evaluator {
   val fv: Var = Var("f")
   val gv: Var = Var("g")
   val hv: Var = Var("h")
-//  val iv: Var = Var("i")
-//  val kv: Var = Var("k")
+  val iv: Var = Var("i")
+  val kv: Var = Var("k")
 
-  val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv)
+  val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,kv)
   val numPossibleVars: Int = variables.length
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
 
   // Configuration
-  val numTrials = 10
+  val numTrials = 1500
   var numTimedOut = 0
 
   // Keeping track of useful information about tree
   var numTermsFactors = 0 // How many terms/factors at top level for sum/product
 
   // Sum
-  var numProdWithSum = 0 // How many product terms at top level for sum must be expanded
-  var numSumPows = 0 // How many terms are powers with a sum base in a sum
   var numTotalTerms = 0 // How many terns in expanded form
-  var numExpandedTerms = 0 // Number of terms resulting from expansion of sums
 
   // Product
   var numSumFactors = 0 // How many factors at top level for product are sum
@@ -72,7 +74,7 @@ object Evaluator {
 
   // Generate sum at a certain level of the expression tree
   def genSum(level: Int) : ArithExpr = {
-    val numTerms = 2 + rGen.nextInt(maxSizeSumProd - 2 + 1)
+    val numTerms = minSizeSumProd + rGen.nextInt(maxSizeSumProd - minSizeSumProd + 1)
     if (level == 1) numTermsFactors = numTerms
     if (level == maxNestingDepth) {
       val terms = List.fill(numTerms)(genLeaf())
@@ -81,61 +83,21 @@ object Evaluator {
     else {
       val terms = new ListBuffer[ArithExpr]()
       for (_ <- 1 to numTerms) {
-        val chooseOpt = rGen.nextInt(3)
+        val chooseOpt = rGen.nextInt(4)
         chooseOpt match {
           case 0 =>
             terms += genLeaf()
             if (level == 1) numTotalTerms += 1
-          case 1 =>
+          case 1 | 3 =>
 //            depth = level + 1
             val nextTerm = ExprSimplifier(genProd(level + 1))
-            if (level == 1) {
-              nextTerm match {
-                case p:Prod =>
-                  val sumFacts = p.factors.filter(x => x.isInstanceOf[Sum] || x.isPowOfSum)
-                  if (sumFacts.nonEmpty) {
-                    numProdWithSum += 1
-                    val numExtraTerms = getNumTerms(nextTerm)
-                    numExpandedTerms += numExtraTerms
-                    numTotalTerms += numExtraTerms
-                  }
-                  else numTotalTerms += 1
-                case p:Pow =>
-                  if (p.b.isInstanceOf[Sum]) {
-                    numSumPows += 1
-                    numExpandedTerms += p.b.getTerms.length * p.e
-                    numTotalTerms += p.b.getTerms.length * p.e
-                  }
-                  else numTotalTerms += 1
-                case _ => numTotalTerms += 1
-              }
-            }
+            if (level == 1) numTotalTerms += getNumTerms(nextTerm)
             terms += nextTerm
 
           case 2 =>
 //            depth = level + 1
             val nextTerm = ExprSimplifier(genPow(level + 1))
-            if (level == 1) {
-              nextTerm match {
-                case p:Prod =>
-                  val sumFacts = p.factors.filter(x => x.isInstanceOf[Sum] || x.isInstanceOf[Pow])
-                  if (sumFacts.nonEmpty) {
-                    numProdWithSum += 1
-                    val numExtraTerms = getNumTerms(nextTerm)
-                    numExpandedTerms += numExtraTerms
-                    numTotalTerms += numExtraTerms
-                  }
-                  else numTotalTerms += 1
-                case p:Pow =>
-                  if (p.b.isInstanceOf[Sum]) {
-                    numSumPows += 1
-                    numExpandedTerms += p.b.getTerms.length * p.e
-                    numTotalTerms += p.b.getTerms.length * p.e
-                  }
-                  else numTotalTerms += 1
-                case _ => numTotalTerms += 1
-              }
-            }
+            if (level == 1) numTotalTerms += getNumTerms(nextTerm)
             terms += nextTerm
         }
       }
@@ -145,7 +107,7 @@ object Evaluator {
 
   // Generate product at a certain level of the expression tree
   def genProd(level: Int) : ArithExpr = {
-    val numFactors = 2 + rGen.nextInt(maxSizeSumProd - 2 + 1)
+    val numFactors = minSizeSumProd + rGen.nextInt(maxSizeSumProd - minSizeSumProd + 1)
     if (level == 1) numTermsFactors = numFactors
     if (level == maxNestingDepth) {
       val factors = List.fill(numFactors)(genLeaf())
@@ -154,11 +116,11 @@ object Evaluator {
     else {
       val factors = new ListBuffer[ArithExpr]()
       for (_ <- 1 to numFactors) {
-        val chooseOpt = rGen.nextInt(3)
+        val chooseOpt = rGen.nextInt(4)
         chooseOpt match {
           case 0 =>
             factors += genLeaf()
-          case 1 =>
+          case 1 | 3 =>
 //            depth = level + 1
             val nextFactor = ExprSimplifier(genSum(level + 1))
             if (level == 1 && nextFactor.isInstanceOf[Sum]) {
@@ -189,13 +151,13 @@ object Evaluator {
       SimplifyPow(base, exp)
     }
     else {
-      val nestFurther = rGen.nextBoolean()
+      val nestFurther = rGen.nextInt(3)
       var base : ArithExpr = null
-      if (nestFurther) {
+      if (nestFurther != 0) {
 //        depth = level + 1
-        val chooseOpt = rGen.nextInt(2)
+        val chooseOpt = rGen.nextInt(3)
         chooseOpt match {
-          case 0 => base = ExprSimplifier(genSum(level + 1))
+          case 0 | 2 => base = ExprSimplifier(genSum(level + 1))
           case 1 => base = ExprSimplifier(genProd(level + 1))
         }
       }
@@ -206,13 +168,51 @@ object Evaluator {
     }
   }
 
-  def genExpr() : ArithExpr = {
-//    depth = 1
-    val chooseOpt = rGen.nextInt(3)
-    chooseOpt match {
-      case 0 => genSum(1)
-      case 1 => genProd(1)
-      case 2 => genPow(1)
+  def genPrimProd(level : Int) : ArithExpr = {
+    val numFactors = 2 + rGen.nextInt(maxSizeSumProd - 2 + 1)
+    if (level == 1) numTermsFactors = numFactors
+    if (level == maxNestingDepth) {
+      val factors = List.fill(numFactors)(genLeaf())
+      updateCstFactor(ExprSimplifier(Prod(factors)))
+
+    }
+    else {
+      val factors = new ListBuffer[ArithExpr]()
+      for (_ <- 1 to numFactors) {
+        val chooseOpt = rGen.nextInt(2)
+        chooseOpt match {
+          case 0 =>
+            factors += genLeaf()
+          case 1 =>
+            //            depth = level + 1
+            val nextFactor = ExprSimplifier(genPrimPow(level + 1))
+            factors += nextFactor
+        }
+      }
+
+      updateCstFactor(Prod(factors.toList))
+
+    }
+  }
+
+  def genPrimPow(level: Int) : ArithExpr = {
+    val exp = 0 + rGen.nextInt(maxPowExp + 1) // Positive
+//    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
+    if (level == maxNestingDepth) {
+      val base = genLeaf()
+      updateCstFactor(SimplifyPow(base, exp))
+    }
+    else {
+      val nestFurther = rGen.nextBoolean()
+      var base : ArithExpr = null
+      if (nestFurther) {
+        //        depth = level + 1
+        base = genPrimProd(level + 1)
+      }
+      else {
+        base = genLeaf()
+      }
+      updateCstFactor(Pow(base, exp))
     }
   }
 
@@ -228,13 +228,9 @@ object Evaluator {
     try {
       runWithTimeout(3500) {
         numTermsFactors = 0
-        numProdWithSum = 0
-        numSumPows = 0
-        numExpandedTerms = 0
         numTotalTerms = 0
         val randomSum = genSum(level=1)
         txtw.write(s"Generated sum: $randomSum\n")
-        val numFirstExpanded = numProdWithSum + numSumPows
         val t1 = System.nanoTime
         val simplifiedSum = ExprSimplifier(randomSum)
         val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
@@ -244,8 +240,9 @@ object Evaluator {
         txtw.write(s"Evaluation of gen. sum: $randomSumEval\n")
         val simplifiedSumEval = ArithExpr.substitute(simplifiedSum, subs)
         txtw.write(s"Evaluation of simpl. sum: $simplifiedSumEval\n")
+        txtw.write(s"Runtime of simplification: $durRounded\n")
         val isEq = randomSumEval == simplifiedSumEval
-        if (isEq) csvw.write(s"$numTermsFactors,$numFirstExpanded,$numExpandedTerms,$numTotalTerms,$durRounded\n")
+        if (isEq) csvw.write(s"$numTotalTerms,$durRounded\n")
         else txtw.write("Evals don't match, inspect manually!\n")
         txtw.write(s"\n")
         isEq
@@ -269,8 +266,7 @@ object Evaluator {
     val evalRuntimeFile = new File(s"evalSum$id.csv")
     val txtWriter = new PrintWriter(evalExprFile)
     val csvWriter = new PrintWriter(evalRuntimeFile)
-    val header = "Num first level terms,Num first level terms expanded," +
-    "Num additional terms due to expansion,Num total terms with expansion,Runtime\n"
+    val header = "Num total terms with expansion,Runtime\n"
     csvWriter.write(header)
 
     txtWriter.write("Variable mappings\n")
@@ -368,6 +364,73 @@ object Evaluator {
   }
 
 
+  // Evaluating product simplification
+  def evalProdPrimComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
+                         csvw: PrintWriter) : Boolean = {
+    try {
+      runWithTimeout(3500) {
+        val randomProd = genPrimProd(level=1)
+        txtw.write(s"Generated prod: $randomProd\n")
+        val t1 = System.nanoTime
+        val simplifiedProd = ExprSimplifier(randomProd)
+        val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+        val durRounded = f"$duration%.3f"
+        txtw.write(s"Simplified prod: $simplifiedProd\n")
+        val randomProdEval = ArithExpr.substitute(randomProd, subs)
+        txtw.write(s"Evaluation of gen. prod: $randomProdEval\n")
+        val simplifiedProdEval = ArithExpr.substitute(simplifiedProd, subs)
+        txtw.write(s"Evaluation of simpl. prod: $simplifiedProdEval\n")
+        val isEq = randomProdEval == simplifiedProdEval
+        if (isEq) csvw.write(s"$durRounded\n")
+        else {
+          csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,EV\n")
+          txtw.write("Evals don't match, inspect manually!\n")
+        }
+        txtw.write(s"\n")
+        isEq
+      }
+    }
+    catch {
+      case _:TimeoutException =>
+        txtw.write("Time out problem\n\n")
+        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
+        numTimedOut += 1
+        false
+      case _:OutOfMemoryError | _:StackOverflowError =>
+        txtw.write(s"Factorisation too long problem \n\n")
+        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
+        numTimedOut += 1
+        false
+    }
+  }
+
+  def evalProdPrimTest(id:Int) : Unit = {
+    // File for logging
+    val evalExprFile = new File(s"evalProdPrim$id.txt")
+    val evalRuntimeFile = new File(s"evalProdPrim$id.csv")
+    val txtWriter = new PrintWriter(evalExprFile)
+    val csvWriter = new PrintWriter(evalRuntimeFile)
+
+    txtWriter.write("Variable mappings\n")
+    txtWriter.write(s"$valMap\n\n")
+
+    val header = "Runtime\n"
+    csvWriter.write(header)
+
+    var numPassed = 0
+    numTimedOut = 0
+    for (i <- 1 to numTrials) {
+      println(i)
+      val passed = evalProdPrimComparison(valMap,txtWriter,csvWriter)
+      if (passed) numPassed += 1
+    }
+    txtWriter.write(s"Evaluations passed: $numPassed\n")
+    txtWriter.write(s"Evaluations timed out: $numTimedOut\n")
+    txtWriter.write(s"Evaluations possibly not equal: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.close()
+    csvWriter.close()
+  }
+
   private def getNumTerms(ae: ArithExpr): Int = ae match {
     case _:Cst | _:Var => 1
     case s:Sum => s.terms.length
@@ -379,11 +442,33 @@ object Evaluator {
     case _ => 1
   }
 
+  private def updateCstFactor(ae:ArithExpr): ArithExpr = {
+    ae match {
+      case cst: Cst =>
+        if (cst.value < 0 && cst.value < cstNodeMin) Cst(cstNodeMin)
+        else if (cst.value > 0 && cst.value > cstNodeMax) Cst(cstNodeMax)
+        else ae
+      case p: Prod =>
+        if (p.cstFactor < 0 && p.cstFactor < cstNodeMin){
+          val updateCst = Helper.replaceAt(0,Cst(cstNodeMin),p.factors)
+          Prod(updateCst)
+        }
+        else if (p.cstFactor > 0 && p.cstFactor > cstNodeMax) {
+          val updateCst = Helper.replaceAt(0,Cst(cstNodeMax),p.factors)
+          Prod(updateCst)
+        }
+        else ae
+      case _ => ae
+    }
+
+  }
+
   def main(args: Array[String]): Unit = {
     // Add mappings for variables
     for (v <- variables) {
       valMap += v -> genCst()
     }
-    evalProdTest(0)
+
+    evalSumTest(1)
   }
 }

@@ -5,6 +5,78 @@ import org.junit.Assert._
 class TestIntDiv {
 
   @Test
+  def intDivOne(): Unit = {
+    val x = Var("x", isInt = true)
+    assertEquals(x, x/1)
+  }
+
+  @Test
+  def f1(): Unit = {
+    val c = Cst(2)
+    val m = Var("m")
+    val n = Var("n", isInt = true)
+    assertEquals((c*n + m*n) / (c+m), n)
+  }
+
+  @Test
+  def f23(): Unit = {
+    val c = Cst(2)
+    val a = Var("a", isInt = true)
+    val i = Var("i")
+    val k = Var("k")
+    val m = Var("m")
+    assertEquals((i+c*a + m*a) / (c+m), a + i / (c+m))
+    assertEquals((i+k+c*a + m*a) / (c+m), a + (i+k) / (c+m))
+    assertEquals((i+c*(a pow 2) + m*(a pow 2)) / (c+m), (a pow 2) + i / (c+m))
+    assertEquals((i+k+c*(a pow 2) + m*(a pow 2)) / (c+m), (a pow 2) + (i+k) / (c+m))
+  }
+
+  @Test
+  def f4(): Unit = {
+    val c = Cst(2)
+    val i = Var("i", isInt = true)
+    val j = Var("j")
+    val k = Var("k", isInt = true)
+    val n = Var("n")
+    assertEquals((j+c*k+c*i+n*i+n*k) / (c+n), i + k + (j / (c+n)))
+    assertEquals((1+j+c*k+c*i+n*i+n*k) / (c+n), i + k + ((j+1) / (c+n)))
+  }
+
+  @Test
+  def f5(): Unit = {
+    val i = Var("i", isInt = true)
+    val j = Var("j")
+    val n = Var("n")
+    assertEquals((3+n+j+2*i+n*i) / (2+n), i+1+(1+j) / (2+n))
+    assertEquals((4+n+j+2*i+n*i) / (2+n), i+1+(2+j) / (2+n))
+  }
+
+  @Test
+  def f6(): Unit = {
+    val i = Var("i")
+    val j = Var("j", isInt = true)
+    val m = Var("m")
+    assertEquals((4+i+2*m+2*j+m*j) / (2+m), 2+j+i/(2+m))
+    assertEquals((5+i+2*m+2*j+m*j) / (2+m), 2+j+(1+i)/(2+m))
+  }
+
+  @Test
+  def f7(): Unit = {
+    val j = Var("j")
+    val n = Var("n")
+    assertEquals((2+n+j) / (2+n), 1+j/(2+n))
+    assertEquals((3+n+j) / (2+n), 1+(1+j)/(2+n))
+  }
+
+  @Test
+  def f8(): Unit = {
+    val j = Var("j")
+    val n = Var("n")
+    assertEquals((4+j+2*n) / (2+n), 2+j/(2+n))
+    assertEquals((5+j+2*n) / (2+n), 2+(1+j)/(2+n))
+  }
+
+  @Test
   def cstVarProdDenom() : Unit = {
     val a = Var("a", isInt = true)
     assertEquals(2*a,6*a / 3)
@@ -18,70 +90,12 @@ class TestIntDiv {
   }
 
   @Test
-  def sumDenom(): Unit = {
-    val a = Cst(2)
-    val b = Var("b")
-    val c = Var("c", isInt = true)
-    val d = Var("d", isInt = true)
-    val e = Var("e")
-    // Direct factorisation
-    assertEquals(c, (a*c+b*c) / (a+b))
-    assertEquals((a*c+b*c+a*d+b*d) / (a+b), c+d)
-    // Find a good partition
-    assertEquals(1 + c/(a+b), (a+b+c) / (a+b))
-    assertEquals(c + floor(d/^(a+b)), (a*c+b*c+d) / (a+b))
-    assertEquals(c + floor((d+e)/^(a+b)), (a*c+b*c+d+e) / (a+b))
-    assertEquals(c + d + floor(e /^ (a+b)), (a*c+b*c+a*d+b*d+e) / (a+b))
-  }
-
-  @Test
-  def constSum(): Unit = {
-    val c = Cst(5)
-    val x = Var("x")
-    val y = Var("y")
-    assertEquals(1 + floor(y /^ (c+x)), (c+x+y) / (c+x))
-  }
-
-  @Test
-  def constFactorisation(): Unit = {
-    val c = Cst(2)
-    val x = Var("x")
-    val y = Var("y", isInt = true)
+  def custom() : Unit = {
+    val i = Var("i", isInt = true)
     val m = Var("m")
-      assertEquals(c + y + floor(x /^ (c+m)), (4 + x + c*m + c*y + m*y) / (c+m))
+    assertEquals((7+3*m+2*i+i*m) / (2+m), 3+i+(1 / (2+m)))
+    assertEquals((7+3*m+3*i+2*i*m) / (2+m), 3+i + (1+i+i*m) / (2+m))
   }
 
-  @Test
-  def exprTest(): Unit = {
-    val a = Var("a", isInt = true)
-    val b = Var("b", isInt = true)
-    val m = Var("m", isInt = true)
-    val c = Cst(5)
-    val e1 = a pow 2
-    val e2 = b
-    val e3 = Cst(3)
-    assertEquals(e2 + (e1 / (c+m)), (e1 + c*e2 + m*e2) / (c+m))
-    assertEquals(e2 + ((e1 + e3) / (c+m)), (e1 + e3 + c*e2 + m*e2) / (c+m))
-  }
 
-  @Test
-  def partitionConstantMultiple(): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val c = Var("c", isInt = true)
-    val d = Var("d", isInt = true)
-    assertEquals(1 + ((a+c) / (a+b)), (2*a+b+c) / (a+b))
-    assertEquals(2 + floor((a+b)/^(a+2*b)),(3*a + 5*b) / (a + 2*b))
-    assertEquals(c+d+floor((a*c) /^(a+b)) ,(2*a*c+b*c+a*d+b*d) / (a+b))
-  }
-
-  @Test
-  def partitionConstant(): Unit = {
-    val a = Var("a")
-    val b = Var("b", isInt = true)
-    assertEquals(1 + floor(Cst(1) /^ (2+a)), (3+a) / (2+a))
-    assertEquals(1 + floor((2+b) /^ (2+a)), (4+a+b) / (2+a))
-    assertEquals(2 + floor(b /^(2+a)), (4+2*a+b) / (2+a))
-    assertEquals(1 + b + floor((2+b) /^ (2+a)), (4+a+3*b+a*b) / (2+a))
-  }
 }

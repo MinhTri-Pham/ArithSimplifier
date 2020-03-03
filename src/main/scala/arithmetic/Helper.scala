@@ -49,5 +49,8 @@ object Helper {
   def replaceAt[T](i: Int, replacement: T, from: ListBuffer[T]): ListBuffer[T] = from.zipWithIndex.map(element =>
     if (element._2 == i) replacement else element._1)
 
+  def replaceAt[T](i: Int, replacement: T, from: List[T]): List[T] = from.zipWithIndex.map(element =>
+    if (element._2 == i) replacement else element._1)
+
 
 }

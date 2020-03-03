@@ -481,10 +481,15 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   }
 
   lazy val asProdPows : Option[Prod]= b match {
-    case _:Prod =>
-      val bfacts = b.getTermsFactors
+    case p:Prod =>
+      val bfacts = b.getFactors
       val pfacts = bfacts.map(x => x pow e)
-      Some(Prod(pfacts))
+      // Cover case with negative constant
+      if (p.cstFactor < 0) {
+        val flattened = pfacts.flatMap(x => x.getFactors)
+        Some(Prod(flattened))
+      }
+      else Some(Prod(pfacts))
     case _:Sum =>
       if (b.toProd.isDefined) {
         val bfacts = b.toProd.get.factors

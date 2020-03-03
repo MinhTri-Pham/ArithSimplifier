@@ -10,14 +10,6 @@ class TestFraction {
   val d: Var = Var("d")
 
   @Test
-  def divisionNormalForm(): Unit = {
-    assertEquals(a*c /^ b, a /^ (b /^ c))
-    assertEquals((a*c) /^ (b*d), a /^ (b /^ (c /^ d)))
-    assertEquals(a /^ b, (a /^ (b /^ c)) /^ c)
-    assertEquals(a, (a /^ (b /^ c)) /^ (c /^ b))
-  }
-
-  @Test
   def simplificationTest(): Unit = {
     assertEquals(a /^ 2048, a * 128 * Cst(1) /^ 262144)
     assertEquals(a /^ 2, a * (a*Cst(1) /^ Cst(2)) /^ a)
@@ -27,17 +19,17 @@ class TestFraction {
 
   @Test
   def multiVarBasic() : Unit = {
-    val numer1 = 2*a + 2*b
-    val numer2 = a*a + a*b
-    val numer3 = a*a + 2*a*b + b*b
-    val denom1 = a+b
-    val denom2 = a*c + b*c + a*d + b*d
+    val e1 = 2*a + 2*b
+    val e2 = a*a + a*b
+    val e3 = a*a + 2*a*b + b*b
+    val e4 = a+b
+    val e5 = a*c + b*c + a*d + b*d
+    val e6 = (a pow 2) + a*b+a+b
 
-    assertEquals(Cst(1),numer1 /^ numer1)
-    assertEquals(Cst(2),numer1 /^ denom1)
-    assertEquals(a,numer2 /^ denom1)
-    assertEquals(a+b,numer3 /^ denom1)
-    assertEquals((a+b)/^(c+d),numer3 /^ denom2)
+    assertEquals(a,e2 /^ e4)
+    assertEquals((a+b)/^(c+d),e3 /^ e5)
+    assertEquals((c+d) /^ 2, e5 /^ e1)
+    assertEquals(a/^(a+1),e2 /^ e6)
   }
 
   @Test
@@ -61,6 +53,6 @@ class TestFraction {
 
   @Test
   def multiVarSimplification(): Unit = {
-    assertEquals(2*a*(a+b),(4*a*c + 4*a*d + 4*b*c + 4*b*d) * a * (a /^ 2) * (Cst(1) /^(a*(c+d))))
+    assertEquals(2*(a+b),(a /^ 2)*(4*a*c + 4*a*d + 4*b*c + 4*b*d) * (Cst(1) /^(a*(c+d))))
   }
 }

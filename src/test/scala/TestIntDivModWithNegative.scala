@@ -32,15 +32,24 @@ class TestIntDivModWithNegative {
   }
 
   @Test
+  def elemSumTest(): Unit = {
+    val a = Var("a", isInt = true)
+    assertEquals(-2*a-1,(6*a+4) / -3)
+    assertEquals(Cst(1),(6*a+4) % -3)
+  }
+
+  @Test
   def rangeTest() : Unit = {
     val a = Var("a", Interval(0,2))
     val b = Var("b", Interval(0,2), isInteger = true)
-    val c1 = Var("c1", Interval(0,2))
+    val c1 = Var("c1", Interval(1,4))
     val c2 = Var("c2", Interval(-7,-5))
     val posNumer = a*b + c1
     val negNumer = a*b + c2
     assertEquals(posNumer / a, b + floor(c1 /^a))
     assertEquals(negNumer / a, b + ceil(c2 /^a))
+    assertEquals(posNumer % a, c1 - a*floor(c1 /^a))
+    assertEquals(negNumer % a, c2 - a*ceil(c2 /^a))
   }
 
 

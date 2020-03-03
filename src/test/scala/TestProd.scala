@@ -7,6 +7,20 @@ class TestProd {
   val a: Var = Var("a")
   val b: Var = Var("b")
   val c: Var = Var("c")
+  val d: Var = Var("d")
+
+  @Test
+  def factorCollection() : Unit = {
+    assertEquals(2*a*(b pow 3),6*a*b*(Cst(1) /^3)*1*(Cst(1) /^ a)*(b pow 2)*a)
+  }
+
+  @Test
+  def divisionNormalForm(): Unit = {
+    assertEquals(a*c /^ b, a /^ (b /^ c))
+    assertEquals((a*c) /^ (b*d), a /^ (b /^ (c /^ d)))
+    assertEquals(a /^ b, (a /^ (b /^ c)) /^ c)
+    assertEquals(a, (a /^ (b /^ c)) /^ (c /^ b))
+  }
 
   @Test
   def cstTest(): Unit = {
