@@ -19,18 +19,51 @@ object SimplifyProd {
         rhsFactors = rhsFs
       case (Prod(lhsFs), _) =>
         lhsFactors = lhsFs
-        rhsFactors = List[ArithExpr](rhs)
+        if (rhs.isInstanceOf[Sum]) {
+          val rhsSum = rhs.toSum.get
+          if (rhsSum.asPow.isDefined) {
+            rhsFactors = List[ArithExpr](rhsSum.asPow.get)
+
+          }
+          else rhsFactors = List[ArithExpr](rhs)
+        }
+        else rhsFactors = List[ArithExpr](rhs)
       case (_, Prod(rhsFs)) =>
-        lhsFactors = List[ArithExpr](lhs)
+        if (lhs.isInstanceOf[Sum]) {
+          val lhsSum = lhs.toSum.get
+          if (lhsSum.asPow.isDefined) {
+            lhsFactors = List[ArithExpr](lhsSum.asPow.get)
+
+          }
+          else lhsFactors = List[ArithExpr](lhs)
+        }
+        else lhsFactors = List[ArithExpr](lhs)
         rhsFactors = rhsFs
       case _ =>
-        lhsFactors = List[ArithExpr](lhs)
+        if (lhs.isInstanceOf[Sum]) {
+          val lhsSum = lhs.toSum.get
+          if (lhsSum.asPow.isDefined) {
+            lhsFactors = List[ArithExpr](lhsSum.asPow.get)
+
+          }
+          else lhsFactors = List[ArithExpr](lhs)
+        }
+        else lhsFactors = List[ArithExpr](lhs)
         rhsFactors = List[ArithExpr](rhs)
+        if (rhs.isInstanceOf[Sum]) {
+          val rhsSum = rhs.toSum.get
+          if (rhsSum.asPow.isDefined) {
+            rhsFactors = List[ArithExpr](rhsSum.asPow.get)
+
+          }
+          else rhsFactors = List[ArithExpr](rhs)
+        }
+        else rhsFactors = List[ArithExpr](rhs)
     }
     mergeFactors(lhsFactors,rhsFactors)
   }
 
-  // Determine result of multiplication given the terms of multiplication to be added
+  // Determine result of multiplication given the factors of expressions to be multiplied
   def mergeFactors(lhsFactors : List[ArithExpr], rhsFactors : List[ArithExpr]) : ArithExpr = {
     var merged = ListBuffer[ArithExpr]()
     merged = merged.addAll(lhsFactors)
@@ -44,8 +77,6 @@ object SimplifyProd {
         val term = merged(i)
         val newTerm = combineFactors(rhsFactor, term)
         if (newTerm.isDefined) {
-//          if (newTerm.get == Cst(1)) merged = Helper.removeAt(i,merged)
-//          else merged = Helper.replaceAt(i,newTerm.get,merged)
           merged = Helper.replaceAt(i,newTerm.get,merged)
           combined = true
           simplified = true
@@ -111,5 +142,14 @@ object SimplifyProd {
     if (factors.isEmpty) Cst(1) // Everything simplified with each other
     else if (factors.length == 1) factors.head // Simplified expression is primitive
     else Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val e1 = (a pow 2) + 2*a*b + (b pow 2)
+    val e2 = a+b
+    val e = e1*e2
+    println(e)
   }
 }

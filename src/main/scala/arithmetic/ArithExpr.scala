@@ -199,7 +199,7 @@ case class Cst(value : Long) extends ArithExpr {
 
   override lazy val digest: Int = java.lang.Long.hashCode(value)
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 
 //  // Prime decomposition
 //  lazy val asProd : Prod = Factorise(this).get.toProd.get
@@ -238,7 +238,7 @@ case class Var (name : String, range: Interval = Interval(), fixedId: Option[Lon
 
   override def toString: String = name
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 }
 
 // Companion object for arithmetic.Var class
@@ -275,7 +275,23 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   lazy val asProd : Option[Prod] = {
     val factorisation = Factorise(this)
-    if (factorisation.isDefined) factorisation.get.toProd
+    if (factorisation.isDefined) {
+      factorisation.get match {
+        case p:Prod => Some(p)
+        case _ => None
+      }
+    }
+    else None
+  }
+
+  lazy val asPow : Option[Pow] = {
+    val factorisation = Factorise(this)
+    if (factorisation.isDefined) {
+      factorisation.get match {
+        case p:Pow => Some(p)
+        case _ => None
+      }
+    }
     else None
   }
 
@@ -286,7 +302,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   override def toString: String = s"(${terms.mkString(" + ")})"
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(terms.map(_.visitAndRebuild(f)).reduce(_ + _))
 }
 
@@ -431,7 +447,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   override def toString: String = factors.mkString(" * ")
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(factors.map(_.visitAndRebuild(f)).reduce(_ * _))
 }
 
@@ -441,7 +457,6 @@ object Prod {
       case p: Prod => Some(p.factors)
       // Concrete Pow that can be represented as Prod
       case p: Pow if p.asProdPows.isDefined => Some(p.asProdPows.get.factors)
-
       // Factorisation
       case s: Sum if s.asProd.isDefined => Some(s.asProd.get.factors)
       case _ => None
@@ -510,7 +525,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
     else s"pow(${b.toString},$e)"
   }
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(b.visitAndRebuild(f).pow(e))
 }
 
@@ -526,7 +541,7 @@ case class AbsFunction(ae: ArithExpr) extends ArithExpr {
 
   override def toString: String = "Abs(" + ae + ")"
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(abs(ae.visitAndRebuild(f)))
 }
 
@@ -538,7 +553,7 @@ case class FloorFunction(ae: ArithExpr) extends ArithExpr {
 
   override def toString: String = "Floor(" + ae + ")"
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(floor(ae.visitAndRebuild(f)))
 }
 
@@ -554,7 +569,7 @@ case class CeilingFunction(ae: ArithExpr) extends ArithExpr {
 
   override def toString: String = "Ceiling(" + ae + ")"
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(ceil(ae.visitAndRebuild(f)))
 }
 
@@ -941,5 +956,5 @@ case object ? extends ArithExpr {
 
   override val digest: Int = HashSeed
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 }
