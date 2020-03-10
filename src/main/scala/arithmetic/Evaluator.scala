@@ -14,7 +14,7 @@ import scala.language.postfixOps
 
 // Object to perform evaluation of simplification
 object Evaluator {
-  val maxSizeSumProd = 7 // Max number of terms/factors in sum/product
+  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
   val minSizeSumProd = 2 // Min number of terms/factors in sum/product
 
 
@@ -42,7 +42,7 @@ object Evaluator {
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
 
   // Configuration
-  val numTrials = 1500
+  val numTrials = 50
   var numTimedOut = 0
 
   // Keeping track of useful information about tree
@@ -196,8 +196,8 @@ object Evaluator {
   }
 
   def genPrimPow(level: Int) : ArithExpr = {
-    val exp = 0 + rGen.nextInt(maxPowExp + 1) // Positive
-//    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
+//    val exp = 0 + rGen.nextInt(maxPowExp + 1) // Positive
+    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
     if (level == maxNestingDepth) {
       val base = genLeaf()
       updateCstFactor(SimplifyPow(base, exp))
@@ -226,7 +226,7 @@ object Evaluator {
   def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                         csvw: PrintWriter) : Boolean = {
     try {
-      runWithTimeout(3500) {
+      runWithTimeout(6000) {
         numTermsFactors = 0
         numTotalTerms = 0
         val randomSum = genSum(level=1)
@@ -367,41 +367,61 @@ object Evaluator {
   // Evaluating product simplification
   def evalProdPrimComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                          csvw: PrintWriter) : Boolean = {
-    try {
-      runWithTimeout(3500) {
-        val randomProd = genPrimProd(level=1)
-        txtw.write(s"Generated prod: $randomProd\n")
-        val t1 = System.nanoTime
-        val simplifiedProd = ExprSimplifier(randomProd)
-        val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
-        val durRounded = f"$duration%.3f"
-        txtw.write(s"Simplified prod: $simplifiedProd\n")
-        val randomProdEval = ArithExpr.substitute(randomProd, subs)
-        txtw.write(s"Evaluation of gen. prod: $randomProdEval\n")
-        val simplifiedProdEval = ArithExpr.substitute(simplifiedProd, subs)
-        txtw.write(s"Evaluation of simpl. prod: $simplifiedProdEval\n")
-        val isEq = randomProdEval == simplifiedProdEval
-        if (isEq) csvw.write(s"$durRounded\n")
-        else {
-          csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,EV\n")
-          txtw.write("Evals don't match, inspect manually!\n")
-        }
-        txtw.write(s"\n")
-        isEq
-      }
+//    try {
+//      runWithTimeout(3500) {
+//        val randomProd = genPrimProd(level=1)
+//        txtw.write(s"Generated prod: $randomProd\n")
+//        val t1 = System.nanoTime
+//        val simplifiedProd = ExprSimplifier(randomProd)
+//        val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+//        val durRounded = f"$duration%.3f"
+//        txtw.write(s"Simplified prod: $simplifiedProd\n")
+//        val randomProdEval = ArithExpr.substitute(randomProd, subs)
+//        txtw.write(s"Evaluation of gen. prod: $randomProdEval\n")
+//        val simplifiedProdEval = ArithExpr.substitute(simplifiedProd, subs)
+//        txtw.write(s"Evaluation of simpl. prod: $simplifiedProdEval\n")
+//        val isEq = randomProdEval == simplifiedProdEval
+//        if (isEq) {
+//          csvw.write(s"$durRounded\n")
+//          txtw.write(s"$durRounded\n")
+//        }
+//        else txtw.write("Evals don't match, inspect manually!\n")
+//        txtw.write(s"\n")
+//        isEq
+//      }
+//    }
+//    catch {
+//      case _:TimeoutException =>
+//        txtw.write("Time out problem\n\n")
+//        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
+//        numTimedOut += 1
+//        false
+//      case _:OutOfMemoryError | _:StackOverflowError =>
+//        txtw.write(s"Factorisation too long problem \n\n")
+//        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
+//        numTimedOut += 1
+//        false
+//    }
+
+    val randomProd = genPrimProd(level=1)
+    txtw.write(s"Generated prod: $randomProd\n")
+    val t1 = System.nanoTime
+    val simplifiedProd = ExprSimplifier(randomProd)
+    val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+    val durRounded = f"$duration%.3f"
+    txtw.write(s"Simplified prod: $simplifiedProd\n")
+    val randomProdEval = ArithExpr.substitute(randomProd, subs)
+    txtw.write(s"Evaluation of gen. prod: $randomProdEval\n")
+    val simplifiedProdEval = ArithExpr.substitute(simplifiedProd, subs)
+    txtw.write(s"Evaluation of simpl. prod: $simplifiedProdEval\n")
+    val isEq = randomProdEval == simplifiedProdEval
+    if (isEq) {
+      csvw.write(s"$durRounded\n")
+      txtw.write(s"$durRounded\n")
     }
-    catch {
-      case _:TimeoutException =>
-        txtw.write("Time out problem\n\n")
-        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
-        numTimedOut += 1
-        false
-      case _:OutOfMemoryError | _:StackOverflowError =>
-        txtw.write(s"Factorisation too long problem \n\n")
-        csvw.write(s"$numTermsFactors,$numSumFactors,$maxSumFactorLen,TO\n")
-        numTimedOut += 1
-        false
-    }
+    else txtw.write("Evals don't match, inspect manually!\n")
+    txtw.write(s"\n")
+    isEq
   }
 
   def evalProdPrimTest(id:Int) : Unit = {
@@ -468,7 +488,19 @@ object Evaluator {
     for (v <- variables) {
       valMap += v -> genCst()
     }
+    evalProdPrimTest(2)
 
-    evalSumTest(1)
+
+//    for (i <- 1 to 100) {
+//      val list = List.fill(i)(Cst(1))
+//      val expr = Sum(list)
+//      val start = System.nanoTime
+//      val simple = ExprSimplifier(expr)
+//      val end = System.nanoTime
+//      val elapsed = (end - start) / 1e6d
+//      println(simple)
+//      println(elapsed)
+//      println()
+//    }
   }
 }

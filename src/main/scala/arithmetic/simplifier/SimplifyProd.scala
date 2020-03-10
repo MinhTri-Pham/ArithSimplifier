@@ -10,6 +10,7 @@ object SimplifyProd {
   // Multiplies two expressions
   def multExprs(lhs: ArithExpr, rhs: ArithExpr): ArithExpr = {
     if (lhs == Cst(0) || rhs == Cst(0)) return Cst(0)
+    if (lhs == ? || rhs == ?) return ?
     var lhsFactors, rhsFactors: List[ArithExpr] = List[ArithExpr]()
     (lhs, rhs) match {
       // Work with product representation if possible
@@ -26,8 +27,6 @@ object SimplifyProd {
         lhsFactors = List[ArithExpr](lhs)
         rhsFactors = List[ArithExpr](rhs)
     }
-    if (lhsFactors.contains(?) || rhsFactors.contains(?)) return ?
-//    if (lhsFactors.contains(Cst(0)) || rhsFactors.contains(Cst(0))) return Cst(0)
     mergeFactors(lhsFactors,rhsFactors)
   }
 
@@ -35,6 +34,7 @@ object SimplifyProd {
   def mergeFactors(lhsFactors : List[ArithExpr], rhsFactors : List[ArithExpr]) : ArithExpr = {
     var merged = ListBuffer[ArithExpr]()
     merged = merged.addAll(lhsFactors)
+    var simplified = false
     var i = 0
     for (rhsFactor <- rhsFactors) {
       var combined = false
@@ -44,16 +44,20 @@ object SimplifyProd {
         val term = merged(i)
         val newTerm = combineFactors(rhsFactor, term)
         if (newTerm.isDefined) {
-          if (newTerm.get == Cst(1)) merged = Helper.removeAt(i,merged)
-          else merged = Helper.replaceAt(i,newTerm.get,merged)
+//          if (newTerm.get == Cst(1)) merged = Helper.removeAt(i,merged)
+//          else merged = Helper.replaceAt(i,newTerm.get,merged)
+          merged = Helper.replaceAt(i,newTerm.get,merged)
           combined = true
+          simplified = true
           i = n
         }
         i += 1
       }
       if (!combined) merged += rhsFactor
     }
-    convert(merged.toList)
+    if (simplified) merged.reduce(_ * _)
+    else convert(merged.toList)
+
   }
   // Tries to combine a pair of factors
   def combineFactors(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
@@ -106,46 +110,6 @@ object SimplifyProd {
   def convert(factors: List[ArithExpr]): ArithExpr = {
     if (factors.isEmpty) Cst(1) // Everything simplified with each other
     else if (factors.length == 1) factors.head // Simplified expression is primitive
-    else flattenCst(factors)
+    else Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
   }
-
-  // One thing that can happen is that resulting factors contain a constant
-  // and a constant powers that could cancel each other out
-  // This flattens these (if necessary) and gives final simplified expression
-  def flattenCst(factors: List[ArithExpr]) : ArithExpr = {
-    val cstPowCst = ListBuffer[ArithExpr]()
-    // Collect constants and constant powers
-    for (f<-factors) {
-      f match {
-        case _:Cst => cstPowCst += f
-        case p:Pow => if (p.b.isInstanceOf[Cst]) cstPowCst += p
-        case _ =>
-      }
-    }
-    // Nothing to flatten
-    if (cstPowCst.length < 2) Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
-    else {
-      if (cstPowCst.head.isInstanceOf[Cst]) {
-        var i = 1
-        while (i < cstPowCst.length) {
-          // Examine all constant power factors and look for case where we can combine constant with the power factor
-          val combined = combineFactors(cstPowCst.head, cstPowCst(i))
-          if (combined.isDefined) {
-            // Delete combined factor
-            val removePow = cstPowCst.take(i) ++ cstPowCst.drop(i + 1)
-            val flattened = removePow.zipWithIndex.map(element => if (element._2 == 0) combined.get else element._1)
-            val nonCstPow = factors.diff(cstPowCst)
-            val allFactors = flattened ++ nonCstPow
-            // Check that we didn't end up with a primitive expression
-            if (allFactors.length == 1) return allFactors.head
-            else return Prod(allFactors.toList.sortWith(ArithExpr.isCanonicallySorted))
-          }
-          i+=1
-        }
-      }
-      // If no constant factor, also no need to flatten
-      Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
-    }
-  }
-
 }
