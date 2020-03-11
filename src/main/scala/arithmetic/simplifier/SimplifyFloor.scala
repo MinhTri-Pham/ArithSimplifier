@@ -35,8 +35,8 @@ object SimplifyFloor {
         val evalTerm = if (evalNum == 0) Cst(0) else evalTerms.reduce(_ + _)
         val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else nonEvalTerms.reduce(_ + _)
         if (nonEvalNum == 0) {
-          val floorTerm = floor(evalTerm)
-          intTerm + floorTerm
+          val d = FloorFunction(evalTerm).evalDouble
+          intTerm + Cst(d.toInt)
         }
         else {
           val nonIntTerm = evalTerm + nonEvalTerm
@@ -54,5 +54,4 @@ object SimplifyFloor {
         }
     }
   }
-
 }

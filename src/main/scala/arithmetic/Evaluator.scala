@@ -14,8 +14,8 @@ import scala.language.postfixOps
 
 // Object to perform evaluation of simplification
 object Evaluator {
-  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
-  val minSizeSumProd = 2 // Min number of terms/factors in sum/product
+  val maxSizeSumProd = 7 // Max number of terms/factors in sum/product
+  val minSizeSumProd = 3 // Min number of terms/factors in sum/product
 
 
   val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
@@ -42,7 +42,7 @@ object Evaluator {
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
 
   // Configuration
-  val numTrials = 50
+  val numTrials = 1000
   var numTimedOut = 0
 
   // Keeping track of useful information about tree
@@ -226,7 +226,7 @@ object Evaluator {
   def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                         csvw: PrintWriter) : Boolean = {
     try {
-      runWithTimeout(6000) {
+      runWithTimeout(5000) {
         numTermsFactors = 0
         numTotalTerms = 0
         val randomSum = genSum(level=1)
@@ -488,7 +488,7 @@ object Evaluator {
     for (v <- variables) {
       valMap += v -> genCst()
     }
-    evalProdPrimTest(2)
+    evalSumTest(2)
 
 
 //    for (i <- 1 to 100) {

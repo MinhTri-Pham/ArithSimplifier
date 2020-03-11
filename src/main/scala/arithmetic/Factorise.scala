@@ -150,10 +150,10 @@ object Factorise {
   private def findFactors(terms: List[ArithExpr]) : List[ArithExpr] = {
     val factors = ListBuffer[ArithExpr]()
     for (term <- terms) term match {
-      case _:Var | _:Sum => if (!factors.contains(term)) factors += term
+      case _:Var | _:Sum =>  factors += term
       case p:Pow =>
-        if (p.e == 1 && !factors.contains(p.b)) factors += p.b
-        if (p.e == -1 && !factors.contains(Pow(p.b,-1))) factors += Pow(p.b,-1)
+        if (p.e == 1) factors += p.b
+        if (p.e == -1) factors += Pow(p.b,-1)
       case p:Prod =>
         factors ++= findFactors(p.factors)
       case _ => // Do nothing

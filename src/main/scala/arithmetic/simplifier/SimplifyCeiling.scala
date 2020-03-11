@@ -35,8 +35,8 @@ object SimplifyCeiling {
         val evalTerm = if (evalNum == 0) Cst(0) else evalTerms.reduce(_ + _)
         val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else nonEvalTerms.reduce(_ + _)
         if (nonEvalNum == 0) {
-          val floorTerm = ceil(evalTerm)
-          intTerm + floorTerm
+          val d = CeilingFunction(evalTerm).evalDouble
+          intTerm + Cst(d.toInt)
         }
         else {
           val nonIntTerm = evalTerm + nonEvalTerm

@@ -51,17 +51,6 @@ class TestFactoriseSum {
     assertEquals(Factorise(s6),Some((a*b+c)*(d+e)))
   }
 
-  // Factorisation not possible
-  @Test
-  def nonFactorisable() : Unit = {
-    val s1 = a*b + a*c + b*c
-    val s2 = a*b + a*c + a*d + e*f
-    val s3 = a*b*c + b*c*d + c*d*e + d*e*f
-    assertEquals(Factorise(s1),None)
-    assertEquals(Factorise(s2),None)
-    assertEquals(Factorise(s3),None)
-  }
-
   @Test
   def prods(): Unit = {
     val s1 = (a pow 2) + a*b + a*c + b*c
