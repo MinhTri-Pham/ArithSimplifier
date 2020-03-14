@@ -46,7 +46,6 @@ object SumProdEvaluator {
 
   var numTermsFactors = 0 // How many terms/factors at top level for sum/product
 
-  // Sum
   var numTotalTerms = 0 // How many terns in expanded form
 
   val rGen = new scala.util.Random // Random generator
@@ -251,12 +250,12 @@ object SumProdEvaluator {
     catch {
       case _:TimeoutException =>
         txtw.write("Time out problem\n\n")
-        csvw.write("6000\n")
+        csvw.write(s"$numTotalTerms,5000\n")
         numTimedOut += 1
         false
       case _:OutOfMemoryError | _:StackOverflowError =>
-        txtw.write(s"Factorisation too long problem\n\n")
-        csvw.write("6000\n")
+        txtw.write(s"Memory issue with factorisation\n\n")
+        csvw.write(s"$numTotalTerms,5000\n")
         numTimedOut += 1
         false
     }
@@ -371,13 +370,13 @@ object SumProdEvaluator {
     }
     catch {
       case _:TimeoutException =>
-        csvw.write("6000\n")
+        csvw.write("5000\n")
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
       case _:OutOfMemoryError | _:StackOverflowError =>
-        csvw.write("6000\n")
-        txtw.write(s"Factorisation too long problem \n\n")
+        csvw.write("5000\n")
+        txtw.write(s"Memory issue with factorisation\n\n")
         numTimedOut += 1
         false
     }
