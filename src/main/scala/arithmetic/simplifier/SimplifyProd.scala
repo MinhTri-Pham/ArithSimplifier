@@ -143,13 +143,4 @@ object SimplifyProd {
     else if (factors.length == 1) factors.head // Simplified expression is primitive
     else Prod(factors.sortWith(ArithExpr.isCanonicallySorted))
   }
-
-  def main(args: Array[String]): Unit = {
-    val a = Var("a")
-    val b = Var("b")
-    val e1 = (a pow 2) + 2*a*b + (b pow 2)
-    val e2 = a+b
-    val e = e1*e2
-    println(e)
-  }
 }

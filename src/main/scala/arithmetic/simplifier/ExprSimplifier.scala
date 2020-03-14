@@ -13,5 +13,6 @@ object ExprSimplifier {
     case AbsFunction(ae) => SimplifyAbs(ae)
     case FloorFunction(ae) => SimplifyFloor(ae)
     case CeilingFunction(ae) => SimplifyCeiling(ae)
+    case _ => expr
   }
 }

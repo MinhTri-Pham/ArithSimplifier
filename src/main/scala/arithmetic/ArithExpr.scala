@@ -273,6 +273,11 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 
   override lazy val digest: Int = terms.foldRight(HashSeed)((x, hash) => hash ^ x.digest())
 
+  lazy val cstTerm : Long = terms.head match {
+    case Cst(c) => c
+    case _ => 0
+  }
+
   lazy val asProd : Option[Prod] = {
     val factorisation = Factorise(this)
     if (factorisation.isDefined) {
