@@ -579,7 +579,22 @@ case class CeilingFunction(ae: ArithExpr) extends ArithExpr {
 }
 
 object ceil {
-  def apply(ae: ArithExpr): ArithExpr = simplifier.SimplifyCeiling(ae)
+  def apply(ae: ArithExpr): ArithExpr = SimplifyCeiling(ae)
+}
+
+case class LogFunction(b:Int, ae:ArithExpr) extends ArithExpr {
+  override val HashSeed = 0x370285bf
+
+  override lazy val digest: Int = HashSeed ^ b ^ ~ae.digest()
+
+  override def toString: String = "log" + b + "(" + ae + ")"
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr =
+    f(log(b, ae.visitAndRebuild(f)))
+}
+
+object log {
+  def apply(b:Int, ae:ArithExpr) : ArithExpr = SimplifyLog(b,ae)
 }
 
 
@@ -923,12 +938,13 @@ object ArithExpr {
   else e match {
     case Pow(base, _) =>
       visitUntil(base, f)
-    case Sum(terms) =>
-      terms.foreach(t => if (visitUntil(t, f)) return true)
+    case s:Sum =>
+      s.terms.foreach(t => if (visitUntil(t, f)) return true)
       false
-    case Prod(terms) =>
-      terms.foreach(t => if (visitUntil(t, f)) return true)
+    case p:Prod =>
+      p.factors.foreach(t => if (visitUntil(t, f)) return true)
       false
+    case LogFunction(_, x) => visitUntil(x, f)
     case FloorFunction(expr) => visitUntil(expr, f)
     case CeilingFunction(expr) => visitUntil(expr, f)
     case _:Var | Cst(_) => false
@@ -946,6 +962,7 @@ object ArithExpr {
     case FloorFunction(expr) => scala.math.floor(evalDouble(expr))
     case CeilingFunction(expr) => scala.math.ceil(evalDouble(expr))
     case AbsFunction(expr) => scala.math.abs(evalDouble(expr))
+    case LogFunction(b,expr) => scala.math.log(scala.math.log(evalDouble(expr) / scala.math.log(b)))
 
     case `?` | _:Var => throw NotEvaluable
   }

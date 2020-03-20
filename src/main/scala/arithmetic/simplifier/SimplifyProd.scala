@@ -49,7 +49,7 @@ object SimplifyProd {
           else lhsFactors = List[ArithExpr](lhs)
         }
         else lhsFactors = List[ArithExpr](lhs)
-        rhsFactors = List[ArithExpr](rhs)
+
         if (rhs.isInstanceOf[Sum]) {
           val rhsSum = rhs.toSum.get
           if (rhsSum.asPow.isDefined) {

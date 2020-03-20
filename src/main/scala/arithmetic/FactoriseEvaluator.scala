@@ -29,34 +29,27 @@ object FactoriseEvaluator {
   val rv: Var = Var("r")
   val sv: Var = Var("s")
 
-  val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,jv,kv,mv,nv,ov,pv)
+  val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,jv,kv,mv,nv,ov,pv,rv,sv)
   val numPossibleVars: Int = variables.length
 
-  val maxSumFactorLen = 3 // Max number of terms/factors in sum/product
-  val minSumFactorLen = 2 // Min number of terms/factors in sum/product
+  val maxSumFactorLen = 3 // Max number of terms in sum factor
+  val minSumFactorLen = 2 // Min number of terms in sum factor
 
-  val maxPowExp = 2 // Max number of terms/factors in sum/product
-  val minPowExp = 2 // Min number of terms/factors in sum/product
+  val maxPowExp = 2 // Max exponent of power
+  val minPowExp = 2 // Min exponent of power
 
-  val maxNumFactors = 3 // Max number of terms/factors in sum/product
-  val minNumFactors = 2 // Min number of terms/factors in sum/product
+  val maxNumFactors = 3 // Max number of factors in original product
+  val minNumFactors = 2 // Min number of factors in original product
 
-  val maxPrimPowLen = 2 // Max number of terms/factors in sum/product
-  val minPrimPowLen = 2 // Min number of terms/factors in sum/product
+  val maxPrimPowLen = 2 // Max number of factors in product term
+  val minPrimPowLen = 2 // Min number of factors in product term
 
-  val minCst = 2 // Bounds for single constant leaf
-  val maxCst = 3
-
-  val rGen = new scala.util.Random // Random generator
+  val rGen = new scala.util.Random() // Random generator
 
   var numVarsInExpr = 0
   var varsInExpr = new ListBuffer[ArithExpr]()
 
   var numTimedOut = 0
-
-  def genCst() : Cst = {
-    Cst(minCst + rGen.nextInt((maxCst - minCst) + 1))
-  }
 
   def genVar() : Var = {
     val v = variables(rGen.nextInt(numPossibleVars))
@@ -163,11 +156,11 @@ object FactoriseEvaluator {
         if (factorisation.isDefined) {
           txtw.write(s"Factorisation of expanded form: ${factorisation.get}\n")
           val isEq = factorisation.get == randomProd
-          if (isEq) csvw.write(s"$numVarsInExpr, $len, $durRounded\n")
-          else {
-            txtw.write("Factorisation and original product not same!\n")
-            csvw.write(s"$numVarsInExpr, $len, fail")
+          if (isEq) {
+            csvw.write(s"$numVarsInExpr, $len, $durRounded\n")
+            txtw.write(s"Runtime of factorisation: $durRounded\n")
           }
+          else txtw.write("Factorisation and original product not same!\n")
           txtw.write(s"\n")
           isEq
         }
@@ -179,13 +172,11 @@ object FactoriseEvaluator {
     }
     catch {
       case _:TimeoutException =>
-        csvw.write(s"$numVarsInExpr, $len, 8000\n")
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
       case _:OutOfMemoryError | _:StackOverflowError =>
-        csvw.write(s"$numVarsInExpr, $len, 8000\n")
-        txtw.write(s"Factorisation too long problem \n\n")
+        txtw.write(s"Factorisation too long problem\n\n")
         numTimedOut += 1
         false
     }
@@ -197,7 +188,7 @@ object FactoriseEvaluator {
     numVarsInExpr = 0
     varsInExpr.clear()
     try {
-      runWithTimeout(8000) {
+      runWithTimeout(10000) {
         val randomProd = genProd()
         val randomProdAsSum = randomProd.toSum.get
         len = computeLen(randomProdAsSum)
@@ -205,7 +196,9 @@ object FactoriseEvaluator {
         println(s"Expanded form: $randomProdAsSum")
         val t1 = System.nanoTime
         val factorisation = Factorise(randomProdAsSum)
-        val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+        Factorise(randomProdAsSum)
+        Factorise(randomProdAsSum)
+        val duration = (System.nanoTime - t1) / (1e6d  * 3) // Average runtime in ms
         val durRounded = f"$duration%.3f"
         if (factorisation.isDefined) {
           println(s"Factorisation of expanded form: ${factorisation.get}")
@@ -231,9 +224,9 @@ object FactoriseEvaluator {
     }
   }
 
-  def evaluate() : Unit = {
-    val evalExprFile = new File(s"evalFactorise.txt")
-    val evalRuntimeFile = new File(s"evalFactorise.csv")
+  def evaluate(id:Int) : Unit = {
+    val evalExprFile = new File(s"evalFactorise$id.txt")
+    val evalRuntimeFile = new File(s"evalFactorise$id.csv")
     val txtWriter = new PrintWriter(evalExprFile)
     val csvWriter = new PrintWriter(evalRuntimeFile)
     val header = "Number of variables, Length of sum, Runtime\n"
@@ -241,21 +234,20 @@ object FactoriseEvaluator {
 
     var numPassed = 0
     numTimedOut = 0
-    val numTrials = 10
+    val numTrials = 101
     for (i <- 0 until numTrials) {
       println(i)
       val passed = evalFactoriseComparsion(txtWriter, csvWriter)
       if (passed) numPassed += 1
     }
-    txtWriter.write(s"Evaluations passed: $numPassed\n")
-    txtWriter.write(s"Evaluations timed out: $numTimedOut\n")
-    txtWriter.write(s"Evaluations possibly not equal: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.write(s"Passed: $numPassed\n")
+    txtWriter.write(s"Timed out: $numTimedOut\n")
+    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
     csvWriter.close()
   }
 
   def main(args: Array[String]): Unit = {
-//    evaluate()
-    
+    evaluate(0)
   }
 }
