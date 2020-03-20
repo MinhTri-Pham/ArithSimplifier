@@ -582,10 +582,10 @@ object ceil {
   def apply(ae: ArithExpr): ArithExpr = SimplifyCeiling(ae)
 }
 
-case class LogFunction(b:Int, ae:ArithExpr) extends ArithExpr {
+case class LogFunction(b:Long, ae:ArithExpr) extends ArithExpr {
   override val HashSeed = 0x370285bf
 
-  override lazy val digest: Int = HashSeed ^ b ^ ~ae.digest()
+  override lazy val digest: Int = HashSeed ^ Cst(b).digest ^ ~ae.digest()
 
   override def toString: String = "log" + b + "(" + ae + ")"
 
@@ -594,7 +594,7 @@ case class LogFunction(b:Int, ae:ArithExpr) extends ArithExpr {
 }
 
 object log {
-  def apply(b:Int, ae:ArithExpr) : ArithExpr = SimplifyLog(b,ae)
+  def apply(b:Long, ae:ArithExpr) : ArithExpr = SimplifyLog(b,ae)
 }
 
 
