@@ -32,16 +32,16 @@ object FactoriseEvaluator {
   val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,jv,kv,mv,nv,ov,pv,rv,sv)
   val numPossibleVars: Int = variables.length
 
-  val maxSumFactorLen = 3 // Max number of terms in sum factor
+  val maxSumFactorLen = 4 // Max number of terms in sum factor
   val minSumFactorLen = 2 // Min number of terms in sum factor
 
   val maxPowExp = 2 // Max exponent of power
   val minPowExp = 2 // Min exponent of power
 
-  val maxNumFactors = 3 // Max number of factors in original product
+  val maxNumFactors = 4 // Max number of factors in original product
   val minNumFactors = 2 // Min number of factors in original product
 
-  val maxPrimPowLen = 2 // Max number of factors in product term
+  val maxPrimPowLen = 3 // Max number of factors in product term
   val minPrimPowLen = 2 // Min number of factors in product term
 
   val rGen = new scala.util.Random() // Random generator
@@ -82,8 +82,13 @@ object FactoriseEvaluator {
   def genProd() : ArithExpr  = {
     val numFactors = minNumFactors + rGen.nextInt((maxNumFactors - minNumFactors) + 1)
     val factors = new ListBuffer[ArithExpr]()
-    for (_ <- 0 until numFactors) {
-      factors += genSum()
+    for (i <- 0 until numFactors) {
+      if (i == 0) factors += genSum()
+      else {
+        val isSum = rGen.nextBoolean()
+        if (isSum) factors += genSum()
+        else factors += genVar()
+      }
     }
     factors.reduce(_*_)
   }
@@ -121,17 +126,17 @@ object FactoriseEvaluator {
     }
   }
 
-  def computeLen(s:Sum) : Int = {
-    var len = 0
-    for (term <- s.terms) {
-      term match {
-        case c : Cst => len += c.value.toInt
-        case p:Prod => len += p.cstFactor.toInt
-        case _ => len += 1
-      }
-    }
-    len
-  }
+//  def computeLen(s:Sum) : Int = {
+//    var len = 0
+//    for (term <- s.terms) {
+//      term match {
+//        case c : Cst => len += c.value.toInt
+//        case p:Prod => len += p.cstFactor.toInt
+//        case _ => len += 1
+//      }
+//    }
+//    len
+//  }
 
   // Function to run a block with a time out limit
   def runWithTimeout[T](timeoutMs: Long)(f: => T) : T = {
@@ -143,10 +148,11 @@ object FactoriseEvaluator {
     numVarsInExpr = 0
     varsInExpr.clear()
     try {
-      runWithTimeout(8000) {
+      runWithTimeout(6000) {
         val randomProd = genProd()
         val randomProdAsSum = randomProd.toSum.get
-        len = computeLen(randomProdAsSum)
+//        len = computeLen(randomProdAsSum)
+        len = randomProdAsSum.terms.length
         txtw.write(s"Generated prod: $randomProd\n")
         txtw.write(s"Expanded form: $randomProdAsSum\n")
         val t1 = System.nanoTime
@@ -188,10 +194,11 @@ object FactoriseEvaluator {
     numVarsInExpr = 0
     varsInExpr.clear()
     try {
-      runWithTimeout(10000) {
+      runWithTimeout(6000) {
         val randomProd = genProd()
         val randomProdAsSum = randomProd.toSum.get
-        len = computeLen(randomProdAsSum)
+//        len = computeLen(randomProdAsSum)
+        len = randomProdAsSum.terms.length
         println(s"Generated prod: $randomProd")
         println(s"Expanded form: $randomProdAsSum")
         val t1 = System.nanoTime
@@ -234,7 +241,9 @@ object FactoriseEvaluator {
 
     var numPassed = 0
     numTimedOut = 0
-    val numTrials = 101
+    val offset = 10 // These first runs won't count
+    val numTrialsRaw = 100
+    val numTrials = numTrialsRaw + offset
     for (i <- 0 until numTrials) {
       println(i)
       val passed = evalFactoriseComparsion(txtWriter, csvWriter)
@@ -247,7 +256,18 @@ object FactoriseEvaluator {
     csvWriter.close()
   }
 
+  def evaluatePrint(): Unit = {
+    val offset = 10 // These first runs won't count
+    val numTrialsRaw = 50
+    val numTrials = numTrialsRaw + offset
+    for (i <- 0 until numTrials) {
+      println(i)
+      evalFactoriseComparsionPrint()
+    }
+  }
+
   def main(args: Array[String]): Unit = {
-    evaluate(0)
+//    evaluate(0)
+    evaluatePrint()
   }
 }

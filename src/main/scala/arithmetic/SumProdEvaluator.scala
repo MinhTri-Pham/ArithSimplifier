@@ -50,7 +50,9 @@ object SumProdEvaluator {
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
 
   // Configuration
-  val numTrials = 250
+  val offset = 10 // These first runs won't count
+  val numTrialsRaw = 250
+  val numTrials = numTrialsRaw + offset
   var numTimedOut = 0
 
   var numTermsFactors = 0 // How many terms/factors at top level for sum/product

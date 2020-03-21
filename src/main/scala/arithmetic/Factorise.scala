@@ -30,17 +30,13 @@ object Factorise {
     }
     else {
       val termsAsProds = asProds(terms)
-      val factors = findFactors(termsAsProds)
-      var i = 0
-      // Loop over factors
-      while (i < factors.length) {
-        val currFactor = factors(i)
-        // Find which terms does the factor appear in
+      val factors = findFactorSet(termsAsProds)
+
+      for (currFactor <- factors) {
         val containsF = ListBuffer[ArithExpr]()
         for (t <- terms) {
           if (ArithExpr.isMultipleOf(t,currFactor)) containsF += t
         }
-        // If just one, move to the next
         if (containsF.length > 1) {
           // Idea: divide expression into two subexpressions
           // One subexpression contains some of the terms the factor is contained in
@@ -96,7 +92,6 @@ object Factorise {
             }
           }
         }
-        i+=1
       }
       None
     }
@@ -147,18 +142,18 @@ object Factorise {
     factorisation.toList
   }
 
-  private def findFactors(terms: List[ArithExpr]) : List[ArithExpr] = {
-    val factors = ListBuffer[ArithExpr]()
+  private def findFactorSet(terms: List[ArithExpr]) : Set[ArithExpr] = {
+    var factors = Set[ArithExpr]()
     for (term <- terms) term match {
       case _:Var | _:Sum =>  factors += term
       case p:Pow =>
         if (p.e == 1) factors += p.b
         if (p.e == -1) factors += Pow(p.b,-1)
       case p:Prod =>
-        factors ++= findFactors(p.factors)
+        factors ++= findFactorSet(p.factors)
       case _ => // Do nothing
     }
-    factors.distinct.toList
+    factors
   }
 
   private def asProds(terms: List[ArithExpr]): List[ArithExpr] = {
