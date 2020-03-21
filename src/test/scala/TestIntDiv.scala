@@ -77,24 +77,19 @@ class TestIntDiv {
   }
 
   @Test
-  def cstVarProdDenom() : Unit = {
-    val a = Var("a", isInt = true)
-    assertEquals(2*a,6*a / 3)
-    assertEquals(Cst(2),(6*a) / (3*a))
-    assertEquals(2*a, (6*a + 2) / 3)
-    assertEquals(2*a + 1, (6*a + 4) / 3)
-    val b = Var("b")
-    val c = Var("c")
-    assertEquals(6 + floor(b/^a), (6*a+b) / a)
-    assertEquals(2*a + floor(3*b), (4*a*c + 6*b*c) / (2*c))
-  }
-
-  @Test
   def custom() : Unit = {
     val i = Var("i", isInt = true)
-    val m = Var("m")
-    assertEquals((7+3*m+2*i+i*m) / (2+m), 3+i+(1 / (2+m)))
-    assertEquals((7+3*m+3*i+2*i*m) / (2+m), 3+i + (1+i+i*m) / (2+m))
+    val n = Var("n")
+    assertEquals((7+2*n) / (3+n), 2 + 1 / (3+n))
+    assertEquals((7+3*n + 2*i) / (3+n), 2 + (1+n+2*i) / (3+n))
+    assertEquals((7+3*n+2*i+i*n) / (2+n), 3+i+(1 / (2+n)))
+    assertEquals((7+3*n+3*i+2*i*n) / (2+n), 3+i + (1+i+i*n) / (2+n))
+    val j = Var("j")
+    val k = Var("k", isInt = true)
+    assertEquals((i+3*k+n*k+j*k) / (3+n+j), k + i / (3+n+j))
+    assertEquals((10+2*n+3*j) / (3+n+j), 2 + (4+j) / (3+n+j))
+    assertEquals((4+2*n+3*i+3*i*n) / (3+2*n), (1+i) + (1+i*n) / (3+2*n))
+
   }
 
 

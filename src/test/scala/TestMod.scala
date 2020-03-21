@@ -140,14 +140,17 @@ class TestMod {
   @Test
   def custom() : Unit = {
     val i = Var("i", isInt = true)
-    val m = Var("m")
-    assertEquals((7+3*m+2*i+i*m) % (2+m), 1 % (2+m))
-    assertEquals((7+3*m+3*i+2*i*m) % (2+m), (1+i+i*m) % (2+m))
-    val j = Var("j", isInt = true)
-    val numer = 2+m+i+3*j+m*j
-    val denom = 3+m
-    assertEquals(numer % denom, (2+m+i) % denom)
-//    assertEquals(numer % denom, (i-1) % denom)
+    val n = Var("n")
+    assertEquals((7+2*n) % (3+n), 1 % (3+n))
+    assertEquals((7+3*n + 2*i) % (3+n), (1+n+2*i) % (3+n))
+    assertEquals((7+3*n+2*i+i*n) % (2+n), 1 % (2+n))
+    assertEquals((7+3*n+3*i+2*i*n) % (2+n), (1+i+i*n) % (2+n))
+    val j = Var("j")
+    val k = Var("k", isInt = true)
+    assertEquals((i+3*k+n*k+j*k) % (3+n+j), i % (3+n+j))
+    assertEquals((10+2*n+3*j) % (3+n+j), (4+j) % (3+n+j))
+
+    assertEquals((4+2*n+3*i+3*i*n) % (3+2*n), (1+i*n) % (3+2*n))
 
   }
 
