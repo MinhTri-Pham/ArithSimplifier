@@ -12,9 +12,7 @@ object Factorise {
 
   def factoriseSum(s: Sum) : Option[ArithExpr] = {
     if (s.terms.length < 2) return None
-    val factorisation = factoriseTerms(s.terms)
-    if (factorisation.isDefined) Some(factorisation.get.getFactors.reduce(_*_))
-    else None
+    factoriseTerms(s.terms)
   }
 
   private def factoriseTerms(terms: List[ArithExpr]) : Option[ArithExpr] = {
