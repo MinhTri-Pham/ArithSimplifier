@@ -3,16 +3,18 @@ package arithmetic
 import scala.collection.mutable.ListBuffer
 
 object Factorise {
+
+  var numFactorsTried = 0
+  var numSubsetsTried = 0
+  var numCommonGcd = 0
+  var numBacktrackings = 0
+
   // Factorises an expression
   def apply(e:ArithExpr) : Option[ArithExpr] = e match {
-    case s:Sum =>factoriseSum(s)
-//    case p:Prod => factoriseProd(p)
+    case s:Sum =>
+      if (s.terms.length < 2) return None
+      factoriseTerms(s.terms)
     case _ => None
-  }
-
-  def factoriseSum(s: Sum) : Option[ArithExpr] = {
-    if (s.terms.length < 2) return None
-    factoriseTerms(s.terms)
   }
 
   private def factoriseTerms(terms: List[ArithExpr]) : Option[ArithExpr] = {
@@ -20,6 +22,7 @@ object Factorise {
     val gcd = ComputeGCD.commonTermList(terms)
     // Look for common factor
     if (gcd != Cst(1)) {
+      numCommonGcd += 1
       val simplified = terms.map(x => x /^ gcd).reduce(_ + _)
       val simplifiedFactorisation = factoriseTerms(simplified.getTerms)
       // Try to factorise the simplified expression
@@ -27,15 +30,14 @@ object Factorise {
       Some(gcd*simplified)
     }
     else {
-      val termsAsProds = asProds(terms)
-      val factors = findFactorSet(termsAsProds)
-
+      val factors = findFactorSet(terms)
       for (currFactor <- factors) {
         val containsF = ListBuffer[ArithExpr]()
         for (t <- terms) {
           if (ArithExpr.isMultipleOf(t,currFactor)) containsF += t
         }
         if (containsF.length > 1) {
+          numFactorsTried += 1
           // Idea: divide expression into two subexpressions
           // One subexpression contains some of the terms the factor is contained in
           // All other terms form the second subexpression
@@ -49,6 +51,7 @@ object Factorise {
           // Try combinations
           for (subset <- Helper.powerSet(containsExpanded)) {
             if (subset.distinct.length > 1) {
+              numSubsetsTried += 1
               val rest = termsExpanded.diff(subset)
               // Take out factor from examined subset
               // Factorise recursively
@@ -89,6 +92,7 @@ object Factorise {
               }
             }
           }
+          numBacktrackings += 1
         }
       }
       None
@@ -108,63 +112,17 @@ object Factorise {
     Some(accumExpr)
   }
 
-  // Prepare array for factorisation using sieve algorithm
-  private def sieve(n : Int) : Array[Int] = {
-    val spf = Array.fill[Int](n+1)(0)
-    var i = 2
-    while(i * i <= n) {
-      if (spf(i) == 0) {
-        var k = i*i
-        while (k <= n) {
-          if (spf(k) == 0) spf(k) = i
-          k += i
-        }
-      }
-      i += 1
-    }
-    spf
-  }
-
-  // Gives prime decomposition of a positive integer
-  // Repeated factors repeated in the product
-  private def primeDecomposition(n : Int) : List[Int] = {
-    var r = scala.math.abs(n)
-    val spf = sieve(r)
-    val factorisation = ListBuffer[Int]()
-    if (n < 0) factorisation.addOne(-1)
-    while(spf(r) > 0) {
-      factorisation += spf(r)
-      r /= spf(r)
-    }
-    factorisation += r
-    factorisation.toList
-  }
-
-  private def findFactorSet(terms: List[ArithExpr]) : Set[ArithExpr] = {
+  def findFactorSet(terms: List[ArithExpr]) : Set[ArithExpr] = {
     var factors = Set[ArithExpr]()
     for (term <- terms) term match {
       case _:Var | _:Sum =>  factors += term
-      case p:Pow =>
-        if (p.e == 1) factors += p.b
-        if (p.e == -1) factors += Pow(p.b,-1)
-      case p:Prod =>
-        factors ++= findFactorSet(p.factors)
+      case p:Pow if p.e > 1 => factors += p.b
+      case p:Pow if p.e <= -1 =>
+        if (p.asProdPows.isDefined) factors ++= findFactorSet(p.asProdPows.get.factors)
+        else factors += Pow(p.b,-1)
+      case p:Prod => factors ++= findFactorSet(p.factors)
       case _ => // Do nothing
     }
     factors
-  }
-
-  private def asProds(terms: List[ArithExpr]): List[ArithExpr] = {
-    var prods = ListBuffer[ArithExpr]()
-    for (t <- terms) t match {
-      case p:Prod =>
-        prods += p.primitiveProd
-      case pow:Pow =>
-        if (pow.asProdPows.isDefined) prods += pow.asProdPows.get.primitiveProd
-        prods += pow.asProd.get
-
-      case _ => prods += t
-    }
-    prods.toList
   }
 }

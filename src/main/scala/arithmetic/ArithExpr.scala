@@ -427,24 +427,6 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     else None
   }
 
-  lazy val primitiveProd : Prod = {
-    var primitiveFactors = ListBuffer[ArithExpr]()
-    for (f <- factors) f match {
-      case p:Pow =>
-        if (p.asProdPows.isDefined) {
-          val pProdPows = p.asProdPows.get
-          primitiveFactors = primitiveFactors ++ pProdPows.primitiveProd.factors
-        }
-        else {
-          val pProd = p.asProd.get
-          primitiveFactors = primitiveFactors ++ pProd.factors
-        }
-
-      case _ => primitiveFactors += f
-    }
-    Prod(primitiveFactors.toList)
-  }
-
   override def equals(that: Any): Boolean = that match {
     case Prod(factors2) => factors.length == factors2.length && factors.intersect(factors2).length == factors.length
     case _ => false
