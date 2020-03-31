@@ -74,7 +74,7 @@ object FactoriseEvaluator {
   }
 
   def evalFactoriseComparison(txtw : PrintWriter, csvw: PrintWriter) : Boolean = {
-    val timeout = 20000
+    val timeout = 50000
     try {
       runWithTimeout(timeout) {
         val randomProd = genProd()
@@ -86,15 +86,12 @@ object FactoriseEvaluator {
         val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
         val durRounded = f"$duration%.3f"
         if (factorisation.isDefined) {
-          val numBacktrackings = Factorise.numBacktrackings
           val numFactors = Factorise.numFactorsTried
-          val numSubsets = Factorise.numSubsetsTried
-          val numCommonGcd = Factorise.numCommonGcd
           txtw.write(s"Factorisation of expanded form: ${factorisation.get}\n")
           val isEq = factorisation.get == randomProd
           if (isEq) {
-            csvw.write(s"$numBacktrackings, $numFactors, $numSubsets, $numCommonGcd, $durRounded\n")
-            txtw.write(s"$numBacktrackings, $numFactors, $numSubsets, $numCommonGcd, $durRounded\n")
+            csvw.write(s"$numFactors, $durRounded\n")
+            txtw.write(s"$numFactors, $durRounded\n")
           }
           else txtw.write("Factorisation and original product not same!\n")
           txtw.write(s"\n")
@@ -108,23 +105,21 @@ object FactoriseEvaluator {
     }
     catch {
       case _:TimeoutException =>
-        txtw.write(s"${Factorise.numBacktrackings}, ${Factorise.numFactorsTried}, ${Factorise.numSubsetsTried}," +
-          s" ${Factorise.numCommonGcd} $timeout\n")
+        txtw.write(s"${Factorise.numFactorsTried}, $timeout\n")
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
       case _:OutOfMemoryError | _:StackOverflowError =>
-        txtw.write(s"${Factorise.numBacktrackings}, ${Factorise.numFactorsTried}, ${Factorise.numSubsetsTried}," +
-          s" ${Factorise.numCommonGcd} $timeout\n")
+        txtw.write(s"${Factorise.numFactorsTried}, $timeout\n")
         txtw.write(s"Factorisation memory issue\n\n")
         numTimedOut += 1
         false
     }
   }
 
-  def evaluate() : Unit = {
-    val evalExprFile = new File(s"evalFactorise.txt")
-    val evalRuntimeFile = new File(s"evalFactorise.csv")
+  def evaluate(id: Int) : Unit = {
+    val evalExprFile = new File(s"evalFactorise$id.txt")
+    val evalRuntimeFile = new File(s"evalFactorise$id.csv")
     val txtWriter = new PrintWriter(evalExprFile)
     val csvWriter = new PrintWriter(evalRuntimeFile)
     val header = "Number of backtrackings, Number of factors tried, Number of subsets tried," +
@@ -137,10 +132,7 @@ object FactoriseEvaluator {
     val numTrialsRaw = 250
     val numTrials = numTrialsRaw + offset
     for (i <- 0 until numTrials) {
-      Factorise.numBacktrackings = 0
       Factorise.numFactorsTried = 0
-      Factorise.numSubsetsTried = 0
-      Factorise.numCommonGcd = 0
       println(i)
       val passed = evalFactoriseComparison(txtWriter, csvWriter)
       if (passed) numPassed += 1
@@ -153,6 +145,6 @@ object FactoriseEvaluator {
   }
 
   def main(args: Array[String]): Unit = {
-    evaluate()
+    evaluate(0)
   }
 }

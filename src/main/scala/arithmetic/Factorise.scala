@@ -5,9 +5,6 @@ import scala.collection.mutable.ListBuffer
 object Factorise {
 
   var numFactorsTried = 0
-  var numSubsetsTried = 0
-  var numCommonGcd = 0
-  var numBacktrackings = 0
 
   // Factorises an expression
   def apply(e:ArithExpr) : Option[ArithExpr] = e match {
@@ -22,7 +19,6 @@ object Factorise {
     val gcd = ComputeGCD.commonTermList(terms)
     // Look for common factor
     if (gcd != Cst(1)) {
-      numCommonGcd += 1
       val simplified = terms.map(x => x /^ gcd).reduce(_ + _)
       val simplifiedFactorisation = factoriseTerms(simplified.getTerms)
       // Try to factorise the simplified expression
@@ -51,7 +47,6 @@ object Factorise {
           // Try combinations
           for (subset <- Helper.powerSet(containsExpanded)) {
             if (subset.distinct.length > 1) {
-              numSubsetsTried += 1
               val rest = termsExpanded.diff(subset)
               // Take out factor from examined subset
               // Factorise recursively
@@ -92,7 +87,6 @@ object Factorise {
               }
             }
           }
-          numBacktrackings += 1
         }
       }
       None
