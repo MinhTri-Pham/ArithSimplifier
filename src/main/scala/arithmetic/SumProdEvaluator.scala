@@ -14,12 +14,12 @@ import scala.language.postfixOps
 
 // Object to perform evaluation of simplification
 object SumProdEvaluator {
-  val maxSizeSumProd = 5 // Max number of terms/factors in sum/product
-  val minSizeSumProd = 2 // Min number of terms/factors in sum/product
+  val maxSize = 5 // Max number of terms/factors in sum/product
+  val minSize = 2 // Min number of terms/factors in sum/product
 
-  val maxNestingDepth = 3 // Maximum depth of arithmetic expression tree
-  val maxPowExp = 4 // Max exponent of a power
-  val minPowExp = 2 // Min exponent of a power
+  val maxDepth = 3 // Maximum depth of arithmetic expression tree
+  val maxExp = 4 // Max exponent of a power
+  val minExp = 2 // Min exponent of a power
   val minCst: Int = -6 // Bounds for single constant leaf
   val maxCst = 6
   val cstNodeMax = 20
@@ -80,9 +80,9 @@ object SumProdEvaluator {
 
   // Generate sum at a certain level of the expression tree
   def genSum(level: Int) : ArithExpr = {
-    val numTerms = minSizeSumProd + rGen.nextInt(maxSizeSumProd - minSizeSumProd + 1)
+    val numTerms = minSize + rGen.nextInt(maxSize - minSize + 1)
     if (level == 1) numTermsFactors = numTerms
-    if (level == maxNestingDepth) {
+    if (level == maxDepth) {
       val terms = List.fill(numTerms)(genLeaf())
       updateCstFactor(ExprSimplifier(Sum(terms)))
     }
@@ -110,9 +110,9 @@ object SumProdEvaluator {
 
   // Generate product at a certain level of the expression tree
   def genProd(level: Int) : ArithExpr = {
-    val numFactors = minSizeSumProd + rGen.nextInt(maxSizeSumProd - minSizeSumProd + 1)
+    val numFactors = minSize + rGen.nextInt(maxSize - minSize + 1)
     if (level == 1) numTermsFactors = numFactors
-    if (level == maxNestingDepth) {
+    if (level == maxDepth) {
       val factors = List.fill(numFactors)(genLeaf())
       updateCstFactor(ExprSimplifier(Prod(factors)))
     }
@@ -136,7 +136,7 @@ object SumProdEvaluator {
   }
 
   def genProdWithSumFactor() : ArithExpr = {
-    val numFactors = minSizeSumProd + rGen.nextInt(maxSizeSumProd - minSizeSumProd + 1)
+    val numFactors = minSize + rGen.nextInt(maxSize - minSize + 1)
     val factors = new ListBuffer[ArithExpr]()
     for (i <- 1 to numFactors) {
       if (i == 1) {
@@ -164,9 +164,9 @@ object SumProdEvaluator {
 
   // Generate power at a certain level of he expression tree
   def genPow(level: Int) : ArithExpr = {
-    val exp = 0 + rGen.nextInt(maxPowExp + 1) // Positive
+    val exp = minExp + rGen.nextInt(maxExp - minExp + 1) // Positive
 //    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
-    if (level == maxNestingDepth) {
+    if (level == maxDepth) {
       val base = genLeaf()
       SimplifyPow(base, exp)
     }
@@ -188,9 +188,9 @@ object SumProdEvaluator {
   }
 
   def genPrimProd(level : Int) : ArithExpr = {
-    val numFactors = 2 + rGen.nextInt(maxSizeSumProd - 2 + 1)
+    val numFactors = 2 + rGen.nextInt(maxSize - 2 + 1)
     if (level == 1) numTermsFactors = numFactors
-    if (level == maxNestingDepth) {
+    if (level == maxDepth) {
       val factors = List.fill(numFactors)(genLeaf())
       updateCstFactor(ExprSimplifier(Prod(factors)))
 
@@ -212,9 +212,9 @@ object SumProdEvaluator {
   }
 
   def genPrimPow(level: Int) : ArithExpr = {
-    val exp = 0 + rGen.nextInt(maxPowExp + 1) // Positive
+    val exp = 0 + rGen.nextInt(maxExp + 1) // Positive
 //    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
-    if (level == maxNestingDepth) {
+    if (level == maxDepth) {
       val base = genLeaf()
       updateCstFactor(SimplifyPow(base, exp))
     }
@@ -227,7 +227,7 @@ object SumProdEvaluator {
     }
   }
 
-  def genExp() : ArithExpr = {
+  def genExpr() : ArithExpr = {
     val isSum = rGen.nextBoolean()
     if (isSum) genSum(1)
     else genProd(1)
@@ -289,8 +289,8 @@ object SumProdEvaluator {
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
 
-    txtWriter.write(s"Max sum and prod length: $maxSizeSumProd\n")
-    txtWriter.write(s"Max nesting depth: $maxNestingDepth\n\n")
+    txtWriter.write(s"Max sum and prod length: $maxSize\n")
+    txtWriter.write(s"Max nesting depth: $maxDepth\n\n")
 
     var numPassed = 0
     numTimedOut = 0
@@ -491,7 +491,7 @@ object SumProdEvaluator {
 
   def evalComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter) : Boolean = {
     try runWithTimeout(5000) {
-      val randomExpr = genExp()
+      val randomExpr = genExpr()
       txtw.write(s"Generated expr: $randomExpr\n")
       val simplifiedExpr = ExprSimplifier(randomExpr)
       txtw.write(s"Simplified prod: $simplifiedExpr\n")
