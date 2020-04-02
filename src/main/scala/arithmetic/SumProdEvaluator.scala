@@ -171,19 +171,14 @@ object SumProdEvaluator {
       SimplifyPow(base, exp)
     }
     else {
-      val nestFurther = rGen.nextInt(3)
       var base : ArithExpr = null
-      if (nestFurther != 0) {
-        val chooseOpt = rGen.nextInt(2)
-        chooseOpt match {
-          case 0 => base = ExprSimplifier(genSum(level + 1))
-          case 1 => base = ExprSimplifier(genProd(level + 1))
-        }
+      val chooseOpt = rGen.nextInt(3)
+      chooseOpt match {
+        case 0 => base = genLeaf()
+        case 1 => base = ExprSimplifier(genSum(level + 1))
+        case 2 => base = ExprSimplifier(genProd(level + 1))
       }
-      else {
-        base = genLeaf()
-      }
-      Pow(base, exp)
+      SimplifyPow(base, exp)
     }
   }
 
@@ -576,13 +571,5 @@ object SumProdEvaluator {
         else ae
       case _ => ae
     }
-  }
-
-  def main(args: Array[String]): Unit = {
-    // Add mappings for variables
-    for (v <- variables) {
-      valMap += v -> genCst()
-    }
-    correctnessTest()
   }
 }
