@@ -7,9 +7,11 @@ object Differentiate {
     case (w: Var, _) =>
       if (v==w) Cst(1)
       else Cst(0)
+    case (Pow(f, e), _) => Cst(e)*(f pow (e-1))*(f diff v)
     case (s: Sum, _) =>
       val derivatives = s.terms.map(t => t diff v)
       derivatives.reduce(_+_)
+    // In the future, maybe expand out first if possible and use easier sum rule?
     case (p:Prod, _) =>
       val cstFactor = Cst(p.cstFactor)
       val nonCst = p.nonCstList
@@ -19,7 +21,7 @@ object Differentiate {
         val summands = p.factors.map(x => (p /^ x) * (x diff v))
         summands.reduce(_ + _)
       }
-    case (Pow(f, e), _) => Cst(e)*(f pow (e-1))*(f diff v)
+//    case (LogFunction(b,ae), _) => ... Need to define natural log
     case (AbsFunction(ae), _) => (ae /^ expr) * (ae diff v)
     case _ => ?
   }

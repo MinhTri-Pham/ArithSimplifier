@@ -34,6 +34,7 @@ object SimplifySum {
     var merged = ListBuffer[ArithExpr]()
     merged = merged.addAll(lhsTerms)
     var i = 0
+    var simplified = false
     for (rhsTerm <- rhsTerms) {
       var combined = false
       val n = merged.length
@@ -42,16 +43,19 @@ object SimplifySum {
         val term = merged(i)
         val newTerm = combineTerms(rhsTerm, term)
         if (newTerm.isDefined) {
-          if (newTerm.get == Cst(0)) merged = Helper.removeAt(i,merged)
-          else merged = Helper.replaceAt(i,newTerm.get,merged)
+//          if (newTerm.get == Cst(0)) merged = Helper.removeAt(i,merged)
+//          else merged = Helper.replaceAt(i,newTerm.get,merged)
+          merged = Helper.replaceAt(i,newTerm.get,merged)
           combined = true
+          simplified = true
           i = n
         }
         i += 1
       }
       if (!combined) merged += rhsTerm
     }
-    convert(merged.toList)
+    if (simplified) merged.reduce(_ + _)
+    else convert(merged.toList)
   }
 
   // Tries to combine a pair of terms

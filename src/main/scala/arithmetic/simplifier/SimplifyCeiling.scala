@@ -13,33 +13,33 @@ object SimplifyCeiling {
       case Sum(terms) =>
         var intTermsNum = 0
         var intTerms = ListBuffer[ArithExpr]()
-        var evalNum = 0
+        var evalTermsNum = 0
         var evalTerms = ListBuffer[ArithExpr]()
-        var nonEvalNum = 0
-        var nonEvalTerms = ListBuffer[ArithExpr]()
+        var remTermsNum = 0
+        var remTerms = ListBuffer[ArithExpr]()
         for (t <- terms) {
           if (t.isInt) {
             intTermsNum += 1
             intTerms += t
           }
           else if (t.isEvaluable) {
-            evalNum += 1
+            evalTermsNum += 1
             evalTerms += t
           }
           else {
-            nonEvalNum += 1
-            nonEvalTerms += t
+            remTermsNum += 1
+            remTerms += t
           }
         }
         val intTerm = if (intTermsNum == 0) Cst(0) else intTerms.reduce(_ + _)
-        val evalTerm = if (evalNum == 0) Cst(0) else evalTerms.reduce(_ + _)
-        val nonEvalTerm = if (nonEvalNum == 0) Cst(0) else nonEvalTerms.reduce(_ + _)
-        if (nonEvalNum == 0) {
-          val d = CeilingFunction(evalTerm).evalDouble
-          intTerm + Cst(d.toInt)
+        val evalTerm = if (evalTermsNum == 0) Cst(0) else evalTerms.reduce(_ + _)
+        if (remTermsNum == 0) {
+          val ceilOfEvalTerm = CeilingFunction(evalTerm).evalDouble
+          intTerm + Cst(ceilOfEvalTerm.toInt)
         }
         else {
-          val nonIntTerm = evalTerm + nonEvalTerm
+          val remTerm = remTerms.reduce(_ + _)
+          val nonIntTerm = evalTerm + remTerm
           intTerm + CeilingFunction(nonIntTerm)
         }
       case _ =>

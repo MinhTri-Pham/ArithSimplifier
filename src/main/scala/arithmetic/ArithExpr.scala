@@ -49,7 +49,7 @@ abstract sealed class ArithExpr {
   // Convert expression to sum if possible
   lazy val toSum : Option[Sum] = this match {
     case x:Sum => Some(x)
-    case x:Prod => x.distributed
+    case x:Prod => x.asSum
     case x:Pow => x.asSum
     case _ => None
   }
@@ -319,8 +319,8 @@ object Sum {
       case s: Sum => Some(s.terms)
       case pw : Pow => if (pw.asSum.isDefined) Some(pw.asSum.get.terms) else None
       case p:Prod =>
-        if (p.partialCancelledSum.isDefined) Some(p.partialCancelledSum.get.getTermsFactors )
-        else if (p.distributed.isDefined) Some(p.distributed.get.terms)
+        if (p.asPartialCancelledSum.isDefined) Some(p.asPartialCancelledSum.get.getTermsFactors )
+        else if (p.asSum.isDefined) Some(p.asSum.get.terms)
         else None
       case _ => None
     }
@@ -358,7 +358,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
   }
 
   // Expands product out
-  lazy val distributed : Option[Sum] = {
+  lazy val asSum : Option[Sum] = {
     if (factors.length <= 1) None
     else {
       var expanded = false
@@ -399,7 +399,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 
   // Works for case when we have product of sum and negative power expression
   // Tries to find subset of sum that can be cancelled out with the power
-  lazy val partialCancelledSum : Option[ArithExpr] = {
+  lazy val asPartialCancelledSum : Option[ArithExpr] = {
     if (this.asSumFraction.isDefined) {
       val numer = this.asSumFraction.get._1
       val denom = this.asSumFraction.get._2
@@ -411,11 +411,11 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
         while (i < termSubsets.length) {
           val subset = termSubsets(i)
           val restTerms = termsExpanded.diff(subset)
-          val sum = subset.reduce(_ + _)
+          val subsetSum = subset.reduce(_ + _)
           val rest = if (restTerms.isEmpty) Cst(0) else restTerms.reduce(_ + _)
-          val gcd = ComputeGCD(sum, denom)
+          val gcd = ComputeGCD(subsetSum, denom)
           if (gcd != Cst(1)) {
-            partialCancel = Some(sum /^ denom + rest /^ denom)
+            partialCancel = Some(subsetSum /^ denom + rest /^ denom)
             i = termSubsets.length
           }
           i += 1
@@ -468,8 +468,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
       else
         combined = ArithExpr.expand(combined,b).get
     }
-    Some(Sum(combined.getTermsFactors))
-    //combined.toSum
+    combined.toSum
   }
 
 
