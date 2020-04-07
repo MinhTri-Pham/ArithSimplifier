@@ -41,7 +41,7 @@ object SimplifySum {
       i = 0
       while (i < n) {
         val term = merged(i)
-        val newTerm = combineTerms(rhsTerm, term)
+        val newTerm = combineTerms(term, rhsTerm)
         if (newTerm.isDefined) {
 //          if (newTerm.get == Cst(0)) merged = Helper.removeAt(i,merged)
 //          else merged = Helper.replaceAt(i,newTerm.get,merged)

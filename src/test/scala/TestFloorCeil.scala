@@ -4,11 +4,11 @@ import org.junit.Assert._
 
 class TestFloorCeil {
 
-  val a: Var = Var("a",isInt = true)
-  val b: Var = Var("b",isInt = true)
-  val c: Var = Var("c") //Not an integer
-  val d: Var = Var("d") //Not an integer
-  val e: Var = Var("e") //Not an integer
+  val a: Var = Var("a")
+  val b: Var = Var("b")
+  val c: Var = Var("c", isInt = false) //Not an integer
+  val d: Var = Var("d", isInt = false) //Not an integer
+  val e: Var = Var("e", isInt = false) //Not an integer
 
 
   @Test

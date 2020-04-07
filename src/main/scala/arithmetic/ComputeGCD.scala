@@ -44,18 +44,10 @@ object ComputeGCD {
       case (s1: Sum, s2: Sum) =>
         val fac1 = s1.asProd
         val fac2 = s2.asProd
-        if (fac1.isDefined && fac2.isDefined) {
-          ComputeGCD(fac1.get,fac2.get)
-        }
-        else if (fac1.isDefined) {
-          ComputeGCD(fac1.get,s2)
-        }
-        else if (fac2.isDefined) {
-          ComputeGCD(s1,fac2.get)
-        }
-        else {
-          Cst(1)
-        }
+        if (fac1.isDefined && fac2.isDefined) ComputeGCD(fac1.get,fac2.get)
+        else if (fac1.isDefined) ComputeGCD(fac1.get,s2)
+        else if (fac2.isDefined) ComputeGCD(s1,fac2.get)
+        else Cst(1)
 
       case (s: Sum, x) =>
         // Factorise s

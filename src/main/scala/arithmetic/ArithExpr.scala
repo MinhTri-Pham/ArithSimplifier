@@ -25,16 +25,22 @@ abstract sealed class ArithExpr {
 
   // Integer division
   def /(that: ArithExpr) : ArithExpr =
-    (this.sign, that.sign) match
-    {
-    case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
-    case (Sign.Positive, Sign.Negative) | (Sign.Negative, Sign.Positive) => SimplifyCeiling(this * (that pow -1))
-    // Temporary
-    case _ => SimplifyFloor(this * (that pow -1))
+    if (!this.isInt || !that.isInt) throw new ArithmeticException
+    else {
+      (this.sign, that.sign) match
+      {
+        case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
+        case (Sign.Positive, Sign.Negative) | (Sign.Negative, Sign.Positive) => SimplifyCeiling(this * (that pow -1))
+        // Temporary
+        case _ => SimplifyFloor(this * (that pow -1))
+      }
     }
 
+
   // Modulo operator
-  def %(that: ArithExpr) : ArithExpr = this - ((this / that) * that)
+  def %(that: ArithExpr) : ArithExpr =
+    if (!this.isInt || !that.isInt) throw new ArithmeticException
+    else this - ((this / that) * that)
 
   // Differential operator
   def diff(v:Var) : ArithExpr = Differentiate(this,v)
@@ -201,9 +207,6 @@ case class Cst(value : Long) extends ArithExpr {
 
   override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 
-//  // Prime decomposition
-//  lazy val asProd : Prod = Factorise(this).get.toProd.get
-
   override def equals(that: Any): Boolean = that match {
     case Cst(n) => n == value
     case _ => false
@@ -215,7 +218,7 @@ case class Cst(value : Long) extends ArithExpr {
 }
 
 // Class for variables
-case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None, isInteger:Boolean = false) extends ArithExpr {
+case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None, isInteger:Boolean = true) extends ArithExpr {
 
   override lazy val hashCode: Int = 8 * 79 + id.hashCode
 
@@ -591,22 +594,7 @@ object ArithExpr {
       case (x: Var, y: Var) => x.id < y.id // order variables based on id
       case (_: Var, _) => true // variables always after constants second
       case (_, _: Var) => false
-      case (p1: Prod, p2: Prod) =>
-        if (p1.factors.length < p2.factors.length) true
-        else if (p2.factors.length < p1.factors.length) false
-        else {
-          val n = p1.factors.length
-          var isSorted = false
-          var i = 0
-          while (i < n) {
-            if (p1.factors(i) != p2.factors(i)) {
-              isSorted = isCanonicallySorted(p1.factors(i),p2.factors(i))
-              i = n
-            }
-            i += 1
-          }
-          isSorted
-        }
+      case (p1:Prod, p2:Prod) => p1.factors.zip(p2.factors).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
       case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
     }
   }

@@ -10,17 +10,17 @@ object Factorise {
   def apply(e:ArithExpr) : Option[ArithExpr] = e match {
     case s:Sum =>
       if (s.terms.length < 2) return None
-      factoriseTerms(s.terms)
+      factorise(s.terms)
     case _ => None
   }
 
-  private def factoriseTerms(terms: List[ArithExpr]) : Option[ArithExpr] = {
+  private def factorise(terms: List[ArithExpr]) : Option[ArithExpr] = {
     if (terms.length < 2) return None
     val gcd = ComputeGCD.commonTermList(terms)
     // Look for common factor
     if (gcd != Cst(1)) {
       val simplified = terms.map(x => x /^ gcd).reduce(_ + _)
-      val simplifiedFactorisation = factoriseTerms(simplified.getTerms)
+      val simplifiedFactorisation = factorise(simplified.getTerms)
       // Try to factorise the simplified expression
       if (simplifiedFactorisation.isDefined) return Some(gcd * simplifiedFactorisation.get)
       Some(gcd*simplified)
@@ -50,39 +50,39 @@ object Factorise {
               val rest = termsExpanded.diff(subset)
               // Take out factor from examined subset
               // Factorise recursively
-              val fDivision = subset.map(x => x /^ currFactor).reduce(_ + _)
-              val factorisedDivision = factoriseTerms(fDivision.getTerms)
+              val subsetDivision = subset.map(x => x /^ currFactor).reduce(_ + _)
+              val subsetDivisionFactorised = factorise(subsetDivision.getTerms)
               // Try to factorise the rest
-              var restDivision : Option[ArithExpr] = None
+              var restFactorised : Option[ArithExpr] = None
               if (rest.distinct.length > 1) {
                 val restTerm = rest.reduce(_ + _).getTerms
-                restDivision = factoriseTerms(restTerm)
+                restFactorised = factorise(restTerm)
               }
               // See if we could factorise the two subexpressions and combine appropriately
-              (factorisedDivision,restDivision) match {
+              (subsetDivisionFactorised,restFactorised) match {
                 case (None,None) =>
-                  val fTerm = currFactor*fDivision
+                  val fTerm = currFactor*subsetDivision
                   if (rest.isEmpty) return Some(fTerm)
                   val restTerm = rest.reduce(_ + _)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                  val combinedFactorisation = factorise(List(fTerm,restTerm))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
 
                 case (Some(_), None) =>
-                  val fTerm = currFactor * factorisedDivision.get
-                  if (rest.isEmpty) return Some(fTerm)
+                  val subsetFactorised = currFactor * subsetDivisionFactorised.get
+                  if (rest.isEmpty) return Some(subsetFactorised)
                   val restTerm = rest.reduce(_ + _)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restTerm))
+                  val combinedFactorisation = factorise(List(subsetFactorised,restTerm))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
 
                 case (None, Some(_)) =>
-                  val fTerm = currFactor * fDivision
+                  val fTerm = currFactor * subsetDivision
                   if (rest.isEmpty) return Some(fTerm)
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+                  val combinedFactorisation = factorise(List(fTerm,restFactorised.get))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
 
                 case (Some(_), Some(_)) =>
-                  val fTerm = currFactor * factorisedDivision.get
-                  val combinedFactorisation = factoriseTerms(List(fTerm,restDivision.get))
+                  val fTerm = currFactor * subsetDivisionFactorised.get
+                  val combinedFactorisation = factorise(List(fTerm,restFactorised.get))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
               }
             }
@@ -110,10 +110,12 @@ object Factorise {
     var factors = Set[ArithExpr]()
     for (term <- terms) term match {
       case _:Var | _:Sum =>  factors += term
-      case p:Pow if p.e > 1 => factors += p.b
+      case p:Pow if p.e > 1 =>
+        if (p.asProdPows.isDefined) factors ++= findFactorSet(p.asProdPows.get.factors)
+        factors += p.b
       case p:Pow if p.e <= -1 =>
         if (p.asProdPows.isDefined) factors ++= findFactorSet(p.asProdPows.get.factors)
-        else factors += Pow(p.b,-1)
+        factors += Pow(p.b,-1)
       case p:Prod => factors ++= findFactorSet(p.factors)
       case _ => // Do nothing
     }

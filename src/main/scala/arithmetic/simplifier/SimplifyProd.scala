@@ -74,10 +74,10 @@ object SimplifyProd {
       val n = merged.length
       i = 0
       while (i < n) {
-        val term = merged(i)
-        val newTerm = combineFactors(rhsFactor, term)
-        if (newTerm.isDefined) {
-          merged = Helper.replaceAt(i,newTerm.get,merged)
+        val factor = merged(i)
+        val newFactor = combineFactors(rhsFactor, factor)
+        if (newFactor.isDefined) {
+          merged = Helper.replaceAt(i,newFactor.get,merged)
           combined = true
           simplified = true
           i = n
