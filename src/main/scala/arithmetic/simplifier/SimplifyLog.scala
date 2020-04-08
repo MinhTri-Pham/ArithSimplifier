@@ -2,7 +2,7 @@ package arithmetic
 package simplifier
 
 object SimplifyLog {
-
+  // Log simplifier - promote log_b(ae) into a simpler expression
   def apply(b:Long, ae:ArithExpr) : ArithExpr = ae match {
     case Cst(c) =>
       if (c <= 0) throw new ArithmeticException()

@@ -18,14 +18,18 @@ object ComputeGCD {
       case (Pow(b1, e1), Pow(b2, e2)) if b1 == b2 && e1 < 0 && e2 < 0 =>
         if (e1 <= e2) b
         else a
-      // If bases same but exponents have mixed sign, GCD is 1
-      case (Pow(b1, _), Pow(b2, _)) if b1 == b2 => Cst(1)
 
       // Implicit pow 1
       case (Pow(ob, e), x) if ob == x && e > 1 => x // pow 1 (implicit)
       case (x, Pow(ob, e)) if ob == x  && e > 1 => x // pow 1 (implicit)
       case (Pow(ob, _), p:Prod) if p.factors.contains(ob) => ob // pow 1 (implicit)
       case (p:Prod, Pow(ob, _)) if p.factors.contains(ob) => ob // pow 1 (implicit)
+
+      // Pows of prods
+      case (p1:Pow, p2:Pow) if p1.b.isInstanceOf[Prod] && p1.b.isInstanceOf[Prod] =>
+        ComputeGCD(p1.asProdPows.get,p2.asProdPows.get)
+      case (p:Pow, x) if p.b.isInstanceOf[Prod] => ComputeGCD(p.asProdPows.get,x)
+      case (x, p:Pow) if p.b.isInstanceOf[Prod] => ComputeGCD(p.asProdPows.get,x)
 
       // GCD of two products:
       case (p1:Prod, p2:Prod) => (for {f1 <- p1.factors; f2 <- p2.factors} yield ComputeGCD(f1, f2)).reduce(_ * _)
@@ -39,6 +43,9 @@ object ComputeGCD {
 
       case (p:Prod, x) if p.factors.contains(x)  => x
       case (x, p:Prod) if p.factors.contains(x)  => x
+
+      case (p:Prod, x) => p.factors.map(f => ComputeGCD(f,x)).reduce(_ * _)
+      case (x, p:Prod) => p.factors.map(f => ComputeGCD(f,x)).reduce(_ * _)
 
       // GCD of involving sums: try to factorise
       case (s1: Sum, s2: Sum) =>
@@ -84,5 +91,14 @@ object ComputeGCD {
   // GCD of list of expressions
   def commonTermList(terms: List[ArithExpr]) : ArithExpr = {
     terms.foldLeft(terms.head)((x,y) => ComputeGCD(x,y))
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    val e1 = (a*c) pow 2
+    val e2 = (a*b) pow 2
+    println(ComputeGCD(e1,e2))
   }
 }

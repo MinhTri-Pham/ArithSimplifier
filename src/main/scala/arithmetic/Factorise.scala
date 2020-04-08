@@ -4,9 +4,8 @@ import scala.collection.mutable.ListBuffer
 
 object Factorise {
 
-  var numFactorsTried = 0
+  var numFactorsTried = 0 // Number of factors tried - for evaluation
 
-  // Factorises an expression
   def apply(e:ArithExpr) : Option[ArithExpr] = e match {
     case s:Sum =>
       if (s.terms.length < 2) return None
@@ -17,66 +16,54 @@ object Factorise {
   private def factorise(terms: List[ArithExpr]) : Option[ArithExpr] = {
     if (terms.length < 2) return None
     val gcd = ComputeGCD.commonTermList(terms)
-    // Look for common factor
     if (gcd != Cst(1)) {
+      // There's a common factor, solve a simpler problem
       val simplified = terms.map(x => x /^ gcd).reduce(_ + _)
       val simplifiedFactorisation = factorise(simplified.getTerms)
-      // Try to factorise the simplified expression
       if (simplifiedFactorisation.isDefined) return Some(gcd * simplifiedFactorisation.get)
       Some(gcd*simplified)
     }
     else {
-      val factors = findFactorSet(terms)
+      val factors = findFactorSet(terms) // Factors to be explored
       for (currFactor <- factors) {
-        val containsF = ListBuffer[ArithExpr]()
+        val containsF = ListBuffer[ArithExpr]() // Terms that are multiples of factor being explored
         for (t <- terms) {
           if (ArithExpr.isMultipleOf(t,currFactor)) containsF += t
         }
         if (containsF.length > 1) {
           numFactorsTried += 1
-          // Idea: divide expression into two subexpressions
-          // One subexpression contains some of the terms the factor is contained in
-          // All other terms form the second subexpression
-          // Try to recursively factorise these
-          // Then combine factorisations (or just the subexpression(s) when can't factor) and try same algorithm with
-          // the two formed expressions
-          // Have to try all combinations
-          // Fully expand all terms and the ones the factor is contained in
+          // Expands scalar multiples
           val containsExpanded = Helper.expandTerms(containsF.toList)
           val termsExpanded = Helper.expandTerms(terms)
-          // Try combinations
+          // Iterate subsets of containsF
           for (subset <- Helper.powerSet(containsExpanded)) {
             if (subset.distinct.length > 1) {
               val rest = termsExpanded.diff(subset)
-              // Take out factor from examined subset
-              // Factorise recursively
+              // Divide terms in subset by factor explored and factorise sum given by new terms
               val subsetDivision = subset.map(x => x /^ currFactor).reduce(_ + _)
               val subsetDivisionFactorised = factorise(subsetDivision.getTerms)
-              // Try to factorise the rest
+              // Factorise the sum given by remaining terms
               var restFactorised : Option[ArithExpr] = None
               if (rest.distinct.length > 1) {
                 val restTerm = rest.reduce(_ + _).getTerms
                 restFactorised = factorise(restTerm)
               }
-              // See if we could factorise the two subexpressions and combine appropriately
+              // Combine the two obtained factorisations if they exist
               (subsetDivisionFactorised,restFactorised) match {
                 case (None,None) =>
                   val fTerm = currFactor*subsetDivision
-                  if (rest.isEmpty) return Some(fTerm)
                   val restTerm = rest.reduce(_ + _)
                   val combinedFactorisation = factorise(List(fTerm,restTerm))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
 
                 case (Some(_), None) =>
                   val subsetFactorised = currFactor * subsetDivisionFactorised.get
-                  if (rest.isEmpty) return Some(subsetFactorised)
                   val restTerm = rest.reduce(_ + _)
                   val combinedFactorisation = factorise(List(subsetFactorised,restTerm))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
 
                 case (None, Some(_)) =>
                   val fTerm = currFactor * subsetDivision
-                  if (rest.isEmpty) return Some(fTerm)
                   val combinedFactorisation = factorise(List(fTerm,restFactorised.get))
                   if (combinedFactorisation.isDefined) return combinedFactorisation
 
@@ -120,5 +107,14 @@ object Factorise {
       case _ => // Do nothing
     }
     factors
+  }
+
+  def main(args: Array[String]): Unit = {
+    val a = Var("a")
+    val b = Var("b")
+    val c = Var("c")
+    val e1 = a*b*c
+    val e2 = a*b
+    println(ArithExpr.isMultipleOf(e1,e2))
   }
 }

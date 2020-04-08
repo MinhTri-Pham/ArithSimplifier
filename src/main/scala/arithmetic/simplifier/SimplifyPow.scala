@@ -5,7 +5,7 @@ object SimplifyPow {
 
   def apply(b : ArithExpr, e : Int) : ArithExpr = simplifyPow(b,e)
 
-  // Try to simplify to another expression if possible
+  // Power simplifier - promote base^(exp) into a simpler expression
   def simplifyPow(base: ArithExpr, exp: Int) : ArithExpr = (base, exp) match {
     case (_,0) => Cst(1)
     case (_,1) => base

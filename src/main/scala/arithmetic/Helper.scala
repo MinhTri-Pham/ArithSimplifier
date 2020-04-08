@@ -42,6 +42,7 @@ object Helper {
     expanded.toList
   }
 
+  // Taken from https://gist.github.com/dwins/3795548
   def powerSet[A](xs: List[A]): List[List[A]] =
     xs.foldLeft(List(Nil: List[A]))((accum, elem) => accum.flatMap(l => Seq(l, elem :: l))).distinct.reverse
 

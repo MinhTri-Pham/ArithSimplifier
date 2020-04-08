@@ -3,12 +3,12 @@ package simplifier
 
 import scala.collection.mutable.ListBuffer
 
+// Ceiling simplifier
 object SimplifyCeiling {
   def apply(ae: ArithExpr): ArithExpr = {
-    if (ae.isInt) return ae
+    if (ae.isInt) return ae // Ceiling of integer is the integer itself
     ae match {
-      case c: Cst => c
-      case _:Var => CeilingFunction(ae)
+      case _:Var => CeilingFunction(ae) // The variable can't be an integer so leave input as it is
       // Work with sum representation if possible
       case Sum(terms) =>
         var intTermsNum = 0
@@ -18,33 +18,39 @@ object SimplifyCeiling {
         var remTermsNum = 0
         var remTerms = ListBuffer[ArithExpr]()
         for (t <- terms) {
+          // Find all integer terms and how many of them are there
           if (t.isInt) {
             intTermsNum += 1
             intTerms += t
           }
+          // Find all evaluable terms and how many of them are there
           else if (t.isEvaluable) {
             evalTermsNum += 1
             evalTerms += t
           }
+          // All remaining terms and how many are there
           else {
             remTermsNum += 1
             remTerms += t
           }
         }
+        // Sums of integer and evaluable terms
         val intTerm = if (intTermsNum == 0) Cst(0) else intTerms.reduce(_ + _)
         val evalTerm = if (evalTermsNum == 0) Cst(0) else evalTerms.reduce(_ + _)
         if (remTermsNum == 0) {
+          // Take out integer and add ceiling of evaluables using Scala
           val ceilOfEvalTerm = CeilingFunction(evalTerm).evalDouble
           intTerm + Cst(ceilOfEvalTerm.toInt)
         }
         else {
           val remTerm = remTerms.reduce(_ + _)
           val nonIntTerm = evalTerm + remTerm
+          // Take integer out, leave rest inside ceiling
           intTerm + CeilingFunction(nonIntTerm)
         }
       case _ =>
         try {
-          // Try to directly evaluate ceiling using Scala
+          // Try if expression is evaluable
           val d = CeilingFunction(ae).evalDouble
           assert(d.isValidInt)
           Cst(d.toInt)
