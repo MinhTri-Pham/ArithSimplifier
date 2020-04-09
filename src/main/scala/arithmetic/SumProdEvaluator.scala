@@ -15,15 +15,15 @@ import scala.language.postfixOps
 // Object to perform evaluation of simplification
 object SumProdEvaluator {
   val maxSize = 5 // Max number of terms/factors in sum/product
-  val minSize = 2 // Min number of terms/factors in sum/product
+  val minSize = 3 // Min number of terms/factors in sum/product
 
   val maxDepth = 3 // Maximum depth of arithmetic expression tree
-  val maxExp = 4 // Max exponent of a power
+  val maxExp = 3 // Max exponent of a power
   val minExp = 2 // Min exponent of a power
-  val minCst: Int = -6 // Bounds for single constant leaf
-  val maxCst = 6
-  val cstNodeMax = 20
-  val cstNodeMin: Int = -20 // Bounds for constant node (result of multiple leafs combined together)
+  val cstSingleMin: Int = -6 // Bounds for single constant leaf
+  val cstSingleMax = 6
+  val maxCst = 16
+  val minCst: Int = -16 // Bounds for constant node (result of multiple leafs combined together)
 
   // Possible variables
   val av: Var = Var("a")
@@ -40,18 +40,14 @@ object SumProdEvaluator {
   val lv: Var = Var("l")
   val mv: Var = Var("m")
   val nv: Var = Var("n")
-  val ov: Var = Var("o")
-  val pv: Var = Var("p")
-  val rv: Var = Var("r")
-  val sv: Var = Var("s")
 
-  val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,jv,kv,mv,nv,ov,pv,rv,sv)
+  val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,jv,kv,mv,nv)
   val numPossibleVars: Int = variables.length
   val valMap = new mutable.HashMap[ArithExpr, ArithExpr]()
 
   // Configuration
-  val offset = 0 // These first runs won't count
-  val numTrialsRaw = 750
+  val offset = 10 // These first runs won't count
+  val numTrialsRaw = 100
   val numTrials: Int = numTrialsRaw + offset
   var numTimedOut = 0
 
@@ -64,7 +60,7 @@ object SumProdEvaluator {
   val rGen = new scala.util.Random() // Random generator
 
   def genCst() : Cst = {
-   Cst(minCst + rGen.nextInt(maxCst - minCst + 1))
+   Cst(cstSingleMin + rGen.nextInt(cstSingleMax - cstSingleMin + 1))
   }
 
   def genVar() : Var = {
@@ -245,6 +241,9 @@ object SumProdEvaluator {
         txtw.write(s"Generated sum: $randomSum\n")
         val t1 = System.nanoTime
         val simplifiedSum = ExprSimplifier(randomSum)
+//        var simplifiedSum = ExprSimplifier(randomSum)
+//        simplifiedSum = ExprSimplifier(randomSum)
+//        simplifiedSum = ExprSimplifier(randomSum)
         val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
         val durRounded = f"$duration%.3f"
         txtw.write(s"Simplified sum: $simplifiedSum\n")
@@ -254,7 +253,8 @@ object SumProdEvaluator {
         txtw.write(s"Evaluation of simpl. sum: $simplifiedSumEval\n")
         txtw.write(s"Runtime of simplification: $durRounded\n")
         val isEq = randomSumEval == simplifiedSumEval
-        if (isEq) csvw.write(s"$numTotalTerms,$durRounded\n")
+        val len = simplifiedSum.getTerms.length
+        if (isEq) csvw.write(s"$len,$durRounded\n")
         else txtw.write("Evals don't match, inspect manually!\n")
         txtw.write(s"\n")
         isEq
@@ -273,6 +273,8 @@ object SumProdEvaluator {
   }
 
   def evalSumTest(id:Int) : Unit = {
+    // Seed
+    rGen.setSeed(250)
     // Files for logging
     val evalExprFile = new File(s"evalSum$id.txt")
     val evalRuntimeFile = new File(s"evalSum$id.csv")
@@ -284,8 +286,10 @@ object SumProdEvaluator {
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
 
-    txtWriter.write(s"Max sum and prod length: $maxSize\n")
-    txtWriter.write(s"Max nesting depth: $maxDepth\n\n")
+    txtWriter.write("Parameter settings\n")
+    txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
+    txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
+    txtWriter.write(s"Constant bounds: $minCst and $maxCst\n\n")
 
     var numPassed = 0
     numTimedOut = 0
@@ -307,8 +311,11 @@ object SumProdEvaluator {
     val randomProd = genPrimProd(level=1)
     txtw.write(s"Generated prod: $randomProd\n")
     val t1 = System.nanoTime
-    val simplifiedProd = ExprSimplifier(randomProd)
-    val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+//    val simplifiedProd = ExprSimplifier(randomProd)
+    var simplifiedProd = ExprSimplifier(randomProd)
+    simplifiedProd = ExprSimplifier(randomProd)
+    simplifiedProd = ExprSimplifier(randomProd)
+    val duration = (System.nanoTime - t1) / (1e6d * 3)// Average runtime in ms
     val durRounded = f"$duration%.3f"
     txtw.write(s"Simplified prod: $simplifiedProd\n")
     val randomProdEval = ArithExpr.substitute(randomProd, subs)
@@ -325,7 +332,9 @@ object SumProdEvaluator {
     isEq
   }
 
-  def evalProdPrim(id:Int) : Unit = {
+  def evalProdPrimTest(id:Int) : Unit = {
+    // Seed
+    rGen.setSeed(400)
     // File for logging
     val evalExprFile = new File(s"evalProdPrim$id.txt")
     val evalRuntimeFile = new File(s"evalProdPrim$id.csv")
@@ -334,6 +343,11 @@ object SumProdEvaluator {
 
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
+
+    txtWriter.write("Parameter settings\n")
+    txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
+    txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
+    txtWriter.write(s"Constant bounds: $minCst and $maxCst \n")
 
     val header = "Runtime\n"
     csvWriter.write(header)
@@ -390,45 +404,19 @@ object SumProdEvaluator {
     }
   }
 
-  def evalProd(id:Int) : Unit = {
-    // File for logging
-    val evalExprFile = new File(s"evalProd$id.txt")
-    val evalRuntimeFile = new File(s"evalProd$id.csv")
-    val txtWriter = new PrintWriter(evalExprFile)
-    val csvWriter = new PrintWriter(evalRuntimeFile)
-
-    txtWriter.write("Variable mappings\n")
-    txtWriter.write(s"$valMap\n\n")
-
-    val header = "Number of factors,Number of factorisations,Runtime\n"
-    csvWriter.write(header)
-
-    var numPassed = 0
-    numTimedOut = 0
-    for (i <- 1 to numTrials) {
-      numSumFactors = 0
-      println(i)
-      val passed = evalProdComparison(valMap,txtWriter,csvWriter)
-      if (passed) numPassed += 1
-    }
-    txtWriter.write(s"Passed: $numPassed\n")
-    txtWriter.write(s"Timed out: $numTimedOut\n")
-    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
-    txtWriter.close()
-    csvWriter.close()
-  }
-
   // Evaluating product simplification with at least one sum factor
   def evalProdWithSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                              csvw: PrintWriter) : Boolean = {
-
     try {
-      runWithTimeout(10000) {
+      runWithTimeout(10000*3) {
         val randomProd = genProdWithSumFactor()
         txtw.write(s"Generated prod: $randomProd\n")
         val t1 = System.nanoTime
-        val simplifiedProd = ExprSimplifier(randomProd)
-        val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+//        val simplifiedProd = ExprSimplifier(randomProd)
+        var simplifiedProd = ExprSimplifier(randomProd)
+        simplifiedProd = ExprSimplifier(randomProd)
+        simplifiedProd = ExprSimplifier(randomProd)
+        val duration = (System.nanoTime - t1) / (1e6d * 3) // Runtime in ms
         val durRounded = f"$duration%.3f"
         txtw.write(s"Simplified prod: $simplifiedProd\n")
         val randomProdEval = ArithExpr.substitute(randomProd, subs)
@@ -457,7 +445,9 @@ object SumProdEvaluator {
     }
   }
 
-  def evalProdWithSum(id:Int) : Unit = {
+  def evalProdWithSumTest(id:Int) : Unit = {
+    // Seed
+    rGen.setSeed(550)
     // File for logging
     val evalExprFile = new File(s"evalProdWithSum$id.txt")
     val evalRuntimeFile = new File(s"evalProdWithSum$id.csv")
@@ -466,6 +456,11 @@ object SumProdEvaluator {
 
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
+
+    txtWriter.write("Parameter settings\n")
+    txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
+    txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
+    txtWriter.write(s"Constant bounds: $minCst and $maxCst\n")
 
     val header = "Runtime\n"
     csvWriter.write(header)
@@ -512,9 +507,11 @@ object SumProdEvaluator {
     }
   }
 
-  def correctnessTest() : Unit = {
+  def correctnessTest(id : Int) : Unit = {
+    // Seed
+    rGen.setSeed(100)
     // File for logging
-    val evalExprFile = new File("evalExpr.txt")
+    val evalExprFile = new File(s"evalExpr$id.txt")
     val txtWriter = new PrintWriter(evalExprFile)
 
     txtWriter.write("Variable mappings\n")
@@ -546,30 +543,39 @@ object SumProdEvaluator {
   private def updateCstFactor(ae:ArithExpr): ArithExpr = {
     ae match {
       case cst: Cst =>
-        if (cst.value < 0 && cst.value < cstNodeMin) Cst(cstNodeMin)
-        else if (cst.value > 0 && cst.value > cstNodeMax) Cst(cstNodeMax)
+        if (cst.value < 0 && cst.value < minCst) Cst(minCst)
+        else if (cst.value > 0 && cst.value > maxCst) Cst(maxCst)
         else ae
       case p: Prod =>
-        if (p.cstFactor < 0 && p.cstFactor < cstNodeMin){
-          val updateCst = Helper.replaceAt(0,Cst(cstNodeMin),p.factors)
+        if (p.cstFactor < 0 && p.cstFactor < minCst){
+          val updateCst = Helper.replaceAt(0,Cst(minCst),p.factors)
           Prod(updateCst)
         }
-        else if (p.cstFactor > 0 && p.cstFactor > cstNodeMax) {
-          val updateCst = Helper.replaceAt(0,Cst(cstNodeMax),p.factors)
+        else if (p.cstFactor > 0 && p.cstFactor > maxCst) {
+          val updateCst = Helper.replaceAt(0,Cst(maxCst),p.factors)
           Prod(updateCst)
         }
         else ae
       case s: Sum =>
-        if (s.cstTerm < 0 && s.cstTerm < cstNodeMin){
-          val updateCst = Helper.replaceAt(0,Cst(cstNodeMin),s.terms)
+        if (s.cstTerm < 0 && s.cstTerm < minCst){
+          val updateCst = Helper.replaceAt(0,Cst(minCst),s.terms)
           Sum(updateCst)
         }
-        else if (s.cstTerm > 0 && s.cstTerm > cstNodeMax) {
-          val updateCst = Helper.replaceAt(0,Cst(cstNodeMax),s.terms)
+        else if (s.cstTerm > 0 && s.cstTerm > maxCst) {
+          val updateCst = Helper.replaceAt(0,Cst(maxCst),s.terms)
           Sum(updateCst)
         }
         else ae
       case _ => ae
     }
+  }
+
+  def main(args: Array[String]): Unit = {
+    // Generate mappings for variables
+    for (v <- variables) {
+      valMap += v -> genCst()
+    }
+    // Run test
+    evalProdWithSumTest(1)
   }
 }

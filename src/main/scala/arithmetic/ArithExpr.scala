@@ -612,7 +612,23 @@ object ArithExpr {
       case (x: Var, y: Var) => x.id < y.id // order variables based on id
       case (_: Var, _) => true // variables always after constants second
       case (_, _: Var) => false
-      case (p1:Prod, p2:Prod) => p1.factors.zip(p2.factors).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+//      case (p1:Prod, p2:Prod) => p1.factors.zip(p2.factors).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
+      case (p1: Prod, p2: Prod) =>
+        if (p1.factors.length < p2.factors.length) true
+        else if (p2.factors.length < p1.factors.length) false
+        else {
+          val n = p1.factors.length
+          var isSorted = false
+          var i = 0
+          while (i < n) {
+            if (p1.factors(i) != p2.factors(i)) {
+              isSorted = isCanonicallySorted(p1.factors(i),p2.factors(i))
+              i = n
+            }
+            i += 1
+          }
+          isSorted
+        }
       case _ => x.HashSeed() < y.HashSeed() || (x.HashSeed() == y.HashSeed() && x.digest() < y.digest())
     }
   }
@@ -688,16 +704,15 @@ object ArithExpr {
     // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
-
     case (Pow(b1, e1), Pow(b2, e2)) if e1 >= e2 && e2 > 0 => isMultipleOf(b1, b2)
     case (Pow(b1, e1), Pow(b2, e2)) if e1 <= e2 && e2 < 0 => isMultipleOf(b1, b2)
+    case (p:Pow, _) if p.e > 0 => isMultipleOf(p.b,ae2)
     case (p1:Prod, p2:Prod) =>
       val p1Factors = p1.factors
       val p2Factors = p2.factors
       p2Factors.forall(factor => p1Factors.exists(isMultipleOf(_, factor)))
     case (p:Prod, _) => p.factors.contains(ae2) ||
       p.factors.foldLeft(false){(accum,factor) => accum || isMultipleOf(factor,ae2)}
-    case (p:Pow, _) if p.e > 0 => isMultipleOf(p.b,ae2)
     case (x, y) => x == y
     case _ => false
   }

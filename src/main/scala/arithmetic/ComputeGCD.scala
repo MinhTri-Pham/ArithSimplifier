@@ -73,15 +73,6 @@ object ComputeGCD {
       case _ => Cst(1)
     }
 
-  // GCD of list of longs
-  def gcdLongList(terms: List[Long]): Long = {
-    terms.length match {
-      case 0 => throw new IllegalArgumentException
-      case 1 => terms.head
-      case _ => terms.foldLeft(terms.head)((x,y) => gcdLong(x,y))
-    }
-  }
-
   // GCD of two ints
   @scala.annotation.tailrec
   def gcdLong(x: Long, y: Long): Long = {
@@ -96,9 +87,6 @@ object ComputeGCD {
   def main(args: Array[String]): Unit = {
     val a = Var("a")
     val b = Var("b")
-    val c = Var("c")
-    val e1 = (a*c) pow 2
-    val e2 = (a*b) pow 2
-    println(ComputeGCD(e1,e2))
+    println(ComputeGCD((a pow 3)*(b pow 2), b pow 3))
   }
 }
