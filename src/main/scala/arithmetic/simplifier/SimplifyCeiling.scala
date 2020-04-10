@@ -7,6 +7,10 @@ import scala.collection.mutable.ListBuffer
 object SimplifyCeiling {
   def apply(ae: ArithExpr): ArithExpr = {
     if (ae.isInt) return ae // Ceiling of integer is the integer itself
+    if (ae.isEvaluable) {
+      val ceilEval = CeilingFunction(ae).evalDouble
+      return Cst(ceilEval.toInt)
+    }
     ae match {
       case _:Var => CeilingFunction(ae) // The variable can't be an integer so leave input as it is
       // Work with sum representation if possible
@@ -50,14 +54,15 @@ object SimplifyCeiling {
         }
       case _ =>
         try {
-          // Try if expression is evaluable
-          val d = CeilingFunction(ae).evalDouble
-          assert(d.isValidInt)
-          Cst(d.toInt)
+          val min = CeilingFunction(ae.min).evalDouble
+          val max = CeilingFunction(ae.max).evalDouble
+          if (min == max) return Cst(min.toInt)
         } catch {
           case NotEvaluableException() => CeilingFunction(ae)
           case e: Throwable => throw e
         }
+        CeilingFunction(ae)
+
     }
   }
 }

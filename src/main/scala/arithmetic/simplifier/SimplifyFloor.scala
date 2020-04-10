@@ -7,6 +7,10 @@ object SimplifyFloor {
 
   def apply(ae: ArithExpr): ArithExpr = {
     if (ae.isInt) return ae // Floor of integer is the integer itself
+    if (ae.isEvaluable) {
+      val floorEval = FloorFunction(ae).evalDouble
+      return Cst(floorEval.toInt)
+    }
     ae match {
       case _:Var => FloorFunction(ae) // The variable can't be an integer so leave input as it is
       // Work with sum representation if possible
@@ -49,15 +53,16 @@ object SimplifyFloor {
           intTerm + FloorFunction(nonIntTerm)
         }
       case _ =>
+        // ok let's try to evaluate floor of min and max
         try {
-          // Try if expression is evaluable
-          val d = FloorFunction(ae).evalDouble
-          assert(d.isValidInt)
-          Cst(d.toInt)
+          val min = FloorFunction(ae.min).evalDouble
+          val max = FloorFunction(ae.max).evalDouble
+          if (min == max) return Cst(min.toInt)
         } catch {
           case NotEvaluableException() => FloorFunction(ae)
           case e: Throwable => throw e
         }
+        FloorFunction(ae)
     }
   }
 }

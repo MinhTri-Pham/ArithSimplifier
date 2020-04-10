@@ -14,7 +14,7 @@ import scala.language.postfixOps
 
 // Object to perform evaluation of simplification
 object SumProdEvaluator {
-  val maxSize = 5 // Max number of terms/factors in sum/product
+  val maxSize = 7 // Max number of terms/factors in sum/product
   val minSize = 3 // Min number of terms/factors in sum/product
 
   val maxDepth = 3 // Maximum depth of arithmetic expression tree
@@ -22,8 +22,8 @@ object SumProdEvaluator {
   val minExp = 2 // Min exponent of a power
   val cstSingleMin: Int = -6 // Bounds for single constant leaf
   val cstSingleMax = 6
-  val maxCst = 16
-  val minCst: Int = -16 // Bounds for constant node (result of multiple leafs combined together)
+  val maxCst = 128
+  val minCst: Int = -128 // Bounds for constant node (result of multiple leafs combined together)
 
   // Possible variables
   val av: Var = Var("a")
@@ -47,7 +47,7 @@ object SumProdEvaluator {
 
   // Configuration
   val offset = 10 // These first runs won't count
-  val numTrialsRaw = 100
+  val numTrialsRaw = 500
   val numTrials: Int = numTrialsRaw + offset
   var numTimedOut = 0
 
@@ -234,17 +234,17 @@ object SumProdEvaluator {
   def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                         csvw: PrintWriter) : Boolean = {
     try {
-      runWithTimeout(5000) {
+      runWithTimeout(5000*3) {
         numTermsFactors = 0
         numTotalTerms = 0
         val randomSum = genSum(level=1)
         txtw.write(s"Generated sum: $randomSum\n")
         val t1 = System.nanoTime
-        val simplifiedSum = ExprSimplifier(randomSum)
-//        var simplifiedSum = ExprSimplifier(randomSum)
-//        simplifiedSum = ExprSimplifier(randomSum)
-//        simplifiedSum = ExprSimplifier(randomSum)
-        val duration = (System.nanoTime - t1) / 1e6d // Runtime in ms
+//        val simplifiedSum = ExprSimplifier(randomSum)
+        var simplifiedSum = ExprSimplifier(randomSum)
+        simplifiedSum = ExprSimplifier(randomSum)
+        simplifiedSum = ExprSimplifier(randomSum)
+        val duration = (System.nanoTime - t1) / 3e6d // Runtime in ms
         val durRounded = f"$duration%.3f"
         txtw.write(s"Simplified sum: $simplifiedSum\n")
         val randomSumEval = ArithExpr.substitute(randomSum, subs)
@@ -576,6 +576,6 @@ object SumProdEvaluator {
       valMap += v -> genCst()
     }
     // Run test
-    evalProdWithSumTest(1)
+    evalSumTest(0)
   }
 }

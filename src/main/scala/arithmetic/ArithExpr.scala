@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import arithmetic.NotEvaluableException.NotEvaluable
 import arithmetic.simplifier._
+
 import scala.language.implicitConversions
 import scala.collection.mutable.ListBuffer
 
@@ -81,7 +82,8 @@ abstract sealed class ArithExpr {
   private def _minmax(): (ArithExpr, ArithExpr) = this match {
     case c:Cst => (c,c)
     case v:Var => (v.range.intervalMin, v.range.intervalMax)
-
+    case PosInf => (PosInf, PosInf)
+    case NegInf => (NegInf, NegInf)
     case s:Sum => (s.terms.map(_.min).reduce[ArithExpr](_ + _), s.terms.map(_.max).reduce[ArithExpr](_ + _))
     case p:Prod =>
       val prodInterval = ArithExpr.computeIntervalProd(p.factors)
@@ -89,9 +91,8 @@ abstract sealed class ArithExpr {
     case c: CeilingFunction => (ceil(c.ae.min), ceil(c.ae.max))
     case f: FloorFunction => (floor(f.ae.min), floor(f.ae.max))
     case Pow(b,e) =>
-      if (e == 0) (Cst(1), Cst(1))
       // Odd exponent - easy
-      else if (e > 0 && e % 2 == 1) (b.min pow e, b.max pow e)
+      if (e > 0 && e % 2 == 1) (b.min pow e, b.max pow e)
       // Even exponent, consider sign of min/max of b
       else if (e > 0 && e % 2 == 0) {
         if (b.min.sign.equals(Sign.Positive)) (b.min pow e, b.max pow e)
@@ -111,31 +112,32 @@ abstract sealed class ArithExpr {
         }
       }
       else {
+        // Caution for 0
+        if (b.min == Cst(0)) return (b.max pow e, PosInf)
+        if (b.max == Cst(0)) return (b.max pow e, NegInf)
         // Both positive or both negative easy
-        if (b.min.sign.equals(Sign.Positive)) (b.max pow e, b.min pow e)
-        else if (b.max.sign.equals(Sign.Negative)) (b.min pow e, b.max pow e)
+        if (b.min.sign.equals(Sign.Positive)) return (b.max pow e, b.min pow e)
+        if (b.max.sign.equals(Sign.Negative)) return (b.min pow e, b.max pow e)
         // Minimum negative and maximum positive
-        else {
-          // Even negative exponent
-          if (e % 2 == 0) {
-            // Try to evaluate min and max of base
-            // Then use absolute value
-            try {
-              val minAbs = abs(b.min)
-              val maxAbs = abs(b.max)
-              val comp = ArithExpr.isSmaller(maxAbs,minAbs)
-              if (comp.isDefined) {
-                if (comp.get) (b.min pow e, b.max pow e)
-                else (b.max pow e, b.min pow e)
-              }
-              else (?,?)
-            } catch {
-              case NotEvaluableException() => (?,?)
+        // Even negative exponent
+        if (e % 2 == 0) {
+          // Try to evaluate min and max of base
+          // Then use absolute value
+          try {
+            val minAbs = abs(b.min)
+            val maxAbs = abs(b.max)
+            val comp = ArithExpr.isSmaller(maxAbs,minAbs)
+            if (comp.isDefined) {
+              if (comp.get) (b.min pow e, b.max pow e)
+              else (b.max pow e, b.min pow e)
             }
+            else (?,?)
+          } catch {
+            case NotEvaluableException() => (?,?)
           }
-          // Odd negative easy
-          else (b.min pow e, b.max pow e)
         }
+        // Odd negative easy
+        else (b.min pow e, b.max pow e)
       }
 
     case _ => (?,?)
@@ -143,7 +145,7 @@ abstract sealed class ArithExpr {
 
   lazy val isEvaluable: Boolean = {
     !ArithExpr.visitUntil(this, x => {
-      x.isInstanceOf[Var] || x == ?
+      x.isInstanceOf[Var] || x == PosInf || x == NegInf || x == ?
     })
   }
 
@@ -157,6 +159,8 @@ abstract sealed class ArithExpr {
     case FloorFunction(_) => true
     case CeilingFunction(_) => true
     case AbsFunction(ae) => ae.isInt
+    case PosInf => true
+    case NegInf => true
     case _ => false
   }
 
@@ -268,7 +272,7 @@ object Var {
 
 // Negative variables
 object NegVar{
-  def apply(name: String): Var = new Var(name, Interval(?, Cst(-1)))
+  def apply(name: String): Var = new Var(name, Interval(NegInf, Cst(0)))
 }
 
 // Sums
@@ -788,6 +792,15 @@ object ArithExpr {
             case _ =>
           }
         }
+      // Infinite values
+      case (PosInf, PosInf) => return None
+      case (NegInf, NegInf) => return None
+      case (PosInf, NegInf) => return Some(false)
+      case (NegInf, PosInf) => return Some(true)
+      case (PosInf, _) if ae2.isEvaluable => return Some(false)
+      case (NegInf, _) if ae2.isEvaluable => return Some(true)
+      case (_, NegInf) if ae1.isEvaluable => return Some(false)
+      case (_, PosInf) if ae1.isEvaluable => return Some(true)
       // Keep going
       case _ =>
     }
@@ -879,6 +892,14 @@ object ArithExpr {
           }
         }
       // Keep going
+      case (PosInf, PosInf) => return None
+      case (NegInf, NegInf) => return None
+      case (PosInf, NegInf) => return Some(true)
+      case (NegInf, PosInf) => return Some(false)
+      case (PosInf, _) if ae2.isEvaluable => return Some(true)
+      case (NegInf, _) if ae2.isEvaluable => return Some(false)
+      case (_, NegInf) if ae1.isEvaluable => return Some(true)
+      case (_, PosInf) if ae1.isEvaluable => return Some(false)
       case _ =>
     }
 
@@ -948,8 +969,7 @@ object ArithExpr {
     case LogFunction(_, x) => visitUntil(x, f)
     case FloorFunction(expr) => visitUntil(expr, f)
     case CeilingFunction(expr) => visitUntil(expr, f)
-    case _:Var | Cst(_) => false
-    case x if x.getClass == ?.getClass => false
+    case _ => false
   }
 
   // Evaluate expression to numeric value if possible
@@ -963,8 +983,8 @@ object ArithExpr {
     case AbsFunction(expr) => scala.math.abs(evalDouble(expr))
     case LogFunction(b,expr) => scala.math.log(scala.math.log(evalDouble(expr) / scala.math.log(b)))
 
-    // Can't contain variables or the unknown expression
-    case `?` | _:Var => throw NotEvaluable
+    // Can't contain variables and special values
+    case _ => throw NotEvaluable
   }
 
   // Product of two intervals
@@ -980,5 +1000,27 @@ case object ? extends ArithExpr {
 
   override val digest: Int = HashSeed
 
+  override lazy val sign: Sign.Value = Sign.Unknown
+
   override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
+}
+
+case object PosInf extends ArithExpr {
+  override val HashSeed = 0x4a3e87
+
+  override val digest: Int = HashSeed
+
+  override lazy val sign: Sign.Value = Sign.Positive
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
+}
+
+case object NegInf extends ArithExpr  {
+  override val HashSeed = 0x4a3e87
+
+  override val digest: Int = HashSeed
+
+  override lazy val sign: Sign.Value = Sign.Negative
+
+  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
 }

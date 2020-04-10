@@ -41,7 +41,7 @@ class TestIntDivModWithNegative {
   @Test
   def rangeTest() : Unit = {
     val a = Var("a", Interval(0,2))
-    val b = Var("b", Interval(0,2), isInteger = true)
+    val b = Var("b", Interval(0,2))
     val c1 = Var("c1", Interval(1,4))
     val c2 = Var("c2", Interval(-7,-5))
     val posNumer = a*b + c1

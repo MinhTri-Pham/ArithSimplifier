@@ -92,7 +92,32 @@ object SimplifyProd {
   }
   // Tries to combine a pair of factors
   def combineFactors(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
-   // Trivial cases
+    // Special values
+    case (arithmetic.?,_) | (_,arithmetic.?) => Some(?)
+    case (PosInf, NegInf) | (NegInf, PosInf)  => Some(NegInf)
+    case (PosInf, PosInf) | (NegInf, NegInf)  => Some(PosInf)
+    case (PosInf, y) => y.sign match {
+      case Sign.Unknown => Some(?)
+      case Sign.Positive => Some(PosInf)
+      case Sign.Negative => Some(NegInf)
+    }
+    case (x, PosInf) =>  x.sign match {
+      case Sign.Unknown => Some(?)
+      case Sign.Positive => Some(PosInf)
+      case Sign.Negative => Some(NegInf)
+    }
+    case (NegInf, y) =>  y.sign match {
+      case Sign.Unknown => Some(?)
+      case Sign.Positive => Some(NegInf)
+      case Sign.Negative => Some(PosInf)
+    }
+    case (x, NegInf) =>  x.sign match {
+      case Sign.Unknown => Some(?)
+      case Sign.Positive => Some(NegInf)
+      case Sign.Negative => Some(PosInf)
+    }
+
+    // Trivial cases
     case (Cst(x), Cst(y)) => Some(Cst(x * y))
     case (Cst(1), _) => Some(rhs)
     case (_, Cst(1)) => Some(lhs)

@@ -60,12 +60,20 @@ object SimplifySum {
 
   // Tries to combine a pair of terms
   def combineTerms(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
+
+    // Special values
+    case (arithmetic.?,_) | (_,arithmetic.?) => Some(?)
+    case (PosInf, NegInf) | (NegInf, PosInf) => Some(?)
+    case (PosInf, _) | (_, PosInf) => Some(PosInf)
+    case (NegInf, _) | (_, NegInf) => Some(NegInf)
+
+    // Trivial rules
     case (Cst(x), Cst(y)) => Some(Cst(x + y))
     case (Cst(0), _) => Some(rhs)
     case (_, Cst(0)) => Some(lhs)
     case (x, y) if x == y => Some(Cst(2) * x)
 
-    // Products
+    // Products - combine terms with different constant factor
     case (p1:Prod, p2:Prod) if p1.nonCstFactor == p2.nonCstFactor =>
       Some(Cst(p1.cstFactor + p2.cstFactor) * p1.nonCstFactor)
     case (p:Prod,x) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)

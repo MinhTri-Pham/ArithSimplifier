@@ -7,7 +7,7 @@ object Sign extends Enumeration {
 
   def apply(ae: ArithExpr): Value = {
     ae match {
-      case Cst(c)=> if (c >= 0) Sign.Positive else Sign.Negative
+      case Cst(c) => if (c >= 0) Sign.Positive else Sign.Negative
       case Var(_,range,_,_) => signVar(range)
       case p:Prod => signProd(p.factors)
       case s:Sum => signSum(s.terms)
@@ -59,14 +59,8 @@ object Sign extends Enumeration {
     else {
       val posTerms = terms.filter(_.sign == Sign.Positive)
       val negTerms = terms.filter(_.sign == Sign.Negative)
-      if (posTerms.isEmpty) {
-        assert(negTerms.nonEmpty)
-        Sign.Negative
-      }
-      else if (negTerms.isEmpty) {
-        assert(posTerms.nonEmpty)
-        Sign.Positive
-      }
+      if (posTerms.isEmpty) Sign.Negative
+      else if (negTerms.isEmpty) Sign.Positive
       else {
         val absSumNegTerms = abs(negTerms.fold(Cst(0))(_ + _))
         val sumPosTerms = posTerms.fold(Cst(0))(_ + _)

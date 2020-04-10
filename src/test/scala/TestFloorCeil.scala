@@ -73,8 +73,6 @@ class TestFloorCeil {
 
   @Test
   def partitionConstant(): Unit = {
-    // Partition as floor((2+a) /^ (2+a)) + floor(1 / (2+a))
-    assertEquals(1 + floor(Cst(1) /^ (2+c)), floor((3+c) /^ (2+c)))
     // Partition as ceil((2+a) /^ (2+a)) + ceil((2+b) / (2+a))
     assertEquals(1 + ceil((2+a) /^ (2+c)), ceil((4+c+a) /^ (2+c)))
     // Partition as floor((4+2a) /^ (2+a)) + floor(b / (2+a))
