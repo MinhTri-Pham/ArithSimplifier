@@ -179,7 +179,7 @@ abstract sealed class ArithExpr {
   // Special case when expression is a product of two factors: a sum and negative power
   // Return the sum and the inverse of the power
   // E.g. (ac+bc+d)(a+b)^{-1} returns (ac+bc+d,a+b)
-  // Is used for sum, floor and ceiling simplification
+  // Used in asPartialCancelledSum of Prod class
   lazy val asSumFraction : Option[(Sum, ArithExpr)] = {
     if (getFactors.length != 2) None
     else (getFactors.head, getFactors(1)) match {
@@ -189,6 +189,21 @@ abstract sealed class ArithExpr {
       case (p:Pow, s:Sum) =>
         if (p.e > 0 || p.b.isInstanceOf[Cst]) None
         else Some(s,SimplifyPow(p.b,-p.e))
+      case _ => None
+    }
+  }
+
+  // Special case when expression is a product of two factors: an arbitrary expression and negative power
+  // Return the expression and the inverse of the power
+  lazy val asFraction : Option[(ArithExpr, ArithExpr)] = {
+    if (getFactors.length != 2) None
+    else (getFactors.head, getFactors(1)) match {
+      case (_, p:Pow) =>
+        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
+        else Some(getFactors.head, SimplifyPow(p.b,-p.e))
+      case (p:Pow, _) =>
+        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
+        else Some(getFactors(1),SimplifyPow(p.b,-p.e))
       case _ => None
     }
   }
@@ -272,7 +287,7 @@ object Var {
 
 // Negative variables
 object NegVar{
-  def apply(name: String): Var = new Var(name, Interval(NegInf, Cst(0)))
+  def apply(name: String): Var = new Var(name, Interval(NegInf, Cst(-1)))
 }
 
 // Sums
@@ -616,7 +631,6 @@ object ArithExpr {
       case (x: Var, y: Var) => x.id < y.id // order variables based on id
       case (_: Var, _) => true // variables always after constants second
       case (_, _: Var) => false
-//      case (p1:Prod, p2:Prod) => p1.factors.zip(p2.factors).map(x => isCanonicallySorted(x._1, x._2)).foldLeft(false)(_ || _)
       case (p1: Prod, p2: Prod) =>
         if (p1.factors.length < p2.factors.length) true
         else if (p2.factors.length < p1.factors.length) false
@@ -1012,7 +1026,7 @@ case object PosInf extends ArithExpr {
 
   override lazy val sign: Sign.Value = Sign.Positive
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 }
 
 case object NegInf extends ArithExpr  {
@@ -1022,5 +1036,5 @@ case object NegInf extends ArithExpr  {
 
   override lazy val sign: Sign.Value = Sign.Negative
 
-  override def visitAndRebuild(f: (ArithExpr) => ArithExpr): ArithExpr = f(this)
+  override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 }

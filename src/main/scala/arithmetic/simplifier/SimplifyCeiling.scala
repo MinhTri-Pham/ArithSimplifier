@@ -12,7 +12,6 @@ object SimplifyCeiling {
       return Cst(ceilEval.toInt)
     }
     ae match {
-      case _:Var => CeilingFunction(ae) // The variable can't be an integer so leave input as it is
       // Work with sum representation if possible
       case Sum(terms) =>
         var intTermsNum = 0
@@ -51,18 +50,22 @@ object SimplifyCeiling {
           val nonIntTerm = evalTerm + remTerm
           // Take integer out, leave rest inside ceiling
           intTerm + CeilingFunction(nonIntTerm)
+          val ceilNonIntTerm = tryBounds(nonIntTerm)
+          intTerm + ceilNonIntTerm
         }
-      case _ =>
-        try {
-          val min = CeilingFunction(ae.min).evalDouble
-          val max = CeilingFunction(ae.max).evalDouble
-          if (min == max) return Cst(min.toInt)
-        } catch {
-          case NotEvaluableException() => CeilingFunction(ae)
-          case e: Throwable => throw e
-        }
-        CeilingFunction(ae)
-
+      case _ => tryBounds(ae)
     }
+  }
+
+  def tryBounds(ae : ArithExpr) : ArithExpr = {
+    try {
+      val min = CeilingFunction(ae.min).evalDouble
+      val max = CeilingFunction(ae.max).evalDouble
+      if (min == max) return Cst(min.toInt)
+    } catch {
+      case NotEvaluableException() => CeilingFunction(ae)
+      case e: Throwable => throw e
+    }
+    CeilingFunction(ae)
   }
 }

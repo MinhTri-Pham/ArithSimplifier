@@ -30,7 +30,7 @@ class TestFloorCeil {
   @Test
   def sumTest(): Unit = {
     assertEquals(1 + a, floor(a + 1 + Cst(2) /^ Cst(3)))
-    assertEquals(1 + floor(c + Cst(2) /^ Cst(3)), floor(c + 1 + Cst(2) /^ Cst(3)))
+    assertEquals(1 + floor(c + Cst(2) /^ Cst(3)), floor(1 + c + Cst(2) /^ Cst(3)))
     assertEquals(1 + a + floor(c + Cst(2) /^ Cst(3)), floor(1 + a + c + Cst(2) /^ Cst(3)))
 
     assertEquals(2 + a, ceil(a + 1 + Cst(2) /^ Cst(3)))
@@ -63,8 +63,8 @@ class TestFloorCeil {
 
   @Test
   def partitionConstantMultiple(): Unit = {
-    // Partition as floor((a+b) /^ (a+b)) + floor((a+c) /^ (a+b))
-    assertEquals(1 + floor((c+a) /^ (c+d)), floor((2*c+d+a) /^ (c+d)))
+    // Partition as floor((c+d) /^ (c+d)) + floor((a+c) /^ (c+d))
+    assertEquals(1 + floor((a+c) /^ (c+d)), floor((2*c+d+a) /^ (c+d)))
     // Partition as ceil((2a+4b) /^ (a+2b)) + ceil((a+b) /^ (a+2b))
     assertEquals(2 + ceil((c+d)/^(c+2*d)),ceil((3*c + 5*d) /^ (c + 2*d)))
     // Partition as floor((ac+bc+ad+bd) /^ (a+b)) + floor(bc / (a+b))

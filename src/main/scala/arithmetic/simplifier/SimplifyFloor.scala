@@ -11,8 +11,13 @@ object SimplifyFloor {
       val floorEval = FloorFunction(ae).evalDouble
       return Cst(floorEval.toInt)
     }
+    if (ae.asFraction.isDefined) {
+      val numer = ae.asFraction.get._1
+      val denom = ae.asFraction.get._2
+      val comp = ArithExpr.isSmaller(numer,denom)
+      if (comp.isDefined && comp.get) return Cst(0)
+    }
     ae match {
-      case _:Var => FloorFunction(ae) // The variable can't be an integer so leave input as it is
       // Work with sum representation if possible
       case Sum(terms) =>
         var intTermsNum = 0
@@ -47,22 +52,32 @@ object SimplifyFloor {
           intTerm + Cst(floorOfEvalTerm.toInt)
         }
         else {
-          // Take integer out, leave rest inside ceiling
+          // Take integer out, leave rest inside floor
           val remTerm = remTerms.reduce(_ + _)
           val nonIntTerm = evalTerm + remTerm
-          intTerm + FloorFunction(nonIntTerm)
+          val floorNonIntTerm = tryBounds(nonIntTerm)
+          intTerm + floorNonIntTerm
         }
-      case _ =>
-        // ok let's try to evaluate floor of min and max
-        try {
-          val min = FloorFunction(ae.min).evalDouble
-          val max = FloorFunction(ae.max).evalDouble
-          if (min == max) return Cst(min.toInt)
-        } catch {
-          case NotEvaluableException() => FloorFunction(ae)
-          case e: Throwable => throw e
-        }
-        FloorFunction(ae)
+      case _ => tryBounds(ae)
+
     }
+  }
+
+  def tryBounds(ae : ArithExpr) : ArithExpr = {
+    if (ae.asFraction.isDefined) {
+      val numer = ae.asFraction.get._1
+      val denom = ae.asFraction.get._2
+      val comp = ArithExpr.isSmaller(numer,denom)
+      if (comp.isDefined && comp.get) return Cst(0)
+    }
+    try {
+      val min = FloorFunction(ae.min).evalDouble
+      val max = FloorFunction(ae.max).evalDouble
+      if (min == max) return Cst(min.toInt)
+    } catch {
+      case NotEvaluableException() => FloorFunction(ae)
+      case e: Throwable => throw e
+    }
+    FloorFunction(ae)
   }
 }
