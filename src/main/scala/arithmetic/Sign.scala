@@ -22,6 +22,8 @@ object Sign extends Enumeration {
           case Some(false) => Sign.Negative
           case _ => Sign.Unknown
         }
+      case PosInf => Sign.Positive
+      case NegInf => Sign.Negative
       case _ => Sign.Unknown
     }
   }
@@ -54,26 +56,22 @@ object Sign extends Enumeration {
 
   private def signSum(terms: List[ArithExpr]) : Sign.Value = {
     val unknownSignTerms = terms.filter(_.sign == Sign.Unknown)
-    if (unknownSignTerms.nonEmpty)
-      Sign.Unknown
+    if (unknownSignTerms.nonEmpty) return Sign.Unknown
+    val posTerms = terms.filter(_.sign == Sign.Positive)
+    val negTerms = terms.filter(_.sign == Sign.Negative)
+    if (posTerms.isEmpty) Sign.Negative
+    else if (negTerms.isEmpty) Sign.Positive
     else {
-      val posTerms = terms.filter(_.sign == Sign.Positive)
-      val negTerms = terms.filter(_.sign == Sign.Negative)
-      if (posTerms.isEmpty) Sign.Negative
-      else if (negTerms.isEmpty) Sign.Positive
-      else {
-        val absSumNegTerms = abs(negTerms.fold(Cst(0))(_ + _))
-        val sumPosTerms = posTerms.fold(Cst(0))(_ + _)
-        val lhsSmaller = ArithExpr.isSmaller(absSumNegTerms, sumPosTerms)
-        val rhsSmaller = ArithExpr.isSmaller(sumPosTerms, absSumNegTerms)
-        if (lhsSmaller.isEmpty || rhsSmaller.isEmpty)
-          Sign.Unknown
-        else if (lhsSmaller.get && !rhsSmaller.get)
-          Sign.Positive
-        else if (!lhsSmaller.get && rhsSmaller.get)
-          Sign.Negative
-        else Sign.Unknown
-      }
+      val absSumNegTerms = abs(negTerms.fold(Cst(0))(_ + _))
+      val sumPosTerms = posTerms.fold(Cst(0))(_ + _)
+      val lhsSmaller = ArithExpr.isSmaller(absSumNegTerms, sumPosTerms)
+      val rhsSmaller = ArithExpr.isSmaller(sumPosTerms, absSumNegTerms)
+      if (lhsSmaller.isEmpty || rhsSmaller.isEmpty)
+        Sign.Unknown
+      else if (lhsSmaller.get)
+        Sign.Positive
+      else
+        Sign.Negative
     }
   }
 }

@@ -86,7 +86,7 @@ abstract sealed class ArithExpr {
     case NegInf => (NegInf, NegInf)
     case s:Sum => (s.terms.map(_.min).reduce[ArithExpr](_ + _), s.terms.map(_.max).reduce[ArithExpr](_ + _))
     case p:Prod =>
-      val prodInterval = ArithExpr.computeIntervalProd(p.factors)
+      val prodInterval = Interval.computeIntervalProd(p.factors)
       (prodInterval.intervalMin, prodInterval.intervalMax)
     case c: CeilingFunction => (ceil(c.ae.min), ceil(c.ae.max))
     case f: FloorFunction => (floor(f.ae.min), floor(f.ae.max))
@@ -139,7 +139,15 @@ abstract sealed class ArithExpr {
         // Odd negative easy
         else (b.min pow e, b.max pow e)
       }
-
+    case AbsFunction(expr) =>
+      (ArithExpr.min(abs(expr.min), abs(expr.max)),
+        ArithExpr.max(abs(expr.min), abs(expr.max)))
+    case l: LogFunction =>
+      (l.ae - 1).sign match {
+        case Sign.Positive => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
+        case Sign.Negative => (LogFunction(l.b, l.ae.max), LogFunction(l.b, l.ae.min))
+        case _ => (?, ?) // impossible to determine the min and max
+      }
     case _ => (?,?)
   }
 
@@ -836,101 +844,11 @@ object ArithExpr {
 
   // Check if an expression is a bigger than another expression
   def isBigger(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
-    if (ae1 == ? | ae2 == ?)
-      return None
-
-    try {
-      // we check to see if the difference can be evaluated
-      val diff = ae2 - ae1
-      if (diff.isEvaluable)
-        return Some(diff.evalDouble < 0)
-    } catch {
-      case NotEvaluableException() =>
-    }
-
-    var lhsNonCommon = ae1
-    var rhsNonCommon = ae2
-
-    (ae1, ae2) match {
-      case (s1:Sum,s2:Sum)=>
-        // Two sums: filter out common terms first
-        // Example: x+y < y+z if x < z (assuming y has a finite range)
-        val ae1Terms = s1.terms
-        val ae2Terms = s2.terms
-        val commonTerms = ae1Terms.intersect(ae2Terms)
-        if (commonTerms.nonEmpty) {
-          val ae1diff = ae1Terms.diff(commonTerms)
-          val ae2diff = ae2Terms.diff(commonTerms)
-          if (ae1diff.isEmpty) lhsNonCommon = Cst(0)
-          else if (ae1diff.length == 1) lhsNonCommon = ae1diff.head
-          else lhsNonCommon = Sum(ae1diff)
-
-          if (ae2diff.isEmpty) rhsNonCommon = Cst(0)
-          else if (ae2diff.length == 1) rhsNonCommon = ae2diff.head
-          else rhsNonCommon = Sum(ae2diff)
-        }
-      // Product/power and product/power: take out common term
-      case (_:Prod, _) | (_, _:Prod) | (_:Pow, _) | (_, _:Pow) =>
-        var ae1NonCommon = ae1
-        var ae2NonCommon = ae2
-        val gcd = ComputeGCD(ae1, ae2)
-        if (gcd != Cst(1)) {
-          ae1NonCommon = ae1 /^ gcd
-          ae2NonCommon = ae2 /^ gcd
-          // If signs of common or uncommon parts not known, can't determine
-          if (gcd.sign == Sign.Unknown || ae1NonCommon.sign == Sign.Unknown || ae2NonCommon.sign == Sign.Unknown)
-            return None
-          // Depending on signs on gcd and uncommon parts, determine further action
-          (gcd.sign, ae1NonCommon.sign, ae2NonCommon.sign) match {
-            case (Sign.Positive, Sign.Positive, Sign.Positive) =>
-              lhsNonCommon = ae1NonCommon
-              rhsNonCommon = ae2NonCommon
-            case (Sign.Positive, Sign.Positive, Sign.Negative) =>
-              return Some(true)
-            case (Sign.Positive, Sign.Negative, Sign.Positive) =>
-              return Some(false)
-            case (Sign.Positive, Sign.Negative, Sign.Negative) =>
-              lhsNonCommon = ae2NonCommon
-              rhsNonCommon = ae1NonCommon
-            case (Sign.Negative, Sign.Positive, Sign.Positive) =>
-              lhsNonCommon = ae2NonCommon
-              rhsNonCommon = ae1NonCommon
-            case (Sign.Negative, Sign.Positive, Sign.Negative) =>
-              return Some(false)
-            case (Sign.Negative, Sign.Negative, Sign.Positive) =>
-              return Some(true)
-            case (Sign.Negative, Sign.Negative, Sign.Negative) =>
-              lhsNonCommon = ae1NonCommon
-              rhsNonCommon = ae2NonCommon
-            case _ =>
-          }
-        }
-      // Keep going
-      case (PosInf, PosInf) => return None
-      case (NegInf, NegInf) => return None
-      case (PosInf, NegInf) => return Some(true)
-      case (NegInf, PosInf) => return Some(false)
-      case (PosInf, _) if ae2.isEvaluable => return Some(true)
-      case (NegInf, _) if ae2.isEvaluable => return Some(false)
-      case (_, NegInf) if ae1.isEvaluable => return Some(true)
-      case (_, PosInf) if ae1.isEvaluable => return Some(false)
-      case _ =>
-    }
-
-    // If non-common parts evaluable, evaluate min and max and find final result
-    try {
-      val lhsNonCommonMinEval = lhsNonCommon.min.evalDouble
-      val lhsNonCommonMaxEval = lhsNonCommon.max.evalDouble
-      val rhsNonCommonMinEval = rhsNonCommon.min.evalDouble
-      val rhsNonCommonMaxEval = rhsNonCommon.max.evalDouble
-      if (lhsNonCommonMaxEval >= rhsNonCommonMinEval && rhsNonCommonMaxEval >= lhsNonCommonMinEval) return None
-      else return Some(lhsNonCommonMinEval > rhsNonCommonMaxEval)
-
-    } catch {
-      case NotEvaluableException() =>
-    }
-
-    None // Can't determine if ae1 > ae2
+    if (ae1 == ? | ae2 == ?)  return None
+    if (ae1 == ae2) return Some(false)
+    val smaller = isSmaller(ae1,ae2)
+    if (smaller.isDefined) Some(!smaller.get)
+    else None
   }
 
   def isSmallerOrEqual(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
@@ -943,31 +861,36 @@ object ArithExpr {
     isBigger(ae1,ae2)
   }
 
-
-  // Minimum of expressions (if possible)
-  def minList(aes: List[ArithExpr]) : ArithExpr = {
-    // Go through list, keep picking the min
-    aes.reduce((ae1,ae2) => {
-      val comp = isSmaller(ae2,ae1)
-      if (comp.isDefined) {
-        if (comp.get) ae2
-        else ae1
-      }
-      else ?
-    })
+  // Min of two expressions
+  def min(e1: ArithExpr, e2: ArithExpr) : ArithExpr = {
+    if (e1 == e2) return e1
+    val comp = isSmaller(e1, e2)
+    if (comp.isDefined) {
+      if (comp.get) return e1
+      else return e2
+    }
+    ?
   }
 
-  // Minimum of expressions (if possible)
-  def maxList(aes: List[ArithExpr]) : ArithExpr = {
-    // Go through list, keep picking the max
-    aes.reduce((ae1,ae2) => {
-      val comp = isBigger(ae2,ae1)
-      if (comp.isDefined) {
-        if (comp.get) ae2
-        else ae1
-      }
-      else ?
-    })
+  def max(e1: ArithExpr, e2: ArithExpr) : ArithExpr = {
+    if (e1 == e2) return e1
+    val comp = isBigger(e1, e2)
+    if (comp.isDefined) {
+      if (comp.get) return e1
+      else return e2
+    }
+    ?
+  }
+
+
+  // Minimum of expressions
+  def min(aes: List[ArithExpr]) : ArithExpr = {
+    aes.reduce((e1, e2) => {min(e1,e2)})
+  }
+
+  // Maximum of expressions
+  def max(aes: List[ArithExpr]) : ArithExpr = {
+    aes.reduce((e1, e2) => {max(e1,e2)})
   }
 
   def visitUntil(e: ArithExpr, f: ArithExpr => Boolean): Boolean = if (f(e)) true
@@ -999,12 +922,6 @@ object ArithExpr {
 
     // Can't contain variables and special values
     case _ => throw NotEvaluable
-  }
-
-  // Product of two intervals
-  private def computeIntervalProd(factors: List[ArithExpr]) : Interval = {
-    val minMax = factors.map(x => Interval(x.min, x.max))
-    minMax.reduce((x,y) => x*y)
   }
 }
 
