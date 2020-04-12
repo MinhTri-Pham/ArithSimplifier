@@ -21,20 +21,14 @@ object SimplifyProd {
         lhsFactors = lhsFs
         if (rhs.isInstanceOf[Sum]) {
           val rhsSum = rhs.toSum.get
-          if (rhsSum.asPow.isDefined) {
-            rhsFactors = List[ArithExpr](rhsSum.asPow.get)
-
-          }
+          if (rhsSum.asPow.isDefined) rhsFactors = List[ArithExpr](rhsSum.asPow.get)
           else rhsFactors = List[ArithExpr](rhs)
         }
         else rhsFactors = List[ArithExpr](rhs)
       case (_, Prod(rhsFs)) =>
         if (lhs.isInstanceOf[Sum]) {
           val lhsSum = lhs.toSum.get
-          if (lhsSum.asPow.isDefined) {
-            lhsFactors = List[ArithExpr](lhsSum.asPow.get)
-
-          }
+          if (lhsSum.asPow.isDefined) lhsFactors = List[ArithExpr](lhsSum.asPow.get)
           else lhsFactors = List[ArithExpr](lhs)
         }
         else lhsFactors = List[ArithExpr](lhs)
@@ -42,20 +36,14 @@ object SimplifyProd {
       case _ =>
         if (lhs.isInstanceOf[Sum]) {
           val lhsSum = lhs.toSum.get
-          if (lhsSum.asPow.isDefined) {
-            lhsFactors = List[ArithExpr](lhsSum.asPow.get)
-
-          }
+          if (lhsSum.asPow.isDefined) lhsFactors = List[ArithExpr](lhsSum.asPow.get)
           else lhsFactors = List[ArithExpr](lhs)
         }
         else lhsFactors = List[ArithExpr](lhs)
 
         if (rhs.isInstanceOf[Sum]) {
           val rhsSum = rhs.toSum.get
-          if (rhsSum.asPow.isDefined) {
-            rhsFactors = List[ArithExpr](rhsSum.asPow.get)
-
-          }
+          if (rhsSum.asPow.isDefined) rhsFactors = List[ArithExpr](rhsSum.asPow.get)
           else rhsFactors = List[ArithExpr](rhs)
         }
         else rhsFactors = List[ArithExpr](rhs)

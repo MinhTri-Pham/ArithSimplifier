@@ -6,6 +6,7 @@ object SimplifyLog {
   def apply(b:Long, ae:ArithExpr) : ArithExpr = ae match {
     case Cst(c) =>
       if (c <= 0) throw new ArithmeticException()
+      if (b == 1 && c != 1) throw new ArithmeticException()
       if (c == 1) return Cst(0)
       if (c == b) return Cst(1)
       if (b > c) return log(c,Cst(b)) pow -1

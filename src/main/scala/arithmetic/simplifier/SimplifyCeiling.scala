@@ -47,11 +47,8 @@ object SimplifyCeiling {
         }
         else {
           val remTerm = remTerms.reduce(_ + _)
-          val nonIntTerm = evalTerm + remTerm
-          // Take integer out, leave rest inside ceiling
-          intTerm + CeilingFunction(nonIntTerm)
-          val ceilNonIntTerm = tryBounds(nonIntTerm)
-          intTerm + ceilNonIntTerm
+          // Take integer out, try min and max on the rest
+          intTerm + tryBounds(evalTerm + remTerm)
         }
       case _ => tryBounds(ae)
     }

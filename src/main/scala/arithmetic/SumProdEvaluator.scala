@@ -14,16 +14,16 @@ import scala.language.postfixOps
 
 // Object to perform evaluation of simplification
 object SumProdEvaluator {
-  val maxSize = 7 // Max number of terms/factors in sum/product
-  val minSize = 3 // Min number of terms/factors in sum/product
+  val maxSize = 5 // Max number of terms/factors in sum/product
+  val minSize = 2 // Min number of terms/factors in sum/product
 
   val maxDepth = 3 // Maximum depth of arithmetic expression tree
-  val maxExp = 3 // Max exponent of a power
+  val maxExp = 5 // Max exponent of a power
   val minExp = 2 // Min exponent of a power
   val cstSingleMin: Int = -6 // Bounds for single constant leaf
   val cstSingleMax = 6
-  val maxCst = 128
-  val minCst: Int = -128 // Bounds for constant node (result of multiple leafs combined together)
+  val maxCst = 64
+  val minCst: Int = -64 // Bounds for constant node (result of multiple leafs combined together)
 
   // Possible variables
   val av: Var = Var("a")
@@ -47,13 +47,13 @@ object SumProdEvaluator {
 
   // Configuration
   val offset = 10 // These first runs won't count
-  val numTrialsRaw = 500
+  val numTrialsRaw = 750
   val numTrials: Int = numTrialsRaw + offset
   var numTimedOut = 0
 
   var numTermsFactors = 0 // How many terms/factors at top level for sum/product
 
-  var numTotalTerms = 0 // How many terns in expanded form
+//  var numTotalTerms = 0 // How many terns in expanded form
   // How many sum factors have to be multiplied together - i.e how many factorisations have to be done
   var numSumFactors = 0
 
@@ -89,15 +89,17 @@ object SumProdEvaluator {
         chooseOpt match {
           case 0 =>
             terms += genLeaf()
-            if (level == 1) numTotalTerms += 1
+//            if (level == 1) numTotalTerms += 1
           case 1 =>
-            val nextTerm = updateCstFactor(ExprSimplifier(genProd(level + 1)))
-            if (level == 1) numTotalTerms += getNumTerms(nextTerm)
-            terms += nextTerm
+//            val nextTerm = updateCstFactor(ExprSimplifier(genProd(level + 1)))
+//            if (level == 1) numTotalTerms += getNumTerms(nextTerm)
+//            terms += nextTerm
+            terms += updateCstFactor(ExprSimplifier(genProd(level + 1)))
           case 2 =>
-            val nextTerm = updateCstFactor(ExprSimplifier(genPow(level + 1)))
-            if (level == 1) numTotalTerms += getNumTerms(nextTerm)
-            terms += nextTerm
+//            val nextTerm = updateCstFactor(ExprSimplifier(genPow(level + 1)))
+//            if (level == 1) numTotalTerms += getNumTerms(nextTerm)
+//            terms += nextTerm
+            terms += updateCstFactor(ExprSimplifier(genPow(level + 1)))
         }
       }
       Sum(terms.toList)
@@ -236,7 +238,7 @@ object SumProdEvaluator {
     try {
       runWithTimeout(5000*3) {
         numTermsFactors = 0
-        numTotalTerms = 0
+//        numTotalTerms = 0
         val randomSum = genSum(level=1)
         txtw.write(s"Generated sum: $randomSum\n")
         val t1 = System.nanoTime
@@ -280,7 +282,7 @@ object SumProdEvaluator {
     val evalRuntimeFile = new File(s"evalSum$id.csv")
     val txtWriter = new PrintWriter(evalExprFile)
     val csvWriter = new PrintWriter(evalRuntimeFile)
-    val header = "Num total terms with expansion,Runtime\n"
+    val header = "Number of terms,Runtime\n"
     csvWriter.write(header)
 
     txtWriter.write("Variable mappings\n")
@@ -516,6 +518,12 @@ object SumProdEvaluator {
 
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
+
+    txtWriter.write("Parameter settings\n")
+    txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
+    txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
+    txtWriter.write(s"Constant bounds: $minCst and $maxCst\n")
+
     var numPassed = 0
     numTimedOut = 0
     for (i <- 0 until numTrials) {
@@ -529,16 +537,16 @@ object SumProdEvaluator {
     txtWriter.close()
   }
 
-  private def getNumTerms(ae: ArithExpr): Int = ae match {
-    case _:Cst | _:Var => 1
-    case s:Sum => s.terms.length
-    case p:Pow =>
-      if (p.b.isInstanceOf[Sum]) p.b.getTerms.length * p.e
-      else 1
-
-    case p:Prod => p.factors.map(x => getNumTerms(x)).product
-    case _ => 1
-  }
+//  private def getNumTerms(ae: ArithExpr): Int = ae match {
+//    case _:Cst | _:Var => 1
+//    case s:Sum => s.terms.length
+//    case p:Pow =>
+//      if (p.b.isInstanceOf[Sum]) p.b.getTerms.length * p.e
+//      else 1
+//
+//    case p:Prod => p.factors.map(x => getNumTerms(x)).product
+//    case _ => 1
+//  }
 
   private def updateCstFactor(ae:ArithExpr): ArithExpr = {
     ae match {
@@ -576,6 +584,6 @@ object SumProdEvaluator {
       valMap += v -> genCst()
     }
     // Run test
-    evalSumTest(0)
+    correctnessTest(0)
   }
 }

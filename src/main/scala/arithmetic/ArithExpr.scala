@@ -91,12 +91,12 @@ abstract sealed class ArithExpr {
     case c: CeilingFunction => (ceil(c.ae.min), ceil(c.ae.max))
     case f: FloorFunction => (floor(f.ae.min), floor(f.ae.max))
     case Pow(b,e) =>
-      // Odd exponent - easy
+      // Odd positive exponent - easy
       if (e > 0 && e % 2 == 1) (b.min pow e, b.max pow e)
-      // Even exponent, consider sign of min/max of b
+      // Even positive exponent, consider sign of min/max of b
       else if (e > 0 && e % 2 == 0) {
-        if (b.min.sign.equals(Sign.Positive)) (b.min pow e, b.max pow e)
-        else if (b.max.sign.equals(Sign.Negative)) (b.max pow e, b.min pow e)
+        if (b.sign.equals(Sign.Positive)) (b.min pow e, b.max pow e)
+        else if (b.sign.equals(Sign.Negative)) (b.max pow e, b.min pow e)
         // (0, max(x1^e,x2^e)), x1 = min(b), x2 = max(b)
         else {
           val x1 = b.min pow e
@@ -114,40 +114,20 @@ abstract sealed class ArithExpr {
       else {
         // Caution for 0
         if (b.min == Cst(0)) return (b.max pow e, PosInf)
-        if (b.max == Cst(0)) return (b.max pow e, NegInf)
+        if (b.max == Cst(0)) return (NegInf, b.min pow e)
         // Both positive or both negative easy
-        if (b.min.sign.equals(Sign.Positive)) return (b.max pow e, b.min pow e)
-        if (b.max.sign.equals(Sign.Negative)) return (b.min pow e, b.max pow e)
-        // Minimum negative and maximum positive
-        // Even negative exponent
-        if (e % 2 == 0) {
-          // Try to evaluate min and max of base
-          // Then use absolute value
-          try {
-            val minAbs = abs(b.min)
-            val maxAbs = abs(b.max)
-            val comp = ArithExpr.isSmaller(maxAbs,minAbs)
-            if (comp.isDefined) {
-              if (comp.get) (b.min pow e, b.max pow e)
-              else (b.max pow e, b.min pow e)
-            }
-            else (?,?)
-          } catch {
-            case NotEvaluableException() => (?,?)
-          }
-        }
+        if (b.sign.equals(Sign.Positive)) return (b.max pow e, b.min pow e)
+        if (b.sign.equals(Sign.Negative)) return (b.min pow e, b.max pow e)
+        // Sign of base unknown
+        if (e % 2 == 0) (Cst(0), ?)
         // Odd negative easy
-        else (b.min pow e, b.max pow e)
+        else (?, ?)
       }
     case AbsFunction(expr) =>
       (ArithExpr.min(abs(expr.min), abs(expr.max)),
         ArithExpr.max(abs(expr.min), abs(expr.max)))
-    case l: LogFunction =>
-      (l.ae - 1).sign match {
-        case Sign.Positive => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
-        case Sign.Negative => (LogFunction(l.b, l.ae.max), LogFunction(l.b, l.ae.min))
-        case _ => (?, ?) // impossible to determine the min and max
-      }
+    case l: LogFunction if l.b > 1 => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
+    case l: LogFunction if l.b < 1 => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
     case _ => (?,?)
   }
 
@@ -163,7 +143,7 @@ abstract sealed class ArithExpr {
     case v: Var => v.isInteger
     case s:Sum => s.terms.forall(_.isInt)
     case p:Prod => p.factors.forall(_.isInt)
-    case Pow(b, e) => b.isInt && e >= 0
+    case Pow(b, e) => b.isInt && e > 1
     case FloorFunction(_) => true
     case CeilingFunction(_) => true
     case AbsFunction(ae) => ae.isInt
@@ -197,21 +177,6 @@ abstract sealed class ArithExpr {
       case (p:Pow, s:Sum) =>
         if (p.e > 0 || p.b.isInstanceOf[Cst]) None
         else Some(s,SimplifyPow(p.b,-p.e))
-      case _ => None
-    }
-  }
-
-  // Special case when expression is a product of two factors: an arbitrary expression and negative power
-  // Return the expression and the inverse of the power
-  lazy val asFraction : Option[(ArithExpr, ArithExpr)] = {
-    if (getFactors.length != 2) None
-    else (getFactors.head, getFactors(1)) match {
-      case (_, p:Pow) =>
-        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
-        else Some(getFactors.head, SimplifyPow(p.b,-p.e))
-      case (p:Pow, _) =>
-        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
-        else Some(getFactors(1),SimplifyPow(p.b,-p.e))
       case _ => None
     }
   }
@@ -761,6 +726,15 @@ object ArithExpr {
     var rhsNonCommon = ae2
 
     (ae1, ae2) match {
+      // Infinite values
+      case (PosInf, PosInf) => return None
+      case (NegInf, NegInf) => return None
+      case (PosInf, NegInf) => return Some(false)
+      case (NegInf, PosInf) => return Some(true)
+      case (PosInf, _) if ae2.isEvaluable => return Some(false)
+      case (NegInf, _) if ae2.isEvaluable => return Some(true)
+      case (_, NegInf) if ae1.isEvaluable => return Some(false)
+      case (_, PosInf) if ae1.isEvaluable => return Some(true)
       case (s1:Sum,s2:Sum)=>
         // Two sums: filter out common terms first
         // Example: x+y < y+z if x < z (assuming y has a finite range)
@@ -808,21 +782,13 @@ object ArithExpr {
               return Some(true)
             case (Sign.Negative, Sign.Negative, Sign.Positive) =>
               return Some(false)
-            case (Sign.Negative, Sign.Negative, Sign.Negative) =>
+            // Neg, Neg, Pos
+            case _ =>
               lhsNonCommon = ae1NonCommon
               rhsNonCommon = ae2NonCommon
-            case _ =>
           }
         }
-      // Infinite values
-      case (PosInf, PosInf) => return None
-      case (NegInf, NegInf) => return None
-      case (PosInf, NegInf) => return Some(false)
-      case (NegInf, PosInf) => return Some(true)
-      case (PosInf, _) if ae2.isEvaluable => return Some(false)
-      case (NegInf, _) if ae2.isEvaluable => return Some(true)
-      case (_, NegInf) if ae1.isEvaluable => return Some(false)
-      case (_, PosInf) if ae1.isEvaluable => return Some(true)
+        None
       // Keep going
       case _ =>
     }

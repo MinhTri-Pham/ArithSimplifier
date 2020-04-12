@@ -11,12 +11,6 @@ object SimplifyFloor {
       val floorEval = FloorFunction(ae).evalDouble
       return Cst(floorEval.toInt)
     }
-    if (ae.asFraction.isDefined) {
-      val numer = ae.asFraction.get._1
-      val denom = ae.asFraction.get._2
-      val comp = ArithExpr.isSmaller(numer,denom)
-      if (comp.isDefined && comp.get) return Cst(0)
-    }
     ae match {
       // Work with sum representation if possible
       case Sum(terms) =>
@@ -52,11 +46,9 @@ object SimplifyFloor {
           intTerm + Cst(floorOfEvalTerm.toInt)
         }
         else {
-          // Take integer out, leave rest inside floor
           val remTerm = remTerms.reduce(_ + _)
-          val nonIntTerm = evalTerm + remTerm
-          val floorNonIntTerm = tryBounds(nonIntTerm)
-          intTerm + floorNonIntTerm
+          // Take integer out, try min and max on the rest
+          intTerm + tryBounds(evalTerm + remTerm)
         }
       case _ => tryBounds(ae)
 
@@ -64,12 +56,6 @@ object SimplifyFloor {
   }
 
   def tryBounds(ae : ArithExpr) : ArithExpr = {
-    if (ae.asFraction.isDefined) {
-      val numer = ae.asFraction.get._1
-      val denom = ae.asFraction.get._2
-      val comp = ArithExpr.isSmaller(numer,denom)
-      if (comp.isDefined && comp.get) return Cst(0)
-    }
     try {
       val min = FloorFunction(ae.min).evalDouble
       val max = FloorFunction(ae.max).evalDouble
