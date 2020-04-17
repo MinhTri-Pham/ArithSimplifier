@@ -8,7 +8,9 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-// For evaluating performance of factorisation
+/**
+ * For evaluating factorisation
+ */
 
 object FactoriseEvaluator {
   // Possible variables
@@ -74,6 +76,11 @@ object FactoriseEvaluator {
     Await.result(Future(f), timeoutMs milliseconds)
   }
 
+  // Generates a random factorisation
+  // Expands it into a sum and tries to factorise the sum
+  // Verifies if generated factorisation and the obtained one are eqiuvalent
+  // Measures runtime and the number of factors tried
+  // Writes results into files
   def evalFactoriseComparison(txtw : PrintWriter, csvw: PrintWriter) : Boolean = {
     val timeout = 50000
     val randomProd = genProd()
@@ -84,6 +91,8 @@ object FactoriseEvaluator {
     var successFirstTry = false
     var success = false
     var dur = 0.0
+    // We measure the average runtime of factorising the same sum three times
+    // Try for first time, if this times out, do not go further
     try {
       runWithTimeout(timeout) {
         val t1 = System.nanoTime
@@ -94,26 +103,28 @@ object FactoriseEvaluator {
       }
     }
     catch {
+      // Time out
       case _:TimeoutException =>
-        txtw.write(s"${Factorise.numFactorsTried}, $timeout\n")
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         return false
+      // Memory issue due to factorisation
       case _:OutOfMemoryError | _:StackOverflowError =>
-        txtw.write(s"${Factorise.numFactorsTried}, $timeout\n")
         txtw.write(s"Factorisation memory issue\n\n")
         numTimedOut += 1
         return false
     }
     if (successFirstTry) {
       try {
+        // Factorise two more times since first one didn't time out
         runWithTimeout(timeout * 2) {
           val t1 = System.nanoTime
           factorisation = Factorise(randomProdAsSum)
           factorisation = Factorise(randomProdAsSum)
           val durRest = (System.nanoTime - t1) / 1e6d // Runtime in ms
           dur += durRest
-          dur /= 3
+          dur /= 3 // Measure the average runtime
+          // Write results into a file
           val durRounded = f"$dur%.3f"
           if (factorisation.isDefined) {
             val numFactors = Factorise.numFactorsTried
@@ -147,14 +158,20 @@ object FactoriseEvaluator {
     success
   }
 
-  def evaluate(id: Int) : Unit = {
-    val evalExprFile = new File(s"evalFactorise$id.txt")
-    val evalRuntimeFile = new File(s"evalFactorise$id.csv")
+  // Runs the experiment: generates 250 factorisations, expands them out and try to factorise back
+  // Verify correctness and performance
+  def evaluate() : Unit = {
+    val evalExprFile = new File(s"evalFactorise.txt")
+    val evalRuntimeFile = new File(s"evalFactorise.csv")
     val txtWriter = new PrintWriter(evalExprFile)
     val csvWriter = new PrintWriter(evalRuntimeFile)
+
+    // Setting up csv file for runtime analysis
+    // Explore relationship between number of factors tried and simplification speed
     val header = "Number of factors tried, Runtime\n"
     csvWriter.write(header)
 
+    // Parameters for generated factorisations
     txtWriter.write(s"Number of factor bounds: $minNumFactors and $maxNumFactors\n")
     txtWriter.write(s"Factor length bounds: $minSumFactorLen and $maxSumFactorLen\n\n")
 
@@ -169,9 +186,11 @@ object FactoriseEvaluator {
       val passed = evalFactoriseComparison(txtWriter, csvWriter)
       if (passed) numPassed += 1
     }
+
+    // Correctness verification results
     txtWriter.write(s"Passed: $numPassed\n")
     txtWriter.write(s"Timed out: $numTimedOut\n")
-    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.write(s"Failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
     csvWriter.close()
   }

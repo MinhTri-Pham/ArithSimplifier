@@ -12,18 +12,24 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-// Object to perform evaluation of simplification
-object SumProdEvaluator {
-  val maxSize = 5 // Max number of terms/factors in sum/product
-  val minSize = 2 // Min number of terms/factors in sum/product
 
+object SumProdEvaluator {
+
+  /**
+   * For evaluating sum and product simplification
+   */
+
+  // Parameters
+  var maxSize = 7 // Max number of terms/factors in sum/product
+  var minSize = 2 // Min number of terms/factors in sum/product
   val maxDepth = 3 // Maximum depth of arithmetic expression tree
-  val maxExp = 5 // Max exponent of a power
+  var maxExp = 5 // Max exponent of a power
   val minExp = 2 // Min exponent of a power
-  val cstSingleMin: Int = -6 // Bounds for single constant leaf
+  val cstSingleMin: Int = -6 // Bounds for single generated constant
   val cstSingleMax = 6
-  val maxCst = 64
-  val minCst: Int = -64 // Bounds for constant node (result of multiple leafs combined together)
+  // Bounds constants overall (sometimes multiple constants can be multiplied/added when generating a node)
+  var maxCst = 128
+  var minCst: Int = -128
 
   // Possible variables
   val av: Var = Var("a")
@@ -47,15 +53,9 @@ object SumProdEvaluator {
 
   // Configuration
   val offset = 10 // These first runs won't count
-  val numTrialsRaw = 750
-  val numTrials: Int = numTrialsRaw + offset
   var numTimedOut = 0
 
   var numTermsFactors = 0 // How many terms/factors at top level for sum/product
-
-//  var numTotalTerms = 0 // How many terns in expanded form
-  // How many sum factors have to be multiplied together - i.e how many factorisations have to be done
-  var numSumFactors = 0
 
   val rGen = new scala.util.Random() // Random generator
 
@@ -67,25 +67,29 @@ object SumProdEvaluator {
     variables(rGen.nextInt(numPossibleVars))
   }
 
-  // Generate random terminal node (leaf) of arithmetic expression tree
-  // Constant or variable
+  // Generates a random leaf - variable or a constant
   def genLeaf() : ArithExpr = {
     val isVar = rGen.nextBoolean()
     if (isVar) genVar() else genCst()
   }
 
-  // Generate sum at a certain level of the expression tree
+  // Generates a random non-simplified sum at a certain level of the expression tree
   def genSum(level: Int) : ArithExpr = {
     val numTerms = minSize + rGen.nextInt(maxSize - minSize + 1)
     if (level == 1) numTermsFactors = numTerms
     if (level == maxDepth) {
+      // Generating a sum at the maximum level, so it's a child of another node
+      // Hence must be simplified
       val terms = List.fill(numTerms)(genLeaf())
       updateCstFactor(ExprSimplifier(Sum(terms)))
     }
     else {
+      // Generate terms one by one, note that they must be simplified
+      // (Sum itself is not simplified but its terms are)
       val terms = new ListBuffer[ArithExpr]()
       for (_ <- 0 until numTerms) {
         val chooseOpt = rGen.nextInt(3)
+        // Leaf, product or power with equal chances
         chooseOpt match {
           case 0 =>
             terms += genLeaf()
@@ -99,19 +103,24 @@ object SumProdEvaluator {
     }
   }
 
-  // Generate product at a certain level of the expression tree
+  // Generates a random non-simplified product at a certain level of the expression tree
   def genProd(level: Int) : ArithExpr = {
     val numFactors = minSize + rGen.nextInt(maxSize - minSize + 1)
     if (level == 1) numTermsFactors = numFactors
     if (level == maxDepth) {
+      // Generating a product at the maximum level, so it's a child of another node
+      // Hence must be simplified
       val factors = List.fill(numFactors)(genLeaf())
       updateCstFactor(ExprSimplifier(Prod(factors)))
     }
     else {
+      // Generate factors one by one, note that they must be simplified
+      // (Product itself is not simplified but its factors are)
       val factors = new ListBuffer[ArithExpr]()
       for (_ <- 1 to numFactors) {
         val chooseOpt = rGen.nextInt(3)
         chooseOpt match {
+          // Leaf, sum or power with equal chances
           case 0 =>
             factors += genLeaf()
           case 1  =>
@@ -124,10 +133,12 @@ object SumProdEvaluator {
     }
   }
 
+  // Generates a random non-simplified product with at least one sum factor
   def genProdWithSumFactor() : ArithExpr = {
     val numFactors = minSize + rGen.nextInt(maxSize - minSize + 1)
     val factors = new ListBuffer[ArithExpr]()
     for (i <- 1 to numFactors) {
+      // Force first factor to be a sum
       if (i == 1) {
         var firstFactor = ExprSimplifier(genSum(2))
         while (!firstFactor.isInstanceOf[Sum]) {
@@ -139,6 +150,8 @@ object SumProdEvaluator {
       else {
         val chooseOpt = rGen.nextInt(3)
         chooseOpt match {
+          // Each other factor is a leaf, sum or power with equal chances
+          // Again, each factor is simplified but not the whole product
           case 0 =>
             factors += genLeaf()
           case 1  =>
@@ -152,9 +165,9 @@ object SumProdEvaluator {
   }
 
   // Generate power at a certain level of he expression tree
+  // Powers are generated at deeper level (never at top level), hence why they are simplified
   def genPow(level: Int) : ArithExpr = {
-    val exp = minExp + rGen.nextInt(maxExp - minExp + 1) // Positive
-//    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
+    val exp = minExp + rGen.nextInt(maxExp - minExp + 1) // Generate random exponent
     if (level == maxDepth) {
       val base = genLeaf()
       SimplifyPow(base, exp)
@@ -163,6 +176,7 @@ object SumProdEvaluator {
       var base : ArithExpr = null
       val chooseOpt = rGen.nextInt(3)
       chooseOpt match {
+        // Base can be a leaf, sum or product with equal chances
         case 0 => base = genLeaf()
         case 1 => base = ExprSimplifier(genSum(level + 1))
         case 2 => base = ExprSimplifier(genProd(level + 1))
@@ -171,8 +185,10 @@ object SumProdEvaluator {
     }
   }
 
+  // Generates a random non-simplified product without sum factors
+  // Similar to generating a random product (genProd) but factors can be leaf or specific power
   def genPrimProd(level : Int) : ArithExpr = {
-    val numFactors = 2 + rGen.nextInt(maxSize - 2 + 1)
+    val numFactors = minSize + rGen.nextInt(maxSize - minSize + 1)
     if (level == 1) numTermsFactors = numFactors
     if (level == maxDepth) {
       val factors = List.fill(numFactors)(genLeaf())
@@ -195,9 +211,9 @@ object SumProdEvaluator {
     }
   }
 
+  // Similar to generating a power (genPow) but base isn't a sum
   def genPrimPow(level: Int) : ArithExpr = {
-    val exp = 0 + rGen.nextInt(maxExp + 1) // Positive
-//    val exp = -maxPowExp + rGen.nextInt(2*maxPowExp+1) // Positive and negative
+    val exp = minExp + rGen.nextInt(maxExp - minExp + 1)
     if (level == maxDepth) {
       val base = genLeaf()
       updateCstFactor(SimplifyPow(base, exp))
@@ -211,6 +227,7 @@ object SumProdEvaluator {
     }
   }
 
+  // Generate a random non-simplified sum or product with equal chances
   def genExpr() : ArithExpr = {
     val isSum = rGen.nextBoolean()
     if (isSum) genSum(1)
@@ -222,22 +239,22 @@ object SumProdEvaluator {
     Await.result(Future(f), timeoutMs milliseconds)
   }
 
-
-  // Evaluating sum simplification
+  // Generate a random non-simplified sum and simplify using general simplifier
+  // Evaluate both non-simplified and simplified form given mappings for variables
+  // Measure (average) runtime of simplification and keep track of number of terms for the generated sum
+  // Write results into files
   def evalSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                         csvw: PrintWriter) : Boolean = {
     try {
       runWithTimeout(5000*3) {
-        numTermsFactors = 0
-//        numTotalTerms = 0
         val randomSum = genSum(level=1)
         txtw.write(s"Generated sum: $randomSum\n")
+        // Simplify the generated sum three times and take the average runtime in ms
         val t1 = System.nanoTime
-//        val simplifiedSum = ExprSimplifier(randomSum)
         var simplifiedSum = ExprSimplifier(randomSum)
         simplifiedSum = ExprSimplifier(randomSum)
         simplifiedSum = ExprSimplifier(randomSum)
-        val duration = (System.nanoTime - t1) / 3e6d // Runtime in ms
+        val duration = (System.nanoTime - t1) / 3e6d
         val durRounded = f"$duration%.3f"
         txtw.write(s"Simplified sum: $simplifiedSum\n")
         val randomSumEval = ArithExpr.substitute(randomSum, subs)
@@ -246,18 +263,20 @@ object SumProdEvaluator {
         txtw.write(s"Evaluation of simpl. sum: $simplifiedSumEval\n")
         txtw.write(s"Runtime of simplification: $durRounded\n")
         val isEq = randomSumEval == simplifiedSumEval
-        val len = simplifiedSum.getTerms.length
+        val len = simplifiedSum.getTerms.length // Number of terms of generated sum
         if (isEq) csvw.write(s"$len,$durRounded\n")
-        else txtw.write("Evals don't match, inspect manually!\n")
+        else txtw.write("Evals don't match!\n")
         txtw.write(s"\n")
         isEq
       }
     }
     catch {
+      // Timed out
       case _:TimeoutException =>
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
+      // Memory issue with factorisation
       case _:OutOfMemoryError | _:StackOverflowError =>
         txtw.write(s"Memory issue with factorisation\n\n")
         numTimedOut += 1
@@ -265,13 +284,18 @@ object SumProdEvaluator {
     }
   }
 
-  def evalSumTest(id:Int) : Unit = {
-    // Seed
+  // Experiment for evaluating sum simplification
+  // Generates 500 + 10 random sums and simplify them. Verify correctness and analyse performance of simplification
+  // Txt file for verifying correctness
+  // Csv file for analysing performance
+  def evalSumTest() : Unit = {
     rGen.setSeed(250)
     // Files for logging
-    val evalExprFile = new File(s"evalSum$id.txt")
-    val evalRuntimeFile = new File(s"evalSum$id.csv")
+    val evalExprFile = new File(s"evalSum.txt")
+    val evalRuntimeFile = new File(s"evalSum.csv")
     val txtWriter = new PrintWriter(evalExprFile)
+
+    // To analyse relationship between the number of terms and runtime of simplification
     val csvWriter = new PrintWriter(evalRuntimeFile)
     val header = "Number of terms,Runtime\n"
     csvWriter.write(header)
@@ -279,6 +303,10 @@ object SumProdEvaluator {
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
 
+    // Parameters
+    minSize = 3; maxSize = 7; minCst = -128; maxCst = 128; maxExp = 5
+    val numTrialsRaw = 500
+    val numTrials: Int = numTrialsRaw + offset // First offset (10) runs do not count
     txtWriter.write("Parameter settings\n")
     txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
     txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
@@ -291,24 +319,29 @@ object SumProdEvaluator {
       val passed = evalSumComparison(valMap,txtWriter, csvWriter)
       if (passed) numPassed += 1
     }
+
+    // Correctness verification results
     txtWriter.write(s"Passed: $numPassed\n")
     txtWriter.write(s"Timed out: $numTimedOut\n")
-    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.write(s"Failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
     csvWriter.close()
   }
 
-  // Evaluating product simplification without any sum factors
+  // Generate a random non-simplified product without a sum factor and simplify using general simplifier
+  // Evaluate both non-simplified and simplified form given mappings for variables
+  // Measure (average) runtime of simplification
+  // Write results into files
   def evalProdPrimComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                          csvw: PrintWriter) : Boolean = {
     val randomProd = genPrimProd(level=1)
     txtw.write(s"Generated prod: $randomProd\n")
+    // Simplify the generated product three times and take the average runtime in ms
     val t1 = System.nanoTime
-//    val simplifiedProd = ExprSimplifier(randomProd)
     var simplifiedProd = ExprSimplifier(randomProd)
     simplifiedProd = ExprSimplifier(randomProd)
     simplifiedProd = ExprSimplifier(randomProd)
-    val duration = (System.nanoTime - t1) / (1e6d * 3)// Average runtime in ms
+    val duration = (System.nanoTime - t1) / (1e6d * 3)
     val durRounded = f"$duration%.3f"
     txtw.write(s"Simplified prod: $simplifiedProd\n")
     val randomProdEval = ArithExpr.substitute(randomProd, subs)
@@ -320,31 +353,39 @@ object SumProdEvaluator {
       csvw.write(s"$durRounded\n")
       txtw.write(s"$durRounded\n")
     }
-    else txtw.write("Evals don't match, inspect manually!\n")
+    else txtw.write("Evals don't match!\n")
     txtw.write(s"\n")
     isEq
   }
 
-  def evalProdPrimTest(id:Int) : Unit = {
-    // Seed
+  // Experiment for evaluating product simplification when no sum factors present
+  // Generates 250 + 10 such products and simplify them. Verify correctness and analyse performance of simplification
+  // Txt file for verifying correctness
+  // Csv file for analysing performance
+  def evalProdPrimTest() : Unit = {
     rGen.setSeed(400)
     // File for logging
-    val evalExprFile = new File(s"evalProdPrim$id.txt")
-    val evalRuntimeFile = new File(s"evalProdPrim$id.csv")
+    val evalExprFile = new File(s"evalProdPrim.txt")
+    val evalRuntimeFile = new File(s"evalProdPrim.csv")
     val txtWriter = new PrintWriter(evalExprFile)
     val csvWriter = new PrintWriter(evalRuntimeFile)
 
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
 
+    // Parameters
+    minSize = 3; maxSize = 7; minCst = -128; maxCst = 128; maxExp = 5
     txtWriter.write("Parameter settings\n")
     txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
     txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
-    txtWriter.write(s"Constant bounds: $minCst and $maxCst \n")
+    txtWriter.write(s"Constant bounds: $minCst and $maxCst \n\n")
 
+    // Measure runtimes
     val header = "Runtime\n"
     csvWriter.write(header)
 
+    val numTrialsRaw = 250
+    val numTrials: Int = numTrialsRaw + offset // First offset (10) runs do not count
     var numPassed = 0
     numTimedOut = 0
     for (i <- 0 until numTrials) {
@@ -352,22 +393,27 @@ object SumProdEvaluator {
       val passed = evalProdPrimComparison(valMap,txtWriter,csvWriter)
       if (passed) numPassed += 1
     }
+
+    // Correctness verification results
     txtWriter.write(s"Passed: $numPassed\n")
     txtWriter.write(s"Timed out: $numTimedOut\n")
-    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.write(s"Failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
     csvWriter.close()
   }
 
-  // Evaluating product simplification with at least one sum factor
+  // Generate a random non-simplified product with at least one sum factor and simplify using general simplifier
+  // Evaluate both non-simplified and simplified form given mappings for variables
+  // Measure (average) runtime of simplification
+  // Write results into files
   def evalProdWithSumComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter,
                              csvw: PrintWriter) : Boolean = {
     try {
       runWithTimeout(10000*3) {
         val randomProd = genProdWithSumFactor()
         txtw.write(s"Generated prod: $randomProd\n")
+        // Simplify the generated product three times and take the average runtime in ms
         val t1 = System.nanoTime
-//        val simplifiedProd = ExprSimplifier(randomProd)
         var simplifiedProd = ExprSimplifier(randomProd)
         simplifiedProd = ExprSimplifier(randomProd)
         simplifiedProd = ExprSimplifier(randomProd)
@@ -389,10 +435,12 @@ object SumProdEvaluator {
       }
     }
     catch {
+      // Timed out
       case _:TimeoutException =>
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
+      // Memory issue with factorisation
       case _:OutOfMemoryError | _:StackOverflowError =>
         txtw.write(s"Memory issue with factorisation\n\n")
         numTimedOut += 1
@@ -400,8 +448,11 @@ object SumProdEvaluator {
     }
   }
 
+  // Experiment for evaluating product simplification when at least one sum factor present
+  // Generates 250 + 10 such products and simplify them. Verify correctness and analyse performance of simplification
+  // Txt file for verifying correctness
+  // Csv file for analysing performance
   def evalProdWithSumTest(id:Int) : Unit = {
-    // Seed
     rGen.setSeed(550)
     // File for logging
     val evalExprFile = new File(s"evalProdWithSum$id.txt")
@@ -412,14 +463,19 @@ object SumProdEvaluator {
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
 
+    // Parameters
+    minSize = 3; maxSize = 5; minCst = -16; maxCst = 16; maxExp = 3
     txtWriter.write("Parameter settings\n")
     txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
     txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
     txtWriter.write(s"Constant bounds: $minCst and $maxCst\n")
 
+    // Measure runtime
     val header = "Runtime\n"
     csvWriter.write(header)
 
+    val numTrialsRaw = 250
+    val numTrials: Int = numTrialsRaw + offset // First offset (10) runs do not count
     var numPassed = 0
     numTimedOut = 0
     for (i <- 1 to numTrials) {
@@ -427,13 +483,18 @@ object SumProdEvaluator {
       val passed = evalProdWithSumComparison(valMap,txtWriter,csvWriter)
       if (passed) numPassed += 1
     }
+
+    // Correctness verification results
     txtWriter.write(s"Passed: $numPassed\n")
     txtWriter.write(s"Timed out: $numTimedOut\n")
-    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.write(s"Failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
     csvWriter.close()
   }
 
+  // Generate a random non-simplified expression and simplify using general simplifier
+  // Evaluate both non-simplified and simplified form given mappings for variables
+  // Write results into file
   def evalComparison(subs : scala.collection.Map[ArithExpr, ArithExpr], txtw : PrintWriter) : Boolean = {
     try runWithTimeout(5000) {
       val randomExpr = genExpr()
@@ -451,10 +512,12 @@ object SumProdEvaluator {
       isEq
     }
     catch {
+      // Timed out
       case _:TimeoutException =>
         txtw.write("Time out problem\n\n")
         numTimedOut += 1
         false
+      // Memory issue with factorisation
       case _:OutOfMemoryError | _:StackOverflowError =>
         txtw.write(s"Memory issue with factorisation\n\n")
         numTimedOut += 1
@@ -462,21 +525,27 @@ object SumProdEvaluator {
     }
   }
 
-  def correctnessTest(id : Int) : Unit = {
-    // Seed
+  // Experiment for evaluating correctness of simplification
+  // Generates 750 + 10 random expressions and simplify them
+  // Check that they evaluate to same value given mappings for variables
+  def correctnessTest() : Unit = {
     rGen.setSeed(100)
     // File for logging
-    val evalExprFile = new File(s"evalExpr$id.txt")
+    val evalExprFile = new File(s"evalExpr.txt")
     val txtWriter = new PrintWriter(evalExprFile)
 
     txtWriter.write("Variable mappings\n")
     txtWriter.write(s"$valMap\n\n")
 
+    // Parameters
+    minSize = 2; maxSize = 5; minCst = -64; maxCst = 64; maxExp = 5
     txtWriter.write("Parameter settings\n")
     txtWriter.write(s"Size bounds: $minSize and $maxSize\n")
     txtWriter.write(s"Exponent bounds: $minExp and $maxExp\n")
-    txtWriter.write(s"Constant bounds: $minCst and $maxCst\n")
+    txtWriter.write(s"Constant bounds: $minCst and $maxCst\n\n")
 
+    val numTrialsRaw = 750
+    val numTrials: Int = numTrialsRaw + offset
     var numPassed = 0
     numTimedOut = 0
     for (i <- 0 until numTrials) {
@@ -484,23 +553,15 @@ object SumProdEvaluator {
       val passed = evalComparison(valMap,txtWriter)
       if (passed) numPassed += 1
     }
+
+    // Results
     txtWriter.write(s"Passed: $numPassed\n")
     txtWriter.write(s"Timed out: $numTimedOut\n")
-    txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
+    txtWriter.write(s"Failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
   }
 
-//  private def getNumTerms(ae: ArithExpr): Int = ae match {
-//    case _:Cst | _:Var => 1
-//    case s:Sum => s.terms.length
-//    case p:Pow =>
-//      if (p.b.isInstanceOf[Sum]) p.b.getTerms.length * p.e
-//      else 1
-//
-//    case p:Prod => p.factors.map(x => getNumTerms(x)).product
-//    case _ => 1
-//  }
-
+  // Keep any constants between minCst and maxCst
   private def updateCstFactor(ae:ArithExpr): ArithExpr = {
     ae match {
       case cst: Cst =>
@@ -529,14 +590,5 @@ object SumProdEvaluator {
         else ae
       case _ => ae
     }
-  }
-
-  def main(args: Array[String]): Unit = {
-    // Generate mappings for variables
-    for (v <- variables) {
-      valMap += v -> genCst()
-    }
-    // Run test
-    correctnessTest(0)
   }
 }
