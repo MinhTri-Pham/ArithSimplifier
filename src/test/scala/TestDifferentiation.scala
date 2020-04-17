@@ -10,11 +10,11 @@ class TestDifferentiation {
 
   @Test
   def polyTest(): Unit = {
-    assertEquals(Cst(0), Differentiate(Cst(2),x)) // Constant
-    assertEquals(Cst(2), Differentiate(2*x + 5,x)) // Linear
-    assertEquals(6*x+1, Differentiate(3*(x pow 2) + x + 5,x)) // Quadratic
-    assertEquals(2*(x pow 3) + 4 - (x pow -2) , Differentiate((Cst(1) /^ Cst(2))*(x pow 4) + 4*x + (x pow -1) + 5,x)) // Negative power
-    assertEquals(6*(x pow 2) + 2*(x pow -3) , Differentiate((Cst(1) /^ Cst(2))*(x pow 4) + 4*x + (x pow -1) + 5,x,2)) // Higher power
+    assertEquals(Cst(0), Differentiate(Cst(2),x))
+    assertEquals(Cst(2), Differentiate(2*x + 5,x))
+    assertEquals(6*x+1, Differentiate(3*(x pow 2) + x + 5,x))
+    assertEquals(2*(x pow 3) + 4 - (x pow -2) , Differentiate((Cst(1) /^ Cst(2))*(x pow 4) + 4*x + (x pow -1) + 5,x))
+    assertEquals(6*(x pow 2) + 2*(x pow -3) , Differentiate((Cst(1) /^ Cst(2))*(x pow 4) + 4*x + (x pow -1) + 5,x,2))
   }
 
   @Test

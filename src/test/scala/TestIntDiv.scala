@@ -62,9 +62,9 @@ class TestIntDiv {
 
   @Test
   def custom() : Unit = {
-//    assertEquals((7+2*n) / (3+n), 2 + 1 / (3+n))
+    assertEquals((7+2*n) / (3+n), Cst(2))
     assertEquals((7+3*n + 2*i) / (3+n), 2 + (1+n+2*i) / (3+n))
-//    assertEquals((7+3*n+2*i+i*n) / (2+n), 3+i+(1 / (2+n)))
+    assertEquals((7+3*n+2*i+i*n) / (2+n), 3+i)
     assertEquals((7+3*n+3*i+2*i*n) / (2+n), 3+i + (1+i+i*n) / (2+n))
     assertEquals((i+3*k+n*k+j*k) / (3+n+j), k + i / (3+n+j))
     assertEquals((10+2*n+3*j) / (3+n+j), 2 + (4+j) / (3+n+j))

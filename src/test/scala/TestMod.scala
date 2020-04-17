@@ -62,9 +62,9 @@ class TestMod {
 
   @Test
   def custom() : Unit = {
-    //    assertEquals((7+2*n) % (3+n), 1 % (3+n))
+        assertEquals((7+2*n) % (3+n), Cst(1))
     assertEquals((7+3*n + 2*i) % (3+n), (1+n+2*i) % (3+n))
-    //    assertEquals((7+3*n+2*i+i*n) % (2+n), 1 % (2+n))
+        assertEquals((7+3*n+2*i+i*n) % (2+n), Cst(1))
     assertEquals((7+3*n+3*i+2*i*n) % (2+n), (1+i+i*n) % (2+n))
     assertEquals((i+3*k+n*k+j*k) % (3+n+j), i % (3+n+j))
     assertEquals((10+2*n+3*j) % (3+n+j), (4+j) % (3+n+j))
@@ -77,21 +77,16 @@ class TestMod {
   }
 
   @Test
-  def sumCoprimeDivMod() : Unit = {
+  def sumTest() : Unit = {
     val n = Cst(8)
-    val c = Cst(3) // Note c and n are coprime
+    val c_1 = Cst(3)
     assertEquals(i, i / n * n + i % n)
-    assertEquals(i*c, i*c / n * n + i*c % n)
-    assertEquals(i*c+j*c, (i+j)*c / n * n + (i+j)*c % n)
-  }
-
-  @Test
-  def sumNonCoprimeDivMod(): Unit = {
-    val n = Cst(8)
-    val c = Cst(4) // Note c and n aren't coprime
+    assertEquals(i*c_1, i*c_1 / n * n + i*c_1 % n)
+    assertEquals(i*c_1+j*c_1, (i+j)*c_1 / n * n + (i+j)*c_1 % n)
+    val c_2 = Cst(4) // Note c and n aren't coprime
     assertEquals(i, i / n * n + i % n)
-    assertEquals(i*c, i*c / n * n + i*c % n)
-    assertEquals(i*c+j*c, (i+j)*c / n * n + (i+j)*c % n)
+    assertEquals(i*c_2, i*c_2 / n * n + i*c_2 % n)
+    assertEquals(i*c_2+j*c_2, (i+j)*c_2 / n * n + (i+j)*c_2 % n)
   }
 
   @Test

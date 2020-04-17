@@ -33,14 +33,6 @@ class TestFraction {
   }
 
   @Test
-  def sumTest(): Unit = {
-    val expr_1 = a*((a pow -1) + (b pow -1))*b
-    assertEquals(a+b, expr_1.toSum.get)
-    val expr_2 = a*((a /^ b) + (b /^ a))*b
-    assertEquals((a pow 2) + (b pow 2), expr_2.toSum.get)
-  }
-
-  @Test
   def uniVarCst(): Unit = {
     val e1 = a*a + a
     val e2 = a*a + 3*a + 2
