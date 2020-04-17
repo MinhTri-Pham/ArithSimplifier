@@ -36,10 +36,10 @@ object Sign extends Enumeration {
     }
   }
 
-  private def signVar(range: Interval): Sign.Value = {
-    if (range.intervalMin.sign == Sign.Positive)
+  private def signVar(range: Range): Sign.Value = {
+    if (range.rangeMin.sign == Sign.Positive)
       Sign.Positive
-    else if (range.intervalMax.sign == Sign.Negative)
+    else if (range.rangeMax.sign == Sign.Negative)
       Sign.Negative
     else
       Sign.Unknown

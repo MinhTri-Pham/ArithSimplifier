@@ -6,12 +6,19 @@ import scala.collection.mutable.ListBuffer
 object SimplifySum {
   def apply(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = addExprs(lhs, rhs)
 
-  // Adds two expressions
+  /**
+   * Adds together two expression
+   *
+   * @param lhs   Left-hand-side expression
+   * @param rhs   Right-hand-side expression
+   * @return      Result of adding the two expressions
+   */
+
   def addExprs(lhs : ArithExpr, rhs : ArithExpr) : ArithExpr = {
     var lhsTerms, rhsTerms: List[ArithExpr] = List[ArithExpr]()
     (lhs,rhs) match {
 
-      // Work with sum representation if possible
+      // Work with sum representation of both sides if possible
       case (Sum(lhsTs), Sum(rhsTs)) =>
         lhsTerms = lhsTs
         rhsTerms = rhsTs
@@ -29,12 +36,21 @@ object SimplifySum {
     mergeTerms(lhsTerms, rhsTerms)
   }
 
-  // Determine result of addition given the terms of expressions to be added
+  /**
+   * Merges together term lists of the two expressions to be added
+   *
+   * @param lhsTerms   Term list of left-hand-side expression
+   * @param rhsTerms   Term list of right-hand-side expression
+   * @return           Result of adding the two corresponding expressions
+   */
+
   def mergeTerms(lhsTerms : List[ArithExpr], rhsTerms : List[ArithExpr]) : ArithExpr = {
+    // The terms of the result of addition, initialise with lhs terms
     var merged = ListBuffer[ArithExpr]()
     merged = merged.addAll(lhsTerms)
     var i = 0
     var simplified = false
+    // Try to combine rhs terms with a lhs term, one by one
     for (rhsTerm <- rhsTerms) {
       var combined = false
       val n = merged.length
@@ -42,9 +58,8 @@ object SimplifySum {
       while (i < n) {
         val term = merged(i)
         val newTerm = combineTerms(term, rhsTerm)
+        // Successfully combined a rhs term with a lhs term
         if (newTerm.isDefined) {
-//          if (newTerm.get == Cst(0)) merged = Helper.removeAt(i,merged)
-//          else merged = Helper.replaceAt(i,newTerm.get,merged)
           merged = Helper.replaceAt(i,newTerm.get,merged)
           combined = true
           simplified = true
@@ -52,13 +67,25 @@ object SimplifySum {
         }
         i += 1
       }
+      // Didn't manage to combine a rhs term, so just add it to result term list
       if (!combined) merged += rhsTerm
     }
+    // Recursively add new terms together in case more simplification can be done on them
     if (simplified) merged.reduce(_ + _)
-    else convert(merged.toList)
+    else {
+      if (merged.isEmpty) Cst(0) // The terms cancel each other out completely, result is 0
+      else if (merged.size == 1) merged.head // Only one term left after simplifying, this is the result
+      else Sum(merged.toList.sortWith(ArithExpr.isCanonicallySorted))
+    }
   }
 
-  // Tries to combine a pair of terms
+  /**
+   * Try to combine a pair of terms.
+   *
+   * @param lhs The first term
+   * @param rhs The second term
+   * @return An option containing an expression if the terms can be combined, None otherwise
+   */
   def combineTerms(lhs: ArithExpr, rhs: ArithExpr) : Option[ArithExpr] = (lhs, rhs) match {
 
     // Special values
@@ -79,13 +106,5 @@ object SimplifySum {
     case (p:Prod,x) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
     case (x, p:Prod) if p.nonCstFactor == x => Some(Cst(1 + p.cstFactor) * x)
     case _ => None
-  }
-
-  // Given list of terms of simplified result, determine resulting expression
-  // If result is a sum, sort terms in canonical order
-  def convert(terms: List[ArithExpr]): ArithExpr = {
-    if (terms.isEmpty) Cst(0) // Eliminated everything, so result is 0
-    else if (terms.length == 1) terms.head // Simplifies to a primitive expression
-    else Sum(terms.sortWith(ArithExpr.isCanonicallySorted)) // Have a sum, sort terms for subsequent use
   }
 }

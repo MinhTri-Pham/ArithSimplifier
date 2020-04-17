@@ -8,6 +8,8 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
+// For evaluating performance of factorisation
+
 object FactoriseEvaluator {
   // Possible variables
   val av: Var = Var("a")
@@ -28,8 +30,8 @@ object FactoriseEvaluator {
   val variables: Seq[Var] = List[Var](av,bv,cv,dv,ev,fv,gv,hv,iv,jv,kv,lv,mv,nv)
   val numPossibleVars: Int = variables.length
 
-  val maxSumFactorLen = 3 // Max number of terms in sum factor
-  val minSumFactorLen = 3 // Min number of terms in sum factor
+  val maxSumFactorLen = 3 // Max number of terms in each factor
+  val minSumFactorLen = 3 // Min number of terms in each factor
 
   val maxNumFactors = 3 // Max number of factors in original product
   val minNumFactors = 2 // Min number of factors in original product
@@ -40,17 +42,15 @@ object FactoriseEvaluator {
 
   def genVar() : Var = variables(rGen.nextInt(numPossibleVars))
 
-  def genSum() : ArithExpr = {
-    var terms = genSumTerms()
-    while(ComputeGCD.commonTermList(terms) != Cst(1)) terms = genSumTerms()
-    Sum(terms)
-  }
+  def genSum() : ArithExpr = Sum(genSumTerms())
 
+  // Generates terms for each factor of generated product
   def genSumTerms() : List[ArithExpr] = {
     val terms = new ListBuffer[ArithExpr]()
     val numTerms = minSumFactorLen + rGen.nextInt((maxSumFactorLen - minSumFactorLen) + 1)
     val vars = new ListBuffer[Var]()
     for (_ <- 0 until numTerms) {
+      // Choose variable at random, making sure that they are always different
       var v = genVar()
       while (vars.contains(v)) v = genVar()
       vars += v
@@ -59,6 +59,7 @@ object FactoriseEvaluator {
     terms.toList
   }
 
+  // Generate random factorisation
   def genProd() : ArithExpr  = {
     val numFactors = minNumFactors + rGen.nextInt((maxNumFactors - minNumFactors) + 1)
     val factors = new ListBuffer[ArithExpr]()
@@ -144,51 +145,6 @@ object FactoriseEvaluator {
       }
     }
     success
-
-
-//    try {
-//      runWithTimeout(timeout) {
-//        val randomProd = genProd()
-//        val randomProdAsSum = randomProd.toSum.get
-//        txtw.write(s"Generated prod: $randomProd\n")
-//        txtw.write(s"Expanded form: $randomProdAsSum\n")
-//        val t1 = System.nanoTime
-////        val factorisation = Factorise(randomProdAsSum)
-//        var factorisation = Factorise(randomProdAsSum)
-//        factorisation = Factorise(randomProdAsSum)
-//        factorisation = Factorise(randomProdAsSum)
-//        val duration = (System.nanoTime - t1) / (1e6d*3) // Runtime in ms
-//        val durRounded = f"$duration%.3f"
-//        if (factorisation.isDefined) {
-//          val numFactors = Factorise.numFactorsTried
-//          txtw.write(s"Factorisation of expanded form: ${factorisation.get}\n")
-//          val isEq = factorisation.get == randomProd
-//          if (isEq) {
-//            csvw.write(s"$numFactors, $durRounded\n")
-//            txtw.write(s"$numFactors, $durRounded\n")
-//          }
-//          else txtw.write("Factorisation and original product not same!\n")
-//          txtw.write(s"\n")
-//          isEq
-//        }
-//        else {
-//          txtw.write(s"Couldn't factorise!\n\n")
-//          false
-//        }
-//      }
-//    }
-//    catch {
-//      case _:TimeoutException =>
-//        txtw.write(s"${Factorise.numFactorsTried}, $timeout\n")
-//        txtw.write("Time out problem\n\n")
-//        numTimedOut += 1
-//        false
-//      case _:OutOfMemoryError | _:StackOverflowError =>
-//        txtw.write(s"${Factorise.numFactorsTried}, $timeout\n")
-//        txtw.write(s"Factorisation memory issue\n\n")
-//        numTimedOut += 1
-//        false
-//    }
   }
 
   def evaluate(id: Int) : Unit = {
@@ -218,9 +174,5 @@ object FactoriseEvaluator {
     txtWriter.write(s"Possibly failed: ${numTrials - numPassed - numTimedOut}")
     txtWriter.close()
     csvWriter.close()
-  }
-
-  def main(args: Array[String]): Unit = {
-    evaluate(1)
   }
 }

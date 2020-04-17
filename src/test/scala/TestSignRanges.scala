@@ -24,8 +24,8 @@ class TestSignRanges {
 
   @Test
   def intervalArithmetic(): Unit = {
-    val a = Var("a", Interval(2,4))
-    val b = Var("b", Interval(-5,3))
+    val a = Var("a", Range(2,4))
+    val b = Var("b", Range(-5,3))
     val e_1 = a+b
     assertEquals(Sign.Unknown,e_1.sign)
     assertEquals(Cst(-3),e_1.min)
@@ -38,7 +38,7 @@ class TestSignRanges {
     assertEquals(Sign.Positive,e_3.sign)
     assertEquals(Cst(0),e_3.min)
     assertEquals(Cst(25),e_3.max)
-    val c = Var("c", Interval(-7,-2))
+    val c = Var("c", Range(-7,-2))
     val e_5 = a*c
     assertEquals(Sign.Negative,e_5.sign)
     assertEquals(Cst(-28),e_5.min)
@@ -46,7 +46,7 @@ class TestSignRanges {
   }
 
   def floorWithRange(): Unit = {
-    val a = Var("a", Interval(2,4))
+    val a = Var("a", Range(2,4))
     val e_1 = a pow -1
     assertEquals(Cst(0),floor(e_1))
     assertEquals(Cst(1),ceil(e_1))
@@ -56,22 +56,22 @@ class TestSignRanges {
 
   @Test
   def intDivWithRanges(): Unit = {
-    val i = Var("i", Interval(2,3))
+    val i = Var("i", Range(2,3))
     assertEquals(Cst(1), (3+i) / (2+i))
     assertEquals(Cst(2), (4+3*i)  / (2+i))
-    val j = Var("j", Interval(4,7))
-    assertEquals(3+i, (7+3*j+2*i+i*j) / (2+j))
-    assertEquals(3+i, (7+3*j+3*i+i*j) / (2+j))
+    val j = Var("j", Range(4,7))
+    assertEquals(3+i, (7+2*i+3*j+i*j) / (2+j))
+    assertEquals(3+i, (7+3*i+3*j+i*j) / (2+j))
     assertEquals(Cst(2), (6+2*i+3*j) / (3+i+j))
   }
 
   @Test
   def modDivWithRanges(): Unit = {
-    val i = Var("i", Interval(2,3))
+    val i = Var("i", Range(2,3))
     assertEquals(Cst(1), (3+i) % (2+i))
     assertEquals(i, (4+3*i)  % (2+i))
-    val j = Var("j", Interval(4,7))
-    assertEquals(Cst(1),(7+3*j+2*i+i*j) % (2+j))
+    val j = Var("j", Range(4,7))
+    assertEquals(Cst(1),(7+2*i+3*j+i*j) % (2+j))
     assertEquals(1+i,(7+3*j+3*i+i*j) % (2+j))
     assertEquals(j, (6+2*i+3*j) % (3+i+j))
   }

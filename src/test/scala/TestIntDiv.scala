@@ -14,7 +14,7 @@ class TestIntDiv {
 
   @Test
   def intDivOne(): Unit = {
-    assertEquals(m, m/1)
+    assertEquals(m*n, (m*n)/1)
   }
 
   @Test

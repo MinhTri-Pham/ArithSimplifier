@@ -13,26 +13,28 @@ abstract sealed class ArithExpr {
   // Addition operator
   def +(that: ArithExpr) : ArithExpr = SimplifySum(this, that)
 
-  // Subtraction operator (x-y = x+(-1)*y)
+  // Subtraction operator: x-y = x+(-1)*y
   def -(that : ArithExpr) : ArithExpr = SimplifySum(this, Cst(-1)*that)
 
   // Multiply operator
   def *(that: ArithExpr) : ArithExpr = SimplifyProd(this, that)
 
-  // Ordinary division operator (x/y = x*(y pow -1))
+  // Ordinary division operator: x/^y = x*(y pow -1)
   def /^(that: ArithExpr) : ArithExpr = SimplifyProd(this, that pow -1)
 
-  // Raising to power operator
+  // Raising to power
   def pow(that: Int) : ArithExpr = SimplifyPow(this, that)
 
-  // Integer division
+  // Integer division:
   def /(that: ArithExpr) : ArithExpr =
-    // Require both operators are positive
+    // Require both operands have integer values
     if (!this.isInt || !that.isInt) throw new ArithmeticException
     else {
+      // Use floor or ceiling depending on signs of operands
+      // x / y = floor(x*y^(-1)) if both operands positive or both operands negative
+      // x / y = ceiling(x*y^(-1)) if one operand positive and operand negative
       (this.sign, that.sign) match
       {
-        // Use floor or ceiling depending on signs
         case (Sign.Positive, Sign.Positive) | (Sign.Negative, Sign.Negative) => SimplifyFloor(this * (that pow -1))
         case (Sign.Positive, Sign.Negative) | (Sign.Negative, Sign.Positive) => SimplifyCeiling(this * (that pow -1))
         // For now use floor if signs undetermined
@@ -40,8 +42,7 @@ abstract sealed class ArithExpr {
       }
     }
 
-
-  // Modulo operator
+  // Modulo operator: x % y = x/y as defined above
   def %(that: ArithExpr) : ArithExpr =
     if (!this.isInt || !that.isInt) throw new ArithmeticException
     else this - ((this / that) * that)
@@ -50,11 +51,6 @@ abstract sealed class ArithExpr {
   def diff(v:Var) : ArithExpr = Differentiate(this,v)
   def diff(v:Var, n:Int) : ArithExpr = Differentiate(this,v,n)
 
-  // Convert expression to variable if possible
-  lazy val toVar : Option[Var] = this match {
-    case x: Var => Some(x)
-    case _ => None
-  }
 
   // Convert expression to sum if possible
   lazy val toSum : Option[Sum] = this match {
@@ -78,16 +74,16 @@ abstract sealed class ArithExpr {
 
   lazy val (min: ArithExpr, max: ArithExpr) = _minmax()
 
-  // Min and max if possible
+  // Min and max of an expression
   private def _minmax(): (ArithExpr, ArithExpr) = this match {
     case c:Cst => (c,c)
-    case v:Var => (v.range.intervalMin, v.range.intervalMax)
+    case v:Var => (v.range.rangeMin, v.range.rangeMax)
     case PosInf => (PosInf, PosInf)
     case NegInf => (NegInf, NegInf)
-    case s:Sum => (s.terms.map(_.min).reduce[ArithExpr](_ + _), s.terms.map(_.max).reduce[ArithExpr](_ + _))
+    case Sum(terms) => (terms.map(_.min).reduce[ArithExpr](_ + _), terms.map(_.max).reduce[ArithExpr](_ + _))
     case p:Prod =>
-      val prodInterval = Interval.computeIntervalProd(p.factors)
-      (prodInterval.intervalMin, prodInterval.intervalMax)
+      val prodInterval = Range.computeIntervalProd(p.factors)
+      (prodInterval.rangeMin, prodInterval.rangeMax)
     case c: CeilingFunction => (ceil(c.ae.min), ceil(c.ae.max))
     case f: FloorFunction => (floor(f.ae.min), floor(f.ae.max))
     case Pow(b,e) =>
@@ -106,9 +102,7 @@ abstract sealed class ArithExpr {
             if (comp.get) (Cst(0), x2)
             else (Cst(0),x1)
           }
-          else {
-            (Cst(0), ?)
-          }
+          else (Cst(0), PosInf)
         }
       }
       else {
@@ -119,25 +113,25 @@ abstract sealed class ArithExpr {
         if (b.sign.equals(Sign.Positive)) return (b.max pow e, b.min pow e)
         if (b.sign.equals(Sign.Negative)) return (b.min pow e, b.max pow e)
         // Sign of base unknown
-        if (e % 2 == 0) (Cst(0), ?)
+        if (e % 2 == 0) (Cst(0), PosInf)
         // Odd negative easy
         else (?, ?)
       }
     case AbsFunction(expr) =>
       (ArithExpr.min(abs(expr.min), abs(expr.max)),
         ArithExpr.max(abs(expr.min), abs(expr.max)))
-    case l: LogFunction if l.b > 1 => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
-    case l: LogFunction if l.b < 1 => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
+    case l: LogFunction => (LogFunction(l.b, l.ae.min), LogFunction(l.b, l.ae.max))
     case _ => (?,?)
   }
 
+  // Whether the expression has a numerical value
   lazy val isEvaluable: Boolean = {
     !ArithExpr.visitUntil(this, x => {
       x.isInstanceOf[Var] || x == PosInf || x == NegInf || x == ?
     })
   }
 
-  // Indicates whether an expression is an integer
+  // Whether an expression is an integer
   lazy val isInt : Boolean = this match {
     case _: Cst => true
     case v: Var => v.isInteger
@@ -210,7 +204,7 @@ case class Cst(value : Long) extends ArithExpr {
 }
 
 // Variables
-case class Var (name : String, range: Interval = Interval(), fixedId: Option[Long] = None, isInteger:Boolean = true) extends ArithExpr {
+case class Var (name : String, range: Range = Range(), fixedId: Option[Long] = None, isInteger:Boolean = true) extends ArithExpr {
 
   override lazy val hashCode: Int = 8 * 79 + id.hashCode
 
@@ -253,14 +247,14 @@ object Var {
       _id
   }
 
-  def apply(name: String): Var = new Var(name, Interval())
+  def apply(name: String): Var = new Var(name, Range())
 
-  def apply(name: String, isInt: Boolean): Var = new Var(name, Interval(),None,isInt)
+  def apply(name: String, isInt: Boolean): Var = new Var(name, Range(),None,isInt)
 }
 
 // Negative variables
 object NegVar{
-  def apply(name: String): Var = new Var(name, Interval(NegInf, Cst(-1)))
+  def apply(name: String): Var = new Var(name, Range(NegInf, Cst(-1)))
 }
 
 // Sums
@@ -311,7 +305,7 @@ case class Sum(terms: List[ArithExpr]) extends ArithExpr {
 }
 
 object Sum {
-  // Convert any expression to sum if possible
+  // Represent any expression as sum if possible
   def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
     case aexpr: ArithExpr => aexpr match {
       case s: Sum => Some(s.terms)
@@ -338,19 +332,19 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
     case _ => 1
   }
 
-  // List of non-constant factors
+  // List of non-constant factors, e.g. 2ab -> [a,b]
   lazy val nonCstList : List[ArithExpr] = {
     factors.filter(!_.isInstanceOf[Cst])
   }
 
-  // Non-constant factor
+  // Non-constant factor e.g. 2ab -> ab
   lazy val nonCstFactor : ArithExpr = {
     if (cstFactor == 1) this
     else this.nonCstList.reduce((x, y) => x*y)
   }
 
 
-  // Sum where all scalar multiples are expanded, e.g. 2a+b = a+a+b
+  // Sum where all scalar multiples are expanded, e.g. 2a+b -> a+a+b
   lazy val asNonCstFactorsSum : Option[Sum] = if (factors.length < 2 || cstFactor < 2) None else {
     val terms = ListBuffer[ArithExpr]()
     for (_ <- 0L until cstFactor) {
@@ -443,7 +437,7 @@ case class Prod(factors: List[ArithExpr]) extends ArithExpr {
 }
 
 object Prod {
-  // Convert an expression into a product if possible
+  // Represent an expression as a product if possible
   def unapply(ae: Any): Option[List[ArithExpr]] = ae match {
     case aexpr: ArithExpr => aexpr match {
       case p: Prod => Some(p.factors)
@@ -498,7 +492,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
         Some(Prod(flattened))
       }
       else Some(Prod(pfacts))
-    // Or when a sum can be factorised as product
+    // Or base is a sum that can be factorised as product
     case _:Sum =>
       if (b.toProd.isDefined) {
         val bfacts = b.toProd.get.factors
@@ -522,11 +516,7 @@ case class Pow(b: ArithExpr, e: Int) extends ArithExpr {
   override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(b.visitAndRebuild(f).pow(e))
 }
-
-object abs {
-  def apply(ae: ArithExpr): ArithExpr = SimplifyAbs(ae)
-}
-
+// Absolute value
 case class AbsFunction(ae: ArithExpr) extends ArithExpr {
 
   override val HashSeed = 0x3570a2ce
@@ -537,6 +527,10 @@ case class AbsFunction(ae: ArithExpr) extends ArithExpr {
 
   override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr =
     f(abs(ae.visitAndRebuild(f)))
+}
+
+object abs {
+  def apply(ae: ArithExpr): ArithExpr = SimplifyAbs(ae)
 }
 
 // Floor
@@ -605,6 +599,7 @@ object ArithExpr {
       case (_: Var, _) => true // variables always after constants second
       case (_, _: Var) => false
       case (p1: Prod, p2: Prod) =>
+        // Shorter products first
         if (p1.factors.length < p2.factors.length) true
         else if (p2.factors.length < p1.factors.length) false
         else {
@@ -612,6 +607,7 @@ object ArithExpr {
           var isSorted = false
           var i = 0
           while (i < n) {
+            // Find first different factor and order according to these
             if (p1.factors(i) != p2.factors(i)) {
               isSorted = isCanonicallySorted(p1.factors(i),p2.factors(i))
               i = n
@@ -624,6 +620,7 @@ object ArithExpr {
     }
   }
 
+  // Evaluates an expression given substitutions for variables
   def substitute(e: ArithExpr, substitutions: scala.collection.Map[ArithExpr, ArithExpr]): ArithExpr =
     e.visitAndRebuild(expr =>
       if (substitutions.isDefinedAt(expr))
@@ -631,27 +628,6 @@ object ArithExpr {
       else
         expr
     )
-
-  // Evaluates an expression given constant substitutions for variables
-  def evaluate(expr: ArithExpr, subs : scala.collection.Map[Var, Cst]) : Long = expr match {
-    case Cst(c) => c
-    case v: Var => findSubstitute(v, subs)
-    case s:Sum => s.terms.foldLeft(0L) { (accumulated, term) => accumulated + evaluate(term, subs)}
-    case p:Prod => p.factors.foldLeft(1L) { (accumulated, factor) => accumulated * evaluate(factor, subs)}
-    case Pow(b,e) => scala.math.pow(evaluate(b,subs),e).toInt
-    case FloorFunction(ae) => scala.math.floor(evaluate(ae,subs)).toLong
-    case CeilingFunction(ae) => scala.math.ceil(evaluate(ae,subs)).toLong
-    case AbsFunction(ae) => scala.math.abs(evaluate(ae,subs))
-    case _ => throw NotEvaluable
-  }
-
-  // Find if variable contained in mapping
-  private def findSubstitute(variable: Var, replacements : scala.collection.Map[Var, Cst]) : Long = {
-    for ((varSub, Cst(n)) <- replacements) {
-      if (variable == varSub) return n
-    }
-    throw NotEvaluable
-  }
 
   // Expands product of two expressions into a sum if possible
   def expand(e1: ArithExpr, e2: ArithExpr) : Option[Sum] = (e1,e2) match {
@@ -692,19 +668,26 @@ object ArithExpr {
 
   // Check if an expression is a multiple of another expression
   def isMultipleOf(ae1: ArithExpr, ae2: ArithExpr) : Boolean = (ae1, ae2) match {
-    // Check multiple of constants
     case (Cst(c1), Cst(c2)) => c1 % c2 == 0
     case (p:Prod, c:Cst) => p.cstFactor % c.value == 0
+
     case (Pow(b1, e1), Pow(b2, e2)) if e1 >= e2 && e2 > 0 => isMultipleOf(b1, b2)
     case (Pow(b1, e1), Pow(b2, e2)) if e1 <= e2 && e2 < 0 => isMultipleOf(b1, b2)
     case (p:Pow, _) if p.e > 0 => isMultipleOf(p.b,ae2)
+
+    // Two products p1 and p2 - check that for each factor f of p2, there exists a factor g of p1 such that
+    // g is a multiple of ab
+    // 2(a^2)b multiple of ab but not multiple of ab^2 (no multiple of b^2 in 2(a^2)b)
     case (p1:Prod, p2:Prod) =>
       val p1Factors = p1.factors
       val p2Factors = p2.factors
       p2Factors.forall(factor => p1Factors.exists(isMultipleOf(_, factor)))
+
+    // Product p and expression x
+    // Check whether p has x as a factor if it contains a factor that is a multiple of x
     case (p:Prod, _) => p.factors.contains(ae2) ||
       p.factors.foldLeft(false){(accum,factor) => accum || isMultipleOf(factor,ae2)}
-    case (x, y) => x == y
+    case (x, y) => x == y // Two identical expressions are multiples of each other
     case _ => false
   }
 
@@ -712,15 +695,6 @@ object ArithExpr {
   def isSmaller(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
     if (ae1 == ? | ae2 == ?)
       return None
-
-    try {
-      // we check to see if the difference can be evaluated
-      val diff = ae2 - ae1
-      if (diff.isEvaluable)
-        return Some(diff.evalDouble > 0)
-    } catch {
-      case NotEvaluableException() =>
-    }
 
     var lhsNonCommon = ae1
     var rhsNonCommon = ae2
@@ -735,7 +709,9 @@ object ArithExpr {
       case (NegInf, _) if ae2.isEvaluable => return Some(true)
       case (_, NegInf) if ae1.isEvaluable => return Some(false)
       case (_, PosInf) if ae1.isEvaluable => return Some(true)
-      case (s1:Sum,s2:Sum)=>
+
+      case (Cst(c1), Cst(c2)) => return Some(c1 < c2)
+      case (s1:Sum,s2:Sum) =>
         // Two sums: filter out common terms first
         // Example: x+y < y+z if x < z (assuming y has a finite range)
         val ae1Terms = s1.terms
@@ -752,7 +728,7 @@ object ArithExpr {
           else if (ae2diff.length == 1) rhsNonCommon = ae2diff.head
           else rhsNonCommon = Sum(ae2diff)
         }
-      // Product or powers present: take out common term
+      // Product or powers present: take out common factor
       case (_:Prod, _) | (_, _:Prod) | (_:Pow, _) | (_, _:Pow) =>
         var ae1NonCommon = ae1
         var ae2NonCommon = ae2
@@ -760,9 +736,6 @@ object ArithExpr {
         if (gcd != Cst(1)) {
           ae1NonCommon = ae1 /^ gcd
           ae2NonCommon = ae2 /^ gcd
-          // If signs of common or uncommon parts not known, can't determine
-          if (gcd.sign == Sign.Unknown || ae1NonCommon.sign == Sign.Unknown || ae2NonCommon.sign == Sign.Unknown)
-            return None
           // Depending on signs on gcd and uncommon parts, determine further action
           (gcd.sign, ae1NonCommon.sign, ae2NonCommon.sign) match {
             case (Sign.Positive, Sign.Positive, Sign.Positive) =>
@@ -782,30 +755,22 @@ object ArithExpr {
               return Some(true)
             case (Sign.Negative, Sign.Negative, Sign.Positive) =>
               return Some(false)
-            // Neg, Neg, Pos
-            case _ =>
+            case (Sign.Negative, Sign.Negative, Sign.Positive) =>
               lhsNonCommon = ae1NonCommon
               rhsNonCommon = ae2NonCommon
+            case _ => // Unknown signs - keeps lhsNonCommon as ae1 and rhsNonCommon as ae2
           }
         }
-        None
-      // Keep going
       case _ =>
     }
 
-    try {
-      val lhsNonCommonMinEval = lhsNonCommon.min.evalDouble
-      val lhsNonCommonMaxEval = lhsNonCommon.max.evalDouble
-      val rhsNonCommonMinEval = rhsNonCommon.min.evalDouble
-      val rhsNonCommonMaxEval = rhsNonCommon.max.evalDouble
-      if (lhsNonCommonMinEval <= rhsNonCommonMaxEval && rhsNonCommonMinEval <= lhsNonCommonMaxEval) return None
-      else return Some(lhsNonCommonMaxEval < rhsNonCommonMinEval)
-
-    } catch {
-      case NotEvaluableException() =>
-    }
-
-    None // Can't determine if ae1 < ae2
+    // Try to evaluate difference
+    val diff = rhsNonCommon - lhsNonCommon
+    if (diff.isEvaluable) return Some(diff.evalDouble > 0)
+    // Try to evaluate min and max difference
+    val minMaxDiff = rhsNonCommon.min - lhsNonCommon.max
+    if (minMaxDiff.isEvaluable) Some(minMaxDiff.evalDouble > 0)
+    else None
   }
 
   // Check if an expression is a bigger than another expression
@@ -817,16 +782,6 @@ object ArithExpr {
     else None
   }
 
-  def isSmallerOrEqual(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
-    if (ae1 == ae2) return Some(true)
-    isSmaller(ae1,ae2)
-  }
-
-  def isBiggerOrEqual(ae1: ArithExpr, ae2: ArithExpr) : Option[Boolean] = {
-    if (ae1 == ae2) return Some(true)
-    isBigger(ae1,ae2)
-  }
-
   // Min of two expressions
   def min(e1: ArithExpr, e2: ArithExpr) : ArithExpr = {
     if (e1 == e2) return e1
@@ -835,9 +790,10 @@ object ArithExpr {
       if (comp.get) return e1
       else return e2
     }
-    ?
+    ? // Min unknown
   }
 
+  // Max of two expressions
   def max(e1: ArithExpr, e2: ArithExpr) : ArithExpr = {
     if (e1 == e2) return e1
     val comp = isBigger(e1, e2)
@@ -845,16 +801,16 @@ object ArithExpr {
       if (comp.get) return e1
       else return e2
     }
-    ?
+    ? // Max unknown
   }
 
 
-  // Minimum of expressions
+  // Minimum of more than two expressions
   def min(aes: List[ArithExpr]) : ArithExpr = {
     aes.reduce((e1, e2) => {min(e1,e2)})
   }
 
-  // Maximum of expressions
+  // Maximum of more than two expressions
   def max(aes: List[ArithExpr]) : ArithExpr = {
     aes.reduce((e1, e2) => {max(e1,e2)})
   }
@@ -902,6 +858,7 @@ case object ? extends ArithExpr {
   override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 }
 
+// Represents positive infinity
 case object PosInf extends ArithExpr {
   override val HashSeed = 0x4a3e87
 
@@ -912,6 +869,7 @@ case object PosInf extends ArithExpr {
   override def visitAndRebuild(f: ArithExpr => ArithExpr): ArithExpr = f(this)
 }
 
+// Represents negative infinity
 case object NegInf extends ArithExpr  {
   override val HashSeed = 0x4a3e87
 
