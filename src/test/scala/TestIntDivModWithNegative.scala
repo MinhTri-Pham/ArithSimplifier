@@ -52,5 +52,4 @@ class TestIntDivModWithNegative {
     assertEquals(negNumer % a, c2 - a*ceil(c2 /^a))
   }
 
-
 }

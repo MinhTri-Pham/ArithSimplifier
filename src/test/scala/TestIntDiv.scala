@@ -17,6 +17,7 @@ class TestIntDiv {
     assertEquals(m*n, (m*n)/1)
   }
 
+  // Factorisation tests, similar to hard coded rules in the Lift simplifier
   @Test
   def f1(): Unit = {
     assertEquals((c*n + m*n) / (c+m), n)
@@ -60,14 +61,33 @@ class TestIntDiv {
     assertEquals((5+j+2*n) / (2+n), 2+(1+j)/(2+n))
   }
 
+  // New examples that Lift simplifier can't simplify - with default ranges
   @Test
-  def custom() : Unit = {
-    assertEquals((7+2*n) / (3+n), Cst(2))
-    assertEquals((7+3*n + 2*i) / (3+n), 2 + (1+n+2*i) / (3+n))
-    assertEquals((7+3*n+2*i+i*n) / (2+n), 3+i)
-    assertEquals((7+3*n+3*i+2*i*n) / (2+n), 3+i + (1+i+i*n) / (2+n))
+  def customNoRange() : Unit = {
+    assertEquals((6+5*n) / (3+n), 2 + 3*n / (3+n))
+    assertEquals((2+3*i+n+i*n) / (2+n), 1+i+i/(2+n))
+    assertEquals((2+n+j+2*i+i*n) / (2+n), 1+ i + (j / (2+n)))
+    assertEquals((3+i+2*j+2*m+i*m) / (2+i), 1 + m + (1+2*j) / (2+i))
+    assertEquals((7+3*n+2*i) / (3+n), 2 + (1+n+2*i) / (3+n))
+    assertEquals((7+2*i+3*n+2*i*n) / (2+n), 3+i + (1+i*n) / (2+n))
     assertEquals((i+3*k+n*k+j*k) / (3+n+j), k + i / (3+n+j))
-    assertEquals((10+2*n+3*j) / (3+n+j), 2 + (4+j) / (3+n+j))
-    assertEquals((4+2*n+3*i+3*i*n) / (3+2*n), (1+i) + (1+i*n) / (3+2*n))
+    assertEquals((3+3*i+2*n+3*i*n) / (3+2*n), 1+i+(i*n / (3 + 2*n)))
+    assertEquals((4+2*n+3*i+3*i*n) / (3+2*n), 1+i+ (1+i*n) / (3+2*n))
+    assertEquals((i+n+i*j+2*j*n) / (i+n), 1+j+(j*n / (i+n)))
+  }
+
+  @Test
+  // New examples that Lift simplifier can't simplify - with ranges
+  def customRange() : Unit = {
+    // Examples where the positive default range is enough to cancel out remainder
+    assertEquals((3+i) / (2+i), Cst(1))
+    assertEquals((7+2*n) / (3+n), Cst(2))
+    assertEquals((7+3*n+2*i+i*n) / (2+n), 3+i)
+    val x = Var("x", Range(2,3))
+    val y = Var("y", Range(4,7))
+    assertEquals(1+x, (2+3*x+y+x*y) / (2+y))
+    assertEquals(3+x, (7+2*x+3*y+x*y) / (2+y))
+    assertEquals(3+x, (7+3*x+3*y+x*y) / (2+y))
+    assertEquals(Cst(2), (6+2*x+3*y) / (3+x+y))
   }
 }

@@ -249,7 +249,7 @@ object Var {
 
   def apply(name: String): Var = new Var(name, Range())
 
-  def apply(name: String, isInt: Boolean): Var = new Var(name, Range(),None,isInt)
+  def apply(name: String, isInt: Boolean): Var = new Var(name, Range(),None, isInteger = isInt)
 }
 
 // Negative variables

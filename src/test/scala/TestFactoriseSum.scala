@@ -112,6 +112,7 @@ class TestFactoriseSum {
     val s1 = 8*a*b + 12*a + 6*b + 9
     assertEquals(Factorise(s1), Some((4*a+3)*(2*b+3)))
 
+    // Takes a while because of constant multiples
 //    val s2 = 6*a*b + 4*a*c + 9*(b pow 2) + 6*b*c
 //    assertEquals(Factorise(s2), Some((2*a+3*b)*(3*b+2*c)))
 
