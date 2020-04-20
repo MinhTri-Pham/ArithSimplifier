@@ -13,8 +13,10 @@ class TestIntDiv {
   val n: Var = Var("n")
 
   @Test
-  def intDivOne(): Unit = {
-    assertEquals(m*n, (m*n)/1)
+  def trivialProperties(): Unit = {
+    assertEquals(i*j, (i*j)/1)
+    assertEquals(i, (i*j) / j)
+    assertEquals(i*j, (i*(j pow 2)) / j)
   }
 
   // Factorisation tests, similar to hard coded rules in the Lift simplifier

@@ -13,11 +13,15 @@ class TestMod {
   val n: Var = Var("n")
 
   @Test
-  def intDivOne(): Unit = {
-    assertEquals(Cst(0), a % 1)
+  def trivialProperties(): Unit = {
+    assertEquals(Cst(0), i % 1)
+    assertEquals(Cst(0), (i*j) % 1)
+    assertEquals(Cst(0), (i*j) % j)
+    assertEquals(Cst(0), (i*(j pow 2)) % j)
+    assertEquals(j % i, (j % i) % i)
   }
 
-  // Factorisation tests, similar to hard coded rules in the Lift simplifie
+  // Factorisation tests, similar to hard coded rules in the Lift simplifier
   @Test
   def f1(): Unit = {
     assertEquals((c*n + m*n) % (c+m), Cst(0))
@@ -88,11 +92,6 @@ class TestMod {
     assertEquals((7 + 2 * n) % (3 + n), Cst(1))
     assertEquals((7 + 3 * n + 2 * i + i * n) % (2 + n), Cst(1))
 
-  }
-
-  @Test
-  def nested(): Unit = {
-    assertEquals(j % i, (j % i) % i)
   }
 
   // Summation of int div and modulo
