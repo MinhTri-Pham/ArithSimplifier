@@ -166,10 +166,10 @@ abstract sealed class ArithExpr {
     if (getFactors.length != 2) None
     else (getFactors.head, getFactors(1)) match {
       case (s:Sum, p:Pow) =>
-        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
+        if (p.e > 0) None
         else Some(s, SimplifyPow(p.b,-p.e))
       case (p:Pow, s:Sum) =>
-        if (p.e > 0 || p.b.isInstanceOf[Cst]) None
+        if (p.e > 0) None
         else Some(s,SimplifyPow(p.b,-p.e))
       case _ => None
     }

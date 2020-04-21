@@ -17,8 +17,21 @@ class TestMod {
     assertEquals(Cst(0), i % 1)
     assertEquals(Cst(0), (i*j) % 1)
     assertEquals(Cst(0), (i*j) % j)
+    assertEquals(Cst(0), (i*(j pow 2)) % 1)
     assertEquals(Cst(0), (i*(j pow 2)) % j)
     assertEquals(j % i, (j % i) % i)
+    assertEquals(Cst(0), Cst(0) % i)
+    val p = Var("p", Range(2,4))
+    val q = Var("q", Range(6,8))
+    val r = Var("r", Range(-4,-2))
+    val s = Var("s", Range(-8,-6))
+    assertEquals(p, p % q)
+    assertEquals(r, r % s)
+    assertEquals(Cst(1), 1 % p)
+    assertEquals(1, (4 + 6*i) % 3)
+    assertEquals((1+j) % 3, (4 + j + 6*i) % 3)
+    assertEquals(j % i, (i+j) % i)
+    assertEquals( 4 % i, (4 + i*j) % i)
   }
 
   // Factorisation tests, similar to hard coded rules in the Lift simplifier
