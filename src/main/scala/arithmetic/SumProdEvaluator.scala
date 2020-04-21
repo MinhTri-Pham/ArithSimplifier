@@ -429,7 +429,7 @@ object SumProdEvaluator {
           csvw.write(s"$durRounded\n")
           txtw.write(s"$durRounded\n")
         }
-        else txtw.write("Evals don't match, inspect manually!\n")
+        else txtw.write("Evals don't match!\n")
         txtw.write(s"\n")
         isEq
       }
@@ -507,7 +507,7 @@ object SumProdEvaluator {
       txtw.write(s"Evaluation of simpl. expr: $simplifiedExprEval\n")
       val isEq = randomExprEval == simplifiedExprEval
       if (isEq) txtw.write("Evals equal\n")
-      else txtw.write("Evals don't match, inspect manually!\n")
+      else txtw.write("Evals don't match!\n")
       txtw.write(s"\n")
       isEq
     }

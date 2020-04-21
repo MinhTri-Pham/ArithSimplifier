@@ -78,7 +78,7 @@ object FactoriseEvaluator {
 
   // Generates a random factorisation
   // Expands it into a sum and tries to factorise the sum
-  // Verifies if generated factorisation and the obtained one are eqiuvalent
+  // Verifies if generated factorisation and the obtained one are equivalent
   // Measures runtime and the number of factors tried
   // Writes results into files
   def evalFactoriseComparison(txtw : PrintWriter, csvw: PrintWriter) : Boolean = {
